@@ -30,6 +30,10 @@ tests/                            # Smoke tests for every engine
 - Every returned `OutputReport` carries the full assumption list and audit results.
 - Scaling constants are never treated as free-floating “importance weights”; ranges are attached.
 
-## Non-Commercial Notice
+## License & Attribution
 
-See `NOTICE.md`. Source mathematical content remains the IP of the original authors; this repository is an archival engineering layer only.
+MIT © 2026 Ariel Lee. [See LICENSE](LICENSE).
+
+This license covers the original text in this repository. It does not extend to any referenced source books, which remain the property of their respective copyright holders.
+
+See [NOTICE.md](NOTICE.md) for full source attribution.

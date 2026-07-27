@@ -1,8 +1,14 @@
 # NOTICE
 
+## License
+
+MIT © 2026 Ariel Lee. [See LICENSE](LICENSE).
+
+This license covers the original text in this repository. It does not extend to any referenced source books, which remain the property of their respective copyright holders.
+
 ## Intellectual Property & Attribution
 
-This repository is a non-commercial archival conversion and engineering implementation of zero-order decision-mechanics drawn from publicly available sources:
+This repository is an archival conversion and engineering implementation of zero-order decision-mechanics drawn from publicly available sources:
 
 - *Algorithms to Live By* (Brian Christian & Tom Griffiths) — Optimal Stopping chapter
 - *Decisions with Multiple Objectives* (Ralph L. Keeney & Howard Raiffa)
@@ -10,11 +16,7 @@ This repository is a non-commercial archival conversion and engineering implemen
 
 All original mathematical formulations, theorems, and named rules remain the intellectual property of their respective authors and publishers. This repository does not claim ownership of any source material.
 
-The Python implementations, dispatch logic, validation invariants, Socratic elicitation contracts, and packaging are original engineering work created for research, education, and archival purposes only.
-
-## Non-Commercial Use
-
-This repository and its contents are provided for non-commercial research, education, and personal study. Commercial use, redistribution for profit, or incorporation into commercial products requires independent legal review of the underlying source licenses and permissions.
+The Python implementations, dispatch logic, validation invariants, Socratic elicitation contracts, packaging, and original engineering prose in this repository are original work by Ariel Lee and are released under the MIT License (see LICENSE).
 
 ## No Warranty
 
@@ -22,5 +24,4 @@ THE SOFTWARE AND DOCUMENTATION ARE PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY
 
 ## Contact
 
-Repository maintained by Ariel Lee (https://github.com/ariel-lee-1023).  
-For questions about the engineering layer only.
+Repository maintained by Ariel Lee (https://github.com/ariel-lee-1023).

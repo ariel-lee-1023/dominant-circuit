@@ -68,9 +68,13 @@ print(result.decision, result.formula, result.assumptions, result.audit)
 This repository is the **knowledge base + executable engines**.  
 The companion skill `dominant-circuit` (SKILL.md) is the analytical router that host AIs must follow: search this corpus first, stay in character, never invent formulas outside the zero-order set.
 
-## License & Notice
+## License
 
-See NOTICE.md. All mathematical content is derived from the cited public sources (Algorithms to Live By, Keeney & Raiffa, Kochenderfer et al.). Implementation is original engineering for non-commercial archival and research use.
+MIT © 2026 Ariel Lee. [See LICENSE](LICENSE).
+
+This license covers the original text in this repository. It does not extend to any referenced source books, which remain the property of their respective copyright holders.
+
+See also [NOTICE.md](NOTICE.md) for full attribution of the source mathematical literature.
 
 ## Anti-Cargo-Cult Rules (enforced in code)
 
