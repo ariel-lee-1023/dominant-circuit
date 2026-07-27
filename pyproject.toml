@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dominant-circuit"
+version = "0.1.0"
+description = "Master decision-mechanics router: optimal stopping, multiattribute utility, MDP/POMDP"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Non-commercial research use only — see NOTICE.md"}
+authors = [
+    {name = "Ariel Lee", email = "ariel.lee.1023@example.com"}
+]
+keywords = [
+    "optimal-stopping",
+    "secretary-problem",
+    "multiattribute-utility",
+    "MDP",
+    "POMDP",
+    "decision-theory",
+    "Bellman",
+    "value-iteration"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: Other/Proprietary License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ariel-lee-1023/dominant-circuit"
+Repository = "https://github.com/ariel-lee-1023/dominant-circuit.git"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"dominant_circuit" = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
