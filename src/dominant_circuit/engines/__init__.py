@@ -12,6 +12,20 @@ from .stopping import (
     cutoff_with_recall,
     cutoff_with_rejection,
 )
+from .multiobjective import (
+    solve_multiobjective,
+    additive_value,
+    multiplicative_utility,
+    solve_multiplicative_k,
+    efficient_frontier,
+    dominates,
+)
+from .sequential import (
+    solve_sequential,
+    belief_update,
+    value_iteration,
+    bellman_backup,
+)
 
 __all__ = [
     "solve_stopping",
@@ -26,4 +40,14 @@ __all__ = [
     "cutoff_stochastic_stop",
     "cutoff_with_recall",
     "cutoff_with_rejection",
+    "solve_multiobjective",
+    "additive_value",
+    "multiplicative_utility",
+    "solve_multiplicative_k",
+    "efficient_frontier",
+    "dominates",
+    "solve_sequential",
+    "belief_update",
+    "value_iteration",
+    "bellman_backup",
 ]

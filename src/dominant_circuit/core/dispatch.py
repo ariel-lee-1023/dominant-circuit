@@ -7,6 +7,8 @@ from ..core.verify import verify_preconditions
 from ..core.audit import run_validation_invariants, require_audit_pass
 from ..core.report import OutputReport
 from ..engines.stopping import solve_stopping
+from ..engines.multiobjective import solve_multiobjective
+from ..engines.sequential import solve_sequential
 
 
 def dispatch(job: Job | str, contract: InputContract, **kwargs) -> OutputReport:
@@ -19,9 +21,9 @@ def dispatch(job: Job | str, contract: InputContract, **kwargs) -> OutputReport:
     if job == Job.STOPPING:
         report = solve_stopping(contract)
     elif job == Job.MULTIOBJECTIVE:
-        raise NotImplementedError("Engine B (multiobjective) — implement in M6")
+        report = solve_multiobjective(contract)
     elif job == Job.SEQUENTIAL:
-        raise NotImplementedError("Engine C (sequential) — implement in M7")
+        report = solve_sequential(contract)
     else:
         raise ValueError(f"Unknown job: {job}")
 
