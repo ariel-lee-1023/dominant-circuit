@@ -5,6 +5,7 @@ from dominant_circuit import (
     dispatch, InputContract, Job, AttributeRange, IndependenceTest,
     IndependenceAssumption, IndependenceNotVerified, ContractIncomplete,
 )
+from dominant_circuit import record_independence
 from dominant_circuit.engines.multiobjective import (
     solve_multiplicative_k, efficient_frontier, run_flip_test,
     mutual_independence_holds, uncovered_independence_subsets,
@@ -276,3 +277,60 @@ def test_solve_multiobjective_reports_screened_count():
     assert report.decision["dominated_screened_out"] == ["dom"]
     # the dominated alternative never reaches the ranking
     assert "dom" not in {r["name"] for r in report.decision["ranked"]}
+
+
+# --- decreasing attributes must not be scored backwards ---------------------------
+
+def test_normalization_respects_preference_direction():
+    """c02 §3.4 fixes v(worst)=0, v(best)=1 for BOTH directions.
+
+    Regression: the decreasing branch used (best - raw)/(best - worst), which
+    inverted it — the cheapest price scored 0.0 and the most expensive 1.0. Every
+    'less is better' attribute (price, commute, risk, delay) was ranked backwards,
+    and the suite missed it because test_additive_ranking only asserted that a
+    winner existed, never which one.
+    """
+    from dominant_circuit.engines.multiobjective import _normalize
+
+    cheap_is_better = AttributeRange("price", worst=800, best=100,
+                                     monotonic_increasing=False)
+    assert _normalize(100, cheap_is_better) == pytest.approx(1.0)
+    assert _normalize(800, cheap_is_better) == pytest.approx(0.0)
+    assert _normalize(450, cheap_is_better) == pytest.approx(0.5)
+
+    more_is_better = AttributeRange("delight", worst=0, best=10)
+    assert _normalize(10, more_is_better) == pytest.approx(1.0)
+    assert _normalize(0, more_is_better) == pytest.approx(0.0)
+
+    # monotonic in the right direction, not merely bounded
+    prices = [100, 300, 500, 800]
+    utils = [_normalize(p, cheap_is_better) for p in prices]
+    assert utils == sorted(utils, reverse=True), "cheaper must never score lower"
+
+
+def test_decreasing_attribute_picks_the_right_winner():
+    """End to end, chosen so the inverted version picks the OPPOSITE winner.
+
+    Neither alternative dominates, so the answer turns entirely on normalization.
+    Weights favour price 0.7 to 0.3, so the cheap-but-less-delightful gift must
+    win. Under the old inverted branch `lavish` won instead.
+    """
+    contract = InputContract(
+        job=Job.MULTIOBJECTIVE,
+        attributes=[
+            AttributeRange("delight", worst=0, best=10),
+            AttributeRange("price", worst=800, best=100, monotonic_increasing=False),
+        ],
+        scaling_constants={"delight": 0.3, "price": 0.7},
+        independence_assumptions=[
+            record_independence({"delight"}, {"price"}, "preferential", True),
+            record_independence({"price"}, {"delight"}, "preferential", True),
+        ],
+        alternatives=[{"name": "lavish", "delight": 10, "price": 800},
+                      {"name": "thrifty", "delight": 6, "price": 100}],
+    )
+    report = dispatch(Job.MULTIOBJECTIVE, contract)
+    ranked = {r["name"]: r["utility"] for r in report.decision["ranked"]}
+    assert report.decision["best_alternative"] == "thrifty", ranked
+    assert ranked["thrifty"] == pytest.approx(0.3 * 0.6 + 0.7 * 1.0)
+    assert ranked["lavish"] == pytest.approx(0.3 * 1.0 + 0.7 * 0.0)
