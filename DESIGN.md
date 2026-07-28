@@ -170,6 +170,54 @@ is part of the deliverable, not a courtesy.
 
 ---
 
+## The zero-order expansion (零阶展开)
+
+Every report carries `report.perturbation` — the answer as a labelled series rather than a
+single number, which is what makes the perturbation structure visible instead of implicit.
+
+| Order | 中文 | Meaning |
+|---|---|---|
+| `ORDER_ZERO` | 零阶 | The trunk. What the dominant terms alone give. |
+| `ORDER_FIRST` | 一阶修正 | Refines the trunk. **Cannot overturn it.** |
+| `ORDER_OVERTURN` | 翻盘 | Not a correction — a *different* trunk. |
+| `ORDER_DROPPED` | 舍去项 | Thrown away by 主导平衡 as having no causal control. |
+| `ORDER_HARD` | 硬约束 | No trunk exists. A veto, never a small quantity. |
+
+**The classification is structural, never a magnitude threshold.** A term is a *correction*
+when it refines the same calibrated model, and an *overturn* when it moves the problem to a
+different row of the corpus decision table. This matters because the two are independent — for
+a pool of 50:
+
+| Order | Term | Value | Δ | Citation |
+|---|---|---|---|---|
+| 零阶 | asymptotic 1/e — the 37% rule | 18 | — | c01 §5 |
+| 一阶修正 | exact finite-*n* argmax | 19 | +6% | c01 §4.1 |
+| 翻盘 | recall allowed at 50% | 30 | +67% | c01 §7 |
+| 翻盘 | rejection risk at 50% | 12 | −33% | c01 §7 |
+| 硬约束 | payoff diverges | no rule exists | — | c01 §8 |
+
+The +6% term is a correction; the −33% term is an overturn. Sorting by size would invert both.
+Recall and rejection are not 修正项 at all: each is calibrated for a different assumption set,
+so each *is* a trunk. That is also why the corpus has no joint row for them — they move the
+boundary in opposite directions, and there is no series in which one is a small perturbation of
+the other.
+
+Each engine's trunk is a real quantity from the corpus, not a label:
+
+- **Engine A** — the closed-form constant for the elicited row (c01 §5 / §7). The one genuine
+  correction available is exact finite-*n* vs the asymptotic limit (c01 §4.1).
+- **Engine B** — the additive score. c02 §5.3 states outright that additive is the \(k=0\)
+  special case of the multiplicative form, so \(k\) *is* the perturbation parameter and the
+  interaction term is the correction.
+- **Engine C** — the myopic action at \(\gamma = 0\). The Bellman equation is itself a series in
+  \(\gamma\); the discounted future terms are the corrections, and residuals shrinking by
+  \(\le \gamma\) per sweep (INV-4) is exactly why the series converges and later terms cannot
+  overturn the trunk.
+
+This also gives 硬约束 its precise place. 「微扰级数不一定收敛」is not a metaphor here: when the
+expected payoff at the best stopping point diverges, there is no zero-order term to correct, and
+c01 §8 says so formally. The veto is the framework's own boundary, not an exception bolted on.
+
 ## What this design forbids
 
 Each of these is enforced in code and covered by a test, not merely aspired to.

@@ -8,7 +8,11 @@ from typing import Any, Optional, Sequence, Tuple
 
 from ..core.contract import InputContract, Horizon, Information, Payoff
 from ..core.errors import UnclassifiedVariant, NoOptimalStoppingRuleExists
-from ..core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+from ..core.report import (
+    OutputReport, AuditResult, InvariantResult, SensitivityEntry,
+    PerturbationTerm, relative_shift,
+    ORDER_ZERO, ORDER_FIRST, ORDER_OVERTURN, ORDER_HARD,
+)
 
 
 @dataclass(frozen=True)
@@ -358,6 +362,85 @@ def cutoff_with_rejection(n: int, rejection_prob: float) -> Tuple[int, float]:
     return r, 0.25
 
 
+def _expansion_fixed_known(contract: InputContract, cal: Calibration,
+                           n: int) -> list[PerturbationTerm]:
+    """The zero-order expansion for a fixed, known n (c01 Decision Table rows 1-4).
+
+    The trunk is the closed-form constant for the elicited row. The only genuine
+    *correction* available is exact finite-n vs the asymptotic limit (c01 §4.1 vs
+    §5) — same model, refined. Moving to a different row (recall, rejection) is an
+    *overturn*, because the constant itself is calibrated for a different
+    assumption set, not because the number happens to move a lot.
+    """
+    terms: list[PerturbationTerm] = []
+
+    asymptotic = asymptotic_cutoff(n)[0]
+    exact = optimal_cutoff(n)[0]
+    recall_r = max(1, round(0.61 * n))
+    rejection_r = max(1, round(0.25 * n))
+
+    # Identify the Decision Table row by its ASSUMPTION SET, not by `constant`:
+    # the exact finite-n path is dataclasses.replace(classical_37, constant=None),
+    # so testing the constant misidentifies the classical row.
+    is_recall_row = bool(cal.recall_allowed)
+    is_rejection_row = cal.rejection_prob is not None and cal.rejection_prob > 0
+    is_classical = not is_recall_row and not is_rejection_row
+
+    if is_classical:
+        terms.append(PerturbationTerm(
+            order=ORDER_ZERO, label="Look-Then-Leap, asymptotic 1/e (the 37% rule)",
+            value=asymptotic, citation="c01 §5",
+            note="the trunk: r/n and success probability both converge to 1/e",
+        ))
+        if exact != asymptotic:
+            terms.append(PerturbationTerm(
+                order=ORDER_FIRST, label="exact finite-n argmax",
+                value=exact, citation="c01 §4.1",
+                relative_shift=relative_shift(exact, asymptotic),
+                note="refines the trunk for this particular n; cannot overturn it",
+            ))
+        terms.append(PerturbationTerm(
+            order=ORDER_OVERTURN, label="recall allowed at 50% recall-accept",
+            value=recall_r, citation="c01 §7",
+            relative_shift=relative_shift(recall_r, asymptotic),
+            note="not a correction — a different Decision Table row, so a different "
+                 "trunk (0.61n). Recall lengthens the look phase",
+        ))
+        terms.append(PerturbationTerm(
+            order=ORDER_OVERTURN, label="rejection risk at 50% accept",
+            value=rejection_r, citation="c01 §7",
+            relative_shift=relative_shift(rejection_r, asymptotic),
+            note="a different trunk (0.25n). Rejection shortens the look phase — the "
+                 "opposite direction to recall, which is why the corpus has no joint row",
+        ))
+    else:
+        # A recall or rejection row. Its own constant IS the trunk; the classical
+        # 37% figure is the overturn relative to it.
+        trunk = recall_r if is_recall_row else rejection_r
+        fraction = "0.61n" if is_recall_row else "0.25n"
+        terms.append(PerturbationTerm(
+            order=ORDER_ZERO, label=f"{cal.rule} (r ≈ {fraction})",
+            value=trunk, citation=cal.citation,
+            note="the trunk for this assumption set; the 37% figure does not apply here",
+        ))
+        terms.append(PerturbationTerm(
+            order=ORDER_OVERTURN, label="classical no-recall, no-rejection case",
+            value=asymptotic, citation="c01 §5",
+            relative_shift=relative_shift(asymptotic, trunk),
+            note="a different trunk. Dropping the recall/rejection assumption returns "
+                 "the problem to the classical row",
+        ))
+
+    terms.append(PerturbationTerm(
+        order=ORDER_HARD, label="payoff_diverges = True",
+        value="no rule exists", citation="c01 §8",
+        note="硬约束: if expected reward at the best stopping point diverges, no "
+             "zero-order answer exists to correct. Never a higher-order small "
+             "quantity — switch to a bankroll-fraction framework (Kelly)",
+    ))
+    return terms
+
+
 def solve_stopping(contract: InputContract) -> OutputReport:
     if contract.payoff_diverges is True:
         raise NoOptimalStoppingRuleExists(
@@ -466,6 +549,21 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         cal = CALIBRATIONS["burglar_rule"]
         return OutputReport(
             decision={"stop_when_accumulated_at_least": ceiling},
+            perturbation=[
+                PerturbationTerm(
+                    order=ORDER_ZERO, label="Burglar ceiling mq/(1-q)",
+                    value=round(ceiling, 6), citation="c01 §11",
+                    note="the trunk: a single static ceiling on accumulated value, not a "
+                         "look/leap boundary",
+                ),
+                PerturbationTerm(
+                    order=ORDER_HARD, label="ruin on failure",
+                    value=f"q={q}", citation="c01 §11",
+                    note="硬约束: total ruin is not a higher-order small quantity. The "
+                         "ceiling exists precisely because the downside cannot be averaged "
+                         "into the expectation",
+                ),
+            ],
             action=(
                 f"Keep going while your accumulated gains are below {ceiling:.6g}; stop "
                 f"the moment you reach it. Expect roughly {expected_trials:.4g} trials "
@@ -587,6 +685,7 @@ def solve_stopping(contract: InputContract) -> OutputReport:
 
         return OutputReport(
             decision={"look_until": r_star - 1, "leap_from": r_star, "n": n},
+            perturbation=_expansion_fixed_known(contract, cal, n),
             action=(
                 f"Reject the first {r_star - 1} of {n} outright, whatever they look like, "
                 f"while recording the best you see. From #{r_star} onward, accept the first "

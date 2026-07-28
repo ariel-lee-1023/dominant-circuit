@@ -6,7 +6,11 @@ from typing import Any, Callable, Optional, Sequence
 
 from ..core.contract import InputContract, Horizon, Job
 from ..core.errors import NonMarkovProcess, PreconditionViolation, UnclassifiedVariant
-from ..core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+from ..core.report import (
+    OutputReport, AuditResult, InvariantResult, SensitivityEntry,
+    PerturbationTerm, relative_shift,
+    ORDER_ZERO, ORDER_FIRST, ORDER_OVERTURN, ORDER_HARD,
+)
 
 
 def belief_update(
@@ -199,6 +203,51 @@ def solve_sequential(contract: InputContract) -> OutputReport:
     if contract.prior_belief:
         start = max(contract.prior_belief, key=contract.prior_belief.get)
 
+    # --- zero-order expansion ------------------------------------------------------
+    # The Bellman equation IS a perturbation series in gamma: U = R + gamma*E[U'].
+    # gamma = 0 keeps only the immediate-reward term (the myopic/greedy trunk); the
+    # discounted future terms are the corrections, and value iteration's residuals
+    # shrink by <= gamma per sweep, which is why the series converges (c03 §6).
+    myopic_v, myopic_a = bellman_backup(
+        start, actions, {s: 0.0 for s in states}, reward, transition, 0.0
+    )
+    expansion = [
+        PerturbationTerm(
+            order=ORDER_ZERO,
+            label=f"myopic action at {start!r} (gamma=0, immediate reward only)",
+            value=myopic_a, citation="c03 §6",
+            note="the trunk: R(s,a) alone, dropping all discounted future terms",
+        ),
+        PerturbationTerm(
+            order=ORDER_FIRST,
+            label=f"full Bellman optimum at {start!r} (gamma={gamma})",
+            value=policy.get(start), citation="c03 §6",
+            relative_shift=relative_shift(V.get(start), myopic_v),
+            note=("the discounted future terms change the recommended action — the "
+                  "myopic trunk is wrong here"
+                  if policy.get(start) != myopic_a else
+                  "the discounted future terms refine the value but confirm the myopic "
+                  "action; the trunk holds"),
+        ),
+        PerturbationTerm(
+            order=ORDER_FIRST,
+            label=f"convergence: {len(residuals)} sweeps",
+            value=f"residual {residuals[-1]:.2e}" if residuals else "n/a",
+            citation="c03 §6",
+            note="successive corrections shrink by <= gamma per sweep, so the series "
+                 "converges and later terms cannot overturn the trunk",
+        ),
+        PerturbationTerm(
+            order=ORDER_HARD,
+            label="markov_verified = False",
+            value="REFUSED (NonMarkovProcess)",
+            citation="c03 §3",
+            note="硬约束: if the next state depends on deeper history the expansion is "
+                 "not defined at all. Augment the state space; do not discount the "
+                 "violation as a small term",
+        ),
+    ]
+
     return OutputReport(
         decision={
             "policy": policy,
@@ -208,6 +257,7 @@ def solve_sequential(contract: InputContract) -> OutputReport:
             "iterations": len(residuals),
             "final_residual": residuals[-1] if residuals else None,
         },
+        perturbation=expansion,
         action=(
             f"From state {start!r}, take action {policy.get(start)!r}. "
             f"Value iteration converged in {len(residuals)} sweeps to a residual of "
