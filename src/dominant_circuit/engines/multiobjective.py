@@ -5,6 +5,7 @@ from __future__ import annotations
 import math
 from typing import Any, Optional, Sequence
 
+from ..core.audit import check_range_fixed_weights
 from ..core.contract import InputContract, AttributeRange, IndependenceTest, Job
 from ..core.errors import IndependenceNotVerified, PreconditionViolation, UnclassifiedVariant
 from ..core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
@@ -250,7 +251,7 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         ],
         audit=AuditResult(results=[
             InvariantResult("INV-3", "independence_verified", True, message="Flip-test recorded"),
-            InvariantResult("INV-5", "range_fixed_weights", True, message="Every k_i has AttributeRange"),
+            check_range_fixed_weights(contract),
             InvariantResult(
                 "INV-7", "overdetermination", overdet,
                 message=f"{n_eq} tests vs {n_params} parameters" if overdet

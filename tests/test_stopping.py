@@ -1,6 +1,8 @@
 """Golden values from SPEC §14.1–§14.4."""
 
 import math
+from pathlib import Path
+
 import pytest
 from dominant_circuit import (
     dispatch, InputContract, Job, Horizon, Information, Payoff,
@@ -10,7 +12,10 @@ from dominant_circuit.engines.stopping import (
     optimal_cutoff, asymptotic_cutoff, threshold_percentile,
     cost_aware_threshold, parking_cutoff, parking_cutoff_exact,
     cutoff_with_recall, cutoff_with_rejection,
+    CALIBRATIONS, Calibration, check_assumption_set_match,
 )
+
+SRC = Path(__file__).resolve().parents[1] / "src" / "dominant_circuit"
 
 
 def test_exact_finite_n_table():
@@ -98,6 +103,79 @@ def test_unelicited_divergence_not_assumed_false():
     with pytest.raises(ContractIncomplete) as ei:
         dispatch(Job.STOPPING, c)
     assert ei.value.field == "payoff_diverges"
+
+
+def test_calibration_registry_covers_the_decision_table():
+    """c01's Decision Table has ten rows; the registry transcribes all ten."""
+    assert len(CALIBRATIONS) == 10
+    for key, cal in CALIBRATIONS.items():
+        assert isinstance(cal, Calibration), key
+        assert cal.citation.startswith("c01 §"), key
+        assert cal.rule, key
+
+
+def test_inv1_fails_on_mismatched_calibration():
+    """Hand a rule its calibration record and a contract that contradicts it."""
+    # The 0.61 recall constant, handed a contract that elicited no recall at all.
+    cal = CALIBRATIONS["recall_61"]
+    contract = InputContract(
+        job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
+        information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
+        payoff_diverges=False, recall_allowed=False,
+    )
+    result = check_assumption_set_match(contract, cal)
+
+    assert result.passed is False
+    assert result.invariant_id == "INV-1"
+    # both tuples must be in the message, so the report is self-explanatory
+    assert "calibration=" in result.message
+    assert "elicited=" in result.message
+    assert "recall_allowed" in result.message
+
+
+def test_inv1_passes_on_matching_calibration():
+    contract = InputContract(
+        job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
+        information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
+        payoff_diverges=False,
+    )
+    assert check_assumption_set_match(contract, CALIBRATIONS["classical_37"]).passed
+
+
+def test_inv1_none_field_is_not_pinned():
+    """A calibration field of None matches anything (c01 Decision Table 'N/A')."""
+    cal = CALIBRATIONS["burglar_rule"]
+    assert cal.horizon is None and cal.information is None
+    for horizon in (Horizon.FIXED_KNOWN, Horizon.UNBOUNDED_STREAM):
+        contract = InputContract(job=Job.STOPPING, horizon=horizon, payoff=Payoff.RUIN_RISK)
+        assert check_assumption_set_match(contract, cal).passed
+
+
+def test_inv1_exact_path_reuses_no_constant():
+    """constant=None (the exact finite-n path) always passes the constant check."""
+    contract = InputContract(
+        job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
+        information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
+        payoff_diverges=False, exact_finite_n=True,
+    )
+    report = dispatch(Job.STOPPING, contract)
+    inv1 = next(r for r in report.audit.results if r.invariant_id == "INV-1")
+    assert inv1.passed
+    assert "no constant reused" in inv1.message
+    assert report.citation == "c01 §4.1"
+
+
+def test_inv1_is_not_hardcoded_true():
+    """Statically assert no InvariantResult('INV-1', ..., True) literal remains."""
+    for f in SRC.rglob("*.py"):
+        text = f.read_text()
+        assert 'InvariantResult("INV-1"' not in text or "check_assumption_set_match" in text, f
+
+
+def test_inv5_is_not_hardcoded_true():
+    for f in SRC.rglob("*.py"):
+        text = f.read_text()
+        assert 'InvariantResult("INV-5"' not in text or "check_range_fixed_weights" in text, f
 
 
 def test_report_has_six_fields():
