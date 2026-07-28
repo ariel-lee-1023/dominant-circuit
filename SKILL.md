@@ -67,18 +67,42 @@ If any field is missing, run the Socratic elicitation loop below before computin
 
 ## Minimal Socratic elicitation loop
 
-Ask only what is missing, in this order, stopping once the job is fully specified:
+Ask only what is missing. `next_question()` returns them in dependency order, so the
+authoritative sequence is whatever the library hands back — this table is the human-readable
+mirror of `QUESTION_BANK` in `src/dominant_circuit/core/elicit.py`, and the two are kept in
+sync by `tests/test_corpus.py::test_skill_question_bank_parity`.
 
-1. "Is there a queue/stream of options to search through, or a fixed set already in hand?" (c01 vs. c02/c03)
-2. "Do you know the total number of options/time \(n\), or is it open-ended?" (horizon)
-3. "Can you compare options only relatively as they arrive, or do you have an absolute score for each?" (ordinal vs. cardinal, c01)
-4. "Once you pass on an option, can you revisit it? Can an accepted option later say no?" (recall/rejection)
-5. "What attributes matter, and what is the worst-to-best range you care about for each?" (attribute hierarchy/ranges, c02)
-6. "If forced to trade a sure outcome against a 50-50 gamble of equal expected value, which would you pick?" (risk attitude)
-7. "Is the environment's response to actions known (transition model), or must it be tracked as a belief?" (MDP vs. POMDP, c03)
-8. "How exact must this be: closed-form/asymptotic, or exact finite computation within a stated tolerance/budget?" (compute budget)
+Each row names the **contract field** it fills. Never fill a field the user did not speak to.
+
+| # | Question | Contract field |
+|---|---|---|
+| 1 | "Is this a stopping problem, a multi-objective ranking, or a sequential plan?" | `job` |
+| 2 | "Is the total number of options/time fixed and known, fixed but unknown, open-ended/stochastic, or unbounded?" | `horizon` |
+| 3 | "What is the exact pool size n?" | `n` |
+| 4 | "What is the upper bound n_max on the unknown pool size?" | `n_max` |
+| 5 | "What is the per-step probability that the opportunity stream ends?" | `stop_prob_per_step` |
+| 6 | "What is the payoff structure: best-or-nothing, net-value-minus-cost, ruin-risk, multiattribute, or discounted return?" | `payoff` |
+| 7 | "Does the expected reward grow without bound if you never stop (e.g. triple-or-nothing with full re-wagering)?" | `payoff_diverges` |
+| 8 | "Can you only compare options relatively (ordinal) or do you have absolute scores (cardinal)?" | `information` |
+| 9 | "Once you pass on an option, can you revisit it later?" | `recall_allowed` |
+| 10 | "If you recall a past option, what is the probability it is still available?" | `recall_accept_prob` |
+| 11 | "What is the probability that an accepted offer is declined by the candidate?" | `rejection_prob` |
+| 12 | "What is the per-look cost, normalized to the [0,1] outcome scale?" | `search_cost` |
+| 13 | "What are the attributes and their explicit [worst, best] ranges?" | `attributes` |
+| 14 | "Has mutual (or pairwise) utility/preferential independence been verified via the flip test?" | `independence_tests` |
+| 15 | "What are the scaling constants k_i, each attached to its assessed range?" | `scaling_constants` |
+| 16 | "Is the decision maker risk-averse, risk-neutral, or risk-prone?" | `risk_attitude` |
+| 17 | "Does the next state depend only on the current state and your action, or does the earlier history matter?" | `markov_verified` |
+| 18 | "What discount factor γ ∈ [0,1) should be used?" | `gamma` |
+
+Two of these are **hard-required** by `missing_fields()` and are the ones most often skipped:
+`payoff_diverges` (row 7) gates every stopping problem — a diverging payoff means *no optimal
+stopping rule exists*, not a smaller cutoff — and `markov_verified` (row 17) gates every
+sequential problem. Ask them; do not assume the benign answer.
 
 ## Core formulas (exact, by cluster)
+
+> **Reference only.** These are for recognition and explanation. Any number reported to a user must come from `dispatch()`. If you computed by hand because no interpreter was available, label the result **UNAUDITED** and name the invariants that were not checked.
 
 **Multiattribute value/utility (cluster 02).** Additive, valid only under verified mutual/pairwise preferential (certainty) or utility (uncertainty) independence, weights summing to 1:
 \[
@@ -109,26 +133,32 @@ where \(V_{\text{stop}}\) is the value of accepting now and \(V_{\text{continue}
 ## Compact orchestration (Python-computable)
 
 ```python
-def dispatch(job, contract):
-    # job in {'stopping','multiobjective','sequential'}; contract = filled input-contract dict
-    verify_preconditions(job, contract)                     # hard preconditions above
-    if job == "stopping":
-        rule, params = select_stopping_rule(contract)       # c01 classify_and_solve
-        decision = rule(**params)
-    elif job == "multiobjective":
-        assert independence_verified(contract)              # c02 Sec 3.4/5.1
-        additive = sum(contract["k_i"]) == 1
-        decision = additive_value(**contract) if additive else multiplicative_utility(**contract)  # c02 Sec 7.4
-    elif job == "sequential":
-        if contract.get("belief") is not None:
-            contract["belief"] = belief_update(contract["belief"], contract["model"],
-                                                contract["action"], contract["observation"])  # c03 Sec 9
-            decision = belief_greedy_action(contract["model"], contract["U_belief_fn"], contract["belief"])
-        else:
-            decision = greedy_policy(contract["mdp"], contract["U"])(contract["state"])
-    audit = run_validation_invariants(job, contract, decision)
-    return {"decision": decision, "assumptions": contract, "audit": audit}
+from dominant_circuit import (
+    InputContract, Job, dispatch,
+    missing_fields, next_question,
+    ContractIncomplete, PreconditionViolation, UnclassifiedVariant, AuditFailure,
+)
+
+# Stage 1 — elicit. The library never asks; the host asks.
+contract = InputContract(job=Job.STOPPING)
+while (q := next_question(contract)) is not None:
+    ...  # host puts q to the user, records the answer on `contract`
+
+# Stages 2-5 — verify, compute, audit, report. One call.
+report = dispatch(Job.STOPPING, contract)
+
+print(report.to_markdown())          # full six-field Output Contract
+report.decision, report.formula_name, report.citation
+report.numeric, report.assumptions, report.sensitivity, report.audit
 ```
+
+> **Host protocol (mandatory).**
+> Drive elicitation with `missing_fields()` / `next_question()`. Do not fill contract fields on the user's behalf, and do not infer a value the user did not state — an assumption the user never made is the failure this system exists to prevent.
+> `ContractIncomplete` carries `.field` and `.remedy`; put `.remedy` to the user and retry. Do not work around it.
+> `PreconditionViolation` (and its subclasses `NoOptimalStoppingRuleExists`, `NonMarkovProcess`, `IndependenceNotVerified`) means the problem as stated is not computable. Report `.remedy`. Do not substitute a nearby problem that is computable.
+> `UnclassifiedVariant` means the corpus does not cover this assumption set. Say so plainly. **Do not supply a constant from memory.**
+> `AuditFailure` means a validation invariant failed. Report the failed invariant IDs. Do not present the decision as actionable.
+> If `import dominant_circuit` fails, say that the engine is unavailable and that any figure you give is unaudited. Do not compute silently in prose.
 
 ## Validation invariants (cross-cluster)
 

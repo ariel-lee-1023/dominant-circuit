@@ -19,7 +19,9 @@ from .core.verify import verify_preconditions
 from .core.audit import run_validation_invariants
 from .core.dispatch import dispatch
 from .engines.stopping import optimal_cutoff, asymptotic_cutoff, parking_cutoff
-from .engines.multiobjective import solve_multiplicative_k, additive_value
+from .engines.multiobjective import (
+    solve_multiplicative_k, additive_value, multiplicative_utility,
+)
 from .engines.sequential import belief_update, value_iteration
 
 __version__ = "0.3.0"
@@ -37,6 +39,6 @@ __all__ = [
     "verify_preconditions",
     "run_validation_invariants",
     "optimal_cutoff", "asymptotic_cutoff", "parking_cutoff",
-    "solve_multiplicative_k", "additive_value",
+    "solve_multiplicative_k", "additive_value", "multiplicative_utility",
     "belief_update", "value_iteration",
 ]
