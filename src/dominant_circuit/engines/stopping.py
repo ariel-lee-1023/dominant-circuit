@@ -320,6 +320,50 @@ def solve_stopping(contract: InputContract) -> OutputReport:
             field="payoff_diverges",
         )
 
+    # --- Silent-precedence guards -------------------------------------------------
+    # Each of these assumption combinations previously fell through to whichever
+    # branch happened to be tested first, silently returning a constant calibrated
+    # for a different problem. No row of c01's Decision Table covers them.
+
+    recall_active = bool(contract.recall_allowed) and contract.recall_accept_prob is not None
+    rejection_active = contract.rejection_prob is not None and contract.rejection_prob > 0
+    if recall_active and rejection_active:
+        raise UnclassifiedVariant(
+            "c01's Decision Table has no row for simultaneous recall and rejection risk. "
+            "The two move the look/leap boundary in opposite directions (c01 §7 Invariant) "
+            "and their combination is not calibrated in the corpus.",
+            remedy="Set rejection_prob=0 (or recall_allowed=False), or supply a source "
+                   "that calibrates the joint case.",
+            field="recall_allowed",
+        )
+
+    # c01 §9 applies only under full information ("Applies when: full information
+    # exists"); Decision Table row 7 pins Cardinal. Ordinal + cost-of-search is
+    # uncalibrated, and previously took the cost-aware branch regardless.
+    if contract.payoff == Payoff.COST_OF_SEARCH and contract.information == Information.ORDINAL:
+        raise UnclassifiedVariant(
+            "The Cost-Aware Threshold (c01 §9) is derived under full cardinal information; "
+            "c01 has no cost-of-search row for ordinal-only information.",
+            remedy="Supply cardinal scores (information=CARDINAL), or restate the payoff "
+                   "as best-or-nothing.",
+            field="information",
+        )
+
+    # Decision Table row 2 (Threshold Rule) pins a fixed, known n. The cardinal
+    # branch is tested before the horizon branches, so any other horizon silently
+    # received the 0.58-calibrated Threshold Rule.
+    if (contract.information == Information.CARDINAL
+            and contract.payoff != Payoff.COST_OF_SEARCH
+            and contract.horizon is not None
+            and contract.horizon != Horizon.FIXED_KNOWN):
+        raise UnclassifiedVariant(
+            f"c01 has no cardinal-information row for horizon={contract.horizon.value}. "
+            "The Threshold Rule (c01 §6) is calibrated for a fixed, known n; the "
+            "unknown-n and stochastic-termination rows are ordinal-only.",
+            remedy="Supply a fixed, known n, or restate the problem as ordinal-only.",
+            field="horizon",
+        )
+
     assumptions = {
         "horizon": contract.horizon.value if contract.horizon else None,
         "n": contract.n,
@@ -330,6 +374,8 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         "payoff": contract.payoff.value if contract.payoff else None,
         "exact_finite_n": contract.exact_finite_n,
         "payoff_diverges": contract.payoff_diverges,
+        "ruin_success_prob": contract.ruin_success_prob,
+        "ruin_mean_gain": contract.ruin_mean_gain,
     }
 
     if contract.payoff == Payoff.COST_OF_SEARCH:
@@ -360,7 +406,41 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         )
 
     if contract.payoff == Payoff.RUIN_RISK:
-        raise UnclassifiedVariant("RUIN_RISK requires explicit q and m parameters in this version.")
+        q, m = contract.ruin_success_prob, contract.ruin_mean_gain
+        if q is None or m is None:
+            raise ValueError("ruin_success_prob (q) and ruin_mean_gain (m) required for RUIN_RISK")
+        ceiling = burglar_ceiling(q, m)
+        expected_trials = q / (1.0 - q)
+        cal = CALIBRATIONS["burglar_rule"]
+        return OutputReport(
+            decision={"stop_when_accumulated_at_least": ceiling},
+            formula_name=cal.rule,
+            formula_latex=r"\text{ceiling} = \frac{mq}{1-q}",
+            citation=cal.citation,
+            numeric={
+                "ceiling": ceiling,
+                "q": q,
+                "m": m,
+                "expected_trials_before_stopping": expected_trials,
+            },
+            assumptions=assumptions,
+            sensitivity=[
+                SensitivityEntry(
+                    assumption="ruin_success_prob",
+                    perturbation=f"q={q} → higher (closer to 1)",
+                    new_decision="ceiling rises without bound as q → 1",
+                    decision_changed=True,
+                    fragility="critical",
+                ),
+            ],
+            audit=AuditResult(results=[
+                check_assumption_set_match(contract, cal),
+                InvariantResult(
+                    "INV-6", "finite_expectation", True,
+                    message="ruin-risk accumulation has a finite ceiling mq/(1-q)",
+                ),
+            ]),
+        )
 
     info = contract.information
     horizon = contract.horizon

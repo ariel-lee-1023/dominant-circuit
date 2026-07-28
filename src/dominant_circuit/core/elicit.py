@@ -20,6 +20,8 @@ QUESTION_BANK = {
     "payoff_diverges": "Does the expected reward grow without bound if you never stop (e.g. triple-or-nothing)?",
     "payoff": "What is the payoff structure: best-or-nothing, net-value-minus-cost, ruin-risk, multiattribute, or discounted return?",
     "search_cost": "What is the per-look cost, normalized to the [0,1] outcome scale?",
+    "ruin_success_prob": "What is the per-trial probability q that a trial succeeds rather than wiping out everything accumulated?",
+    "ruin_mean_gain": "What is the average gain m per successful trial?",
     "gamma": "What discount factor γ ∈ [0,1) should be used?",
     "markov_verified": "Have you confirmed that the next state depends only on the current state and action (Markov property)?",
     "independence_tests": "Has mutual (or pairwise) utility/preferential independence been verified via the flip test?",
@@ -51,6 +53,12 @@ def missing_fields(contract: InputContract) -> list[str]:
             missing.append("stop_prob_per_step")
         if contract.payoff == Payoff.COST_OF_SEARCH and contract.search_cost is None:
             missing.append("search_cost")
+        if contract.payoff == Payoff.RUIN_RISK:
+            # Burglar Rule, c01 §11: ceiling = m*q/(1-q). Both are required.
+            if contract.ruin_success_prob is None:
+                missing.append("ruin_success_prob")
+            if contract.ruin_mean_gain is None:
+                missing.append("ruin_mean_gain")
         if contract.recall_allowed is True and contract.recall_accept_prob is None:
             missing.append("recall_accept_prob")
 

@@ -101,6 +101,10 @@ class InputContract:
     recall_accept_prob: Optional[float] = None
     rejection_prob: Optional[float] = None
 
+    # 6b. Ruin-risk (burglar) parameters — c01 §11. Required when payoff == RUIN_RISK.
+    ruin_success_prob: Optional[float] = None   # q: per-trial probability of success
+    ruin_mean_gain: Optional[float] = None      # m: average gain per successful trial
+
     # 7. Risk attitude
     risk_attitude: Optional[RiskAttitude] = None
     risk_varies_with_level: Optional[str] = None

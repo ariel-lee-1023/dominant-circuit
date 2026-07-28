@@ -105,6 +105,73 @@ def test_unelicited_divergence_not_assumed_false():
     assert ei.value.field == "payoff_diverges"
 
 
+def _contract_with(**overrides):
+    base = dict(
+        job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
+        information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
+        payoff_diverges=False,
+    )
+    base.update(overrides)
+    return InputContract(**base)
+
+
+def test_recall_and_rejection_both_set_raises():
+    """c01 has no Decision Table row for simultaneous recall and rejection risk."""
+    with pytest.raises(UnclassifiedVariant) as ei:
+        dispatch(Job.STOPPING, _contract_with(recall_allowed=True,
+                 recall_accept_prob=0.5, rejection_prob=0.5))
+    assert "c01 §7" in str(ei.value)
+    assert ei.value.remedy
+
+
+def test_recall_alone_still_dispatches():
+    report = dispatch(Job.STOPPING, _contract_with(recall_allowed=True, recall_accept_prob=0.5))
+    assert report.numeric["r_star"] == 61
+    assert report.audit.passed
+
+
+def test_rejection_alone_still_dispatches():
+    report = dispatch(Job.STOPPING, _contract_with(rejection_prob=0.5))
+    assert report.numeric["r_star"] == 25
+    assert report.audit.passed
+
+
+def test_cost_of_search_with_ordinal_information_raises():
+    """c01 §9 is derived under full cardinal information."""
+    with pytest.raises(UnclassifiedVariant):
+        dispatch(Job.STOPPING, _contract_with(
+            payoff=Payoff.COST_OF_SEARCH, search_cost=0.02,
+            information=Information.ORDINAL,
+        ))
+
+
+def test_cardinal_with_non_fixed_horizon_raises():
+    """The Threshold Rule's 58% is pinned to Decision Table row 2 (fixed, known n)."""
+    with pytest.raises(UnclassifiedVariant):
+        dispatch(Job.STOPPING, _contract_with(
+            horizon=Horizon.OPEN_ENDED_STOCHASTIC, stop_prob_per_step=0.01,
+            information=Information.CARDINAL,
+        ))
+
+
+def test_ruin_risk_returns_burglar_ceiling():
+    report = dispatch(Job.STOPPING, _contract_with(
+        payoff=Payoff.RUIN_RISK, ruin_success_prob=0.9, ruin_mean_gain=1.0,
+    ))
+    assert abs(report.numeric["ceiling"] - 9.0) < 1e-9
+    assert report.citation == "c01 §11"
+    assert report.audit.passed
+
+
+def test_ruin_risk_requires_q_and_m():
+    for missing in ("ruin_success_prob", "ruin_mean_gain"):
+        kwargs = {"payoff": Payoff.RUIN_RISK, "ruin_success_prob": 0.9, "ruin_mean_gain": 1.0}
+        kwargs[missing] = None
+        with pytest.raises(ContractIncomplete) as ei:
+            dispatch(Job.STOPPING, _contract_with(**kwargs))
+        assert ei.value.field == missing
+
+
 def test_calibration_registry_covers_the_decision_table():
     """c01's Decision Table has ten rows; the registry transcribes all ten."""
     assert len(CALIBRATIONS) == 10

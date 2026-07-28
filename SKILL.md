@@ -88,17 +88,31 @@ Each row names the **contract field** it fills. Never fill a field the user did 
 | 10 | "If you recall a past option, what is the probability it is still available?" | `recall_accept_prob` |
 | 11 | "What is the probability that an accepted offer is declined by the candidate?" | `rejection_prob` |
 | 12 | "What is the per-look cost, normalized to the [0,1] outcome scale?" | `search_cost` |
-| 13 | "What are the attributes and their explicit [worst, best] ranges?" | `attributes` |
-| 14 | "Has mutual (or pairwise) utility/preferential independence been verified via the flip test?" | `independence_tests` |
-| 15 | "What are the scaling constants k_i, each attached to its assessed range?" | `scaling_constants` |
-| 16 | "Is the decision maker risk-averse, risk-neutral, or risk-prone?" | `risk_attitude` |
-| 17 | "Does the next state depend only on the current state and your action, or does the earlier history matter?" | `markov_verified` |
-| 18 | "What discount factor γ ∈ [0,1) should be used?" | `gamma` |
+| 13 | "What is the per-trial probability q that a trial succeeds rather than wiping out everything accumulated?" | `ruin_success_prob` |
+| 14 | "What is the average gain m per successful trial?" | `ruin_mean_gain` |
+| 15 | "What are the attributes and their explicit [worst, best] ranges?" | `attributes` |
+| 16 | "Has mutual (or pairwise) utility/preferential independence been verified via the flip test?" | `independence_tests` |
+| 17 | "What are the scaling constants k_i, each attached to its assessed range?" | `scaling_constants` |
+| 18 | "Is the decision maker risk-averse, risk-neutral, or risk-prone?" | `risk_attitude` |
+| 19 | "Does the next state depend only on the current state and your action, or does the earlier history matter?" | `markov_verified` |
+| 20 | "What discount factor γ ∈ [0,1) should be used?" | `gamma` |
 
 Two of these are **hard-required** by `missing_fields()` and are the ones most often skipped:
 `payoff_diverges` (row 7) gates every stopping problem — a diverging payoff means *no optimal
-stopping rule exists*, not a smaller cutoff — and `markov_verified` (row 17) gates every
+stopping rule exists*, not a smaller cutoff — and `markov_verified` (row 19) gates every
 sequential problem. Ask them; do not assume the benign answer.
+
+**Combinations the corpus does not cover.** Some assumption sets are individually valid but
+jointly uncalibrated; `dispatch()` raises `UnclassifiedVariant` rather than picking whichever
+branch is tested first. Report that plainly — do not supply a constant from memory:
+
+- **Recall *and* rejection risk both active.** c01 §7's Invariant is explicit that the two move
+  the look/leap boundary in opposite directions (0.61 up, 0.25 down); the Decision Table has no
+  joint row.
+- **Cost-of-search with ordinal-only information.** c01 §9 is derived under full information.
+- **Cardinal information with anything but a fixed, known n.** The Threshold Rule's ≈58% is
+  calibrated for Decision Table row 2; the unknown-n and stochastic-termination rows are
+  ordinal-only.
 
 ## Core formulas (exact, by cluster)
 
