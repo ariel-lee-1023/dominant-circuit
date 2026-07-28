@@ -111,10 +111,43 @@ def run_validation_invariants(
     return AuditResult(results=results)
 
 
+# Stage 4 -> Stage 1 loop-back map: which contract fields to re-elicit when an
+# invariant fails. Keyed by invariant ID so a host can ask the right question
+# instead of restarting the whole interrogation.
+INVARIANT_FIELDS: dict[str, tuple[str, ...]] = {
+    "INV-1": ("horizon", "information", "payoff", "recall_allowed",
+              "recall_accept_prob", "rejection_prob"),
+    "INV-2": ("prior_belief", "observation_model", "observations"),
+    "INV-3": ("independence_assumptions", "scaling_constants",
+              "flip_test_preferred_pairing"),
+    "INV-4": ("gamma", "tolerance", "k_max"),
+    "INV-5": ("scaling_constants", "attributes"),
+    "INV-6": ("payoff_diverges",),
+    "INV-7": ("independence_assumptions", "attributes"),
+}
+
+
 def require_audit_pass(audit: AuditResult) -> None:
     if not audit.passed:
-        fails = ", ".join(f.invariant_id for f in audit.failures)
+        failures = audit.failures
+        fails = ", ".join(f.invariant_id for f in failures)
+
+        fields: list[str] = []
+        for f in failures:
+            for name in INVARIANT_FIELDS.get(f.invariant_id, ()):
+                if name not in fields:
+                    fields.append(name)
+
+        detail = "; ".join(f"{f.invariant_id}: {f.message}" for f in failures)
+        remedy = (
+            "Re-elicit " + ", ".join(fields) + " and re-run the pipeline."
+            if fields else
+            "Re-elicit the implicated fields and re-run the pipeline."
+        )
+
         raise AuditFailure(
-            f"Audit failed: {fails}",
-            remedy="Re-elicit the implicated fields and re-run the pipeline.",
+            f"Audit failed: {fails}. {detail}",
+            remedy=remedy,
+            invariants=failures,
+            fields=fields,
         )

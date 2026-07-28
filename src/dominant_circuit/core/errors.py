@@ -37,7 +37,21 @@ class UnclassifiedVariant(DominantCircuitError):
 
 
 class AuditFailure(DominantCircuitError):
-    """A validation invariant failed. Do not return the decision; loop back to Stage 1."""
+    """A validation invariant failed. Do not return the decision; loop back to Stage 1.
+
+    Carries enough to loop back to the *right* question rather than starting over:
+      .invariants — the InvariantResult objects that failed, each with its message
+      .invariant_ids — their IDs, e.g. ['INV-1', 'INV-3']
+      .fields — the contract fields implicated, i.e. what to re-elicit
+      .field — the first of those, matching the base-class convention
+    """
+
+    def __init__(self, message: str, *, remedy: str = "", field: str = "",
+                 invariants: list | None = None, fields: list[str] | None = None):
+        self.invariants = list(invariants or [])
+        self.invariant_ids = [r.invariant_id for r in self.invariants]
+        self.fields = list(fields or [])
+        super().__init__(message, remedy=remedy, field=field or (self.fields[0] if self.fields else ""))
 
 
 class NotInCorpus(DominantCircuitError):

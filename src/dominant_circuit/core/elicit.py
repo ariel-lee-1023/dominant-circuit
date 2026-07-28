@@ -28,6 +28,7 @@ QUESTION_BANK = {
     "attributes": "What are the attributes and their explicit [worst, best] ranges?",
     "scaling_constants": "What are the scaling constants k_i, each attached to its assessed range?",
     "risk_attitude": "Is the decision maker risk-averse, risk-neutral, or risk-prone?",
+    "flip_test_preferred_pairing": "In the two 50-50 gambles built from the same outcomes, do you prefer the 'straight' pairing, the 'crossed' pairing, or are you indifferent?",
 }
 
 

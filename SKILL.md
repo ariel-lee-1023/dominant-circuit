@@ -54,16 +54,126 @@ If any field is missing, run the Socratic elicitation loop below before computin
 - **Cluster 02**: the additive value/utility form requires mutual (or, for \(n=3\), pairwise) preferential or utility independence, verified by an explicit indifference test, not assumed for simplicity. "Verified" means the assumption registry covers **every proper nonempty subset** of the attribute set against its complement (c02 §7.3) — one recorded pair among many is not coverage. Note the flip test (c02 §7.5) does **not** establish independence; it discriminates additive from multiplicative *within* an already-verified structure, and raises if run before it. Scaling constants are only interpretable jointly with the attribute ranges they were assessed against.
 - **Cluster 03**: the Markov assumption must hold (next state depends only on current state and action); Bellman-backup convergence requires \(\gamma \in [0,1)\) and bounded rewards; belief updates require a well-defined observation model and must reset to uniform on zero-likelihood evidence rather than divide by zero.
 
-## Unified pipeline
+## The five stages
 
-1. **Classify.** Identify which job(s) apply. Determine payoff structure (best-or-nothing, net-value-minus-cost, ruin-risk, multiattribute score, cumulative discounted return).
-2. **Elicit.** Fill every input-contract field via the Socratic loop. Record assumptions verbatim; never silently substitute the classical/simplified case.
-3. **Verify preconditions.** Check hard preconditions for every cluster invoked. Block computation and surface the specific missing verification if unmet (independence not tested, horizon type unspecified, etc.).
-4. **Select formula.** Dispatch to the exact named rule for the elicited assumption set (each cluster's decision table/dispatch pseudocode). Never reuse a constant (37%, 0.61, 58%) calibrated for a different assumption set.
-5. **Compute.** Run the corresponding pseudocode (finite-\(n\) argmax, additive/multiplicative utility, Bayes/belief update, Bellman backup, or online planner) at the declared computational budget.
-6. **Audit.** Run applicable validation invariants. Surface any residual outside tolerance as an audit failure, not a silently accepted answer.
-7. **Report.** Emit the full output contract, including sensitivity to the assumptions most likely to be wrong or contested.
-8. **Iterate on inconsistency.** If elicited responses conflict, or a residual fails, return to Step 2 with the specific conflict surfaced to the user, per each cluster's consistency-loop mechanics.
+The user is not chatting. They are plugging a problem into a centrifuge. Your job across
+these five stages is to strip the vibes off their dilemma and show them the constants
+underneath. Each stage has an owner: **you own Stages 1 and 5** (the conversation), **the
+library owns Stages 2–4** (the physics). Never do the library's job in prose.
+
+### Stage 1 — Elicitation: refuse to compute until the boundary conditions are locked
+
+Humans arrive vague. "I want the best job" is not a problem statement; it is a mood.
+**Halt. Do not compute. Interrogate.**
+
+```python
+contract = InputContract()                      # nothing assumed
+while (q := next_question(contract)) is not None:
+    ...  # put q to the user verbatim; record ONLY what they actually say
+```
+
+- `classify_job(contract)` decides *which* job this is **from contract fields only**. If the
+  fields do not determine it, it raises `ContractIncomplete(field='job')` rather than
+  guessing. Never classify from the user's wording — "options", "best", "choose" tell you
+  nothing about whether there is a stream to stop, a set to rank, or a policy to plan.
+- `missing_fields(contract)` is the full remaining checklist; `next_question(contract)` is
+  the next single question in dependency order.
+- **Do not fill a field the user did not speak to.** An assumption the user never made is
+  the exact failure this system exists to prevent. If they say "about twenty candidates,"
+  that is not `n=20` — ask whether the number is fixed and known.
+- The three checkpoints that decide everything, and that users never volunteer: the
+  **horizon** (is \(n\) fixed, unknown-but-bounded, or open-ended?), the **information type**
+  (ordinal ranks or cardinal scores?), and the **hard constraints** (can you recall a
+  passed-over option? can an accepted offer decline?).
+
+### Stage 2 — Verification: reject premises that break the mathematics
+
+Before a single equation loads, the library checks the user is not asking for something
+impossible. `verify_preconditions(contract)` — or just `dispatch()`, which calls it — raises
+rather than computing:
+
+| Raise | Means | What you say |
+|---|---|---|
+| `NoOptimalStoppingRuleExists` | Expected payoff at the best stopping point diverges (triple-or-nothing with full re-wagering). | **No stopping rule exists.** Not "stop early" — *none exists*. Point at a bankroll-fraction framework (Kelly). |
+| `IndependenceNotVerified` | The additive/multiplicative form was requested without covered independence. | Name the uncovered subsets and run the protocol below. |
+| `NonMarkovProcess` | Next state depends on deep history. | Augment the state until it doesn't, or refuse. |
+| `UnclassifiedVariant` | The corpus has no row for this assumption set. | Say so plainly. **Never supply a constant from memory.** |
+
+**The independence protocol (the "flip test" checkpoint).** For a multiattribute job you must
+prove independence before any additive or multiplicative form is legal. Two separate steps,
+in this order — the corpus is emphatic that they are not the same test:
+
+```python
+# 2a. Coverage. Mutual independence needs EVERY proper nonempty subset verified
+#     against its complement (c02 §7.3). One recorded pair is not coverage.
+for subset, complement, question in independence_questions(contract):
+    answer = ...                                  # put `question` to the user
+    contract.independence_assumptions.append(
+        record_independence(subset, complement, contract.independence_kind,
+                            verified=answer, evidence="...")
+    )
+
+# 2b. Form. ONLY once 2a is covered, the flip test discriminates additive from
+#     multiplicative WITHIN that structure (c02 §7.5). It never establishes
+#     independence, and run_flip_test raises if you try to use it that way.
+contract.flip_test_performed = True
+contract.flip_test_preferred_pairing = ...        # None | 'straight' | 'crossed'
+```
+
+Ask 2b with `FLIP_TEST_QUESTION`. If the recorded flip test disagrees with the form implied
+by \(\sum k_i\), that is an **INV-3 audit failure**, not something to average away — the
+elicitation is internally inconsistent and the user has to resolve it (c02 §7.8).
+
+### Stage 3 — Computation: the conversation stops, the engine runs
+
+```python
+report = dispatch(job, contract)     # verify -> select -> compute -> audit -> report
+```
+
+You do not choose the formula; the elicited assumption set does, via `CALIBRATIONS`
+(one entry per row of c01's Decision Table). Every constant is locked to the assumption set
+it was derived under. **Never reuse 37%, 0.58, 0.61, or 0.25 outside its calibrated row** —
+the library will refuse, and so should you.
+
+### Stage 4 — Audit: the engine proves its own work before you see it
+
+`dispatch()` runs the validation invariants and raises `AuditFailure` rather than returning a
+decision that failed them. A passing computation with a failing invariant is not an answer.
+
+`AuditFailure` tells you where to loop back to — use it, do not restart the interrogation:
+
+```python
+except AuditFailure as e:
+    e.invariant_ids   # ['INV-3'] — which invariant failed
+    e.invariants      # the InvariantResult objects, each with a diagnostic message
+    e.fields          # ['independence_assumptions', ...] — exactly what to re-elicit
+    e.remedy          # ready-to-speak instruction
+```
+
+Re-ask **only** `e.fields`. Then re-run. This is the Stage 4 → Stage 1 loop.
+
+### Stage 5 — Reporting: the zero-order truth, and permission to stop
+
+```python
+print(report.to_markdown())          # all six Output Contract fields + Execute
+```
+
+Report `report.action` as the recommendation — it is the decision as an instruction, not the
+raw dict. Always show the formula name and `citation` next to the number, and state the
+assumptions that make the action valid, because the answer is **not transferable** to a
+different assumption set.
+
+Then answer the question users actually have: *may I stop thinking about this?*
+
+```python
+report.analysis_is_complete    # bool — no further computation can improve this
+report.assumptions_to_confirm  # facts to check; wrong ones change the decision
+report.execution_note          # the above, in a sentence you can say out loud
+```
+
+`analysis_is_complete` being `True` means the remaining risk is **factual, not analytical**:
+more deliberation cannot help, only checking the world can. Say so. Telling a user they may
+stop analyzing and start executing is part of the deliverable, not a courtesy.
 
 ## Minimal Socratic elicitation loop
 
@@ -92,6 +202,7 @@ Each row names the **contract field** it fills. Never fill a field the user did 
 | 14 | "What is the average gain m per successful trial?" | `ruin_mean_gain` |
 | 15 | "What are the attributes and their explicit [worst, best] ranges?" | `attributes` |
 | 16 | "Has mutual (or pairwise) utility/preferential independence been verified, and against which attribute subsets?" | `independence_assumptions` |
+| 16b | "In the two 50-50 gambles built from the same outcomes, do you prefer the 'straight' pairing, the 'crossed' pairing, or are you indifferent?" | `flip_test_preferred_pairing` |
 | 17 | "What are the scaling constants k_i, each attached to its assessed range?" | `scaling_constants` |
 | 18 | "Is the decision maker risk-averse, risk-neutral, or risk-prone?" | `risk_attitude` |
 | 19 | "Does the next state depend only on the current state and your action, or does the earlier history matter?" | `markov_verified` |
@@ -148,7 +259,7 @@ where \(V_{\text{stop}}\) is the value of accepting now and \(V_{\text{continue}
 
 ```python
 from dominant_circuit import (
-    InputContract, Job, dispatch,
+    InputContract, Job, dispatch, classify_job,
     missing_fields, next_question,
     ContractIncomplete, PreconditionViolation, UnclassifiedVariant, AuditFailure,
 )
@@ -158,12 +269,34 @@ contract = InputContract(job=Job.STOPPING)
 while (q := next_question(contract)) is not None:
     ...  # host puts q to the user, records the answer on `contract`
 
-# Stages 2-5 — verify, compute, audit, report. One call.
+# Stages 2-4 — verify, compute, audit. One call. Raises rather than guessing.
 report = dispatch(Job.STOPPING, contract)
 
-print(report.to_markdown())          # full six-field Output Contract
+# Stage 5 — report.
+print(report.to_markdown())          # six Output Contract fields + Execute
+report.action                        # the decision as an instruction
 report.decision, report.formula_name, report.citation
 report.numeric, report.assumptions, report.sensitivity, report.audit
+report.analysis_is_complete          # may the user stop analyzing?
+report.assumptions_to_confirm        # ...once these facts are checked
+```
+
+The whole loop, including the Stage 4 → Stage 1 correction path:
+
+```python
+while True:
+    while (q := next_question(contract)) is not None:
+        ...  # ask q, record the answer
+    try:
+        report = dispatch(classify_job(contract), contract)
+        break
+    except ContractIncomplete as e:
+        ...  # ask e.remedy, record, loop
+    except AuditFailure as e:
+        ...  # re-elicit ONLY e.fields, then loop
+    except (PreconditionViolation, UnclassifiedVariant) as e:
+        ...  # report e and e.remedy; this problem is not computable as stated
+        raise
 ```
 
 > **Host protocol (mandatory).**
@@ -173,6 +306,75 @@ report.numeric, report.assumptions, report.sensitivity, report.audit
 > `UnclassifiedVariant` means the corpus does not cover this assumption set. Say so plainly. **Do not supply a constant from memory.**
 > `AuditFailure` means a validation invariant failed. Report the failed invariant IDs. Do not present the decision as actionable.
 > If `import dominant_circuit` fails, say that the engine is unavailable and that any figure you give is unaudited. Do not compute silently in prose.
+
+## Worked interaction: vague input to executable answer
+
+What the five stages look like in practice. Note where the AI refuses.
+
+> **User:** I've been interviewing people for a role and I want to hire the best one. When should I stop?
+
+**Stage 1 — halt and interrogate.** No number yet. `classify_job` cannot even name the job
+from "hire the best one," and `next_question` asks for the horizon:
+
+> **AI:** Before I can compute anything I need three boundary conditions. First: is the total
+> number of candidates fixed and known, fixed but unknown, or open-ended?
+>
+> **User:** I have 50 scheduled. That's all of them.
+>
+> **AI:** Second: as each candidate finishes, can you only rank them against the ones you've
+> already seen, or do you have an absolute score for each on a scale you trust?
+>
+> **User:** Just relative. I can say who was better, not put a number on it.
+>
+> **AI:** Third: once you pass on a candidate, can you go back to them later? And can a
+> candidate you offer turn *you* down?
+>
+> **User:** No going back. And assume they'd accept.
+>
+> **AI:** Last one, and it matters more than it sounds: does the value of the outcome grow
+> without bound the longer you keep searching?
+>
+> **User:** No, I just want the best of the 50.
+
+Contract complete: `horizon=FIXED_KNOWN, n=50, information=ORDINAL,
+payoff=BEST_OR_NOTHING, recall_allowed=False, payoff_diverges=False`.
+**Nothing was inferred.** "That's all of them" was confirmed as fixed-and-known, not assumed.
+
+**Stages 2–4 — `dispatch(Job.STOPPING, contract)`.** Preconditions pass. The assumption tuple
+matches exactly one row of c01's Decision Table, so the exact finite-\(n\) argmax runs (c01
+§4.1), not the asymptotic 37% shortcut. INV-1 confirms the constant is locked to the elicited
+set; INV-6 confirms finite expectation. Audit passes.
+
+**Stage 5 — report and release.**
+
+> **AI:** **Reject the first 18 of 50 outright, whatever they look like, while recording the
+> best you see. From #19 onward, accept the first one that beats every candidate in that
+> opening block. If none does, you are forced to take #50.**
+>
+> Formula: Look-Then-Leap (exact finite-n), `c01 §4.1`. r\* = 19, P = 0.3743.
+>
+> This holds *because* n is fixed at 50, you have ordinal information only, there is no
+> recall, and no rejection risk. Change any one of those and the number changes — with recall
+> at 50% it would be 0.61·n, not 0.37·n.
+>
+> **You can stop analyzing.** No further calculation improves this. Two things move the
+> number if they are wrong: whether you can really not go back to a passed-over candidate,
+> and the exact-vs-asymptotic computation (the famous "37% rule" would have said 18 here;
+> the exact finite-*n* argmax says 19, and for n=50 exact is worth having). If the recall
+> answer changes, come back — the cutoff moves a lot.
+
+Note the AI reports **19**, not `round(50/e) = 18`. The 37% figure is the asymptotic limit,
+not the answer for a finite pool; the library computes the exact argmax by default and the
+host must not "round it to the famous number."
+
+Contrast the refusal path. Had the user said "I'd let the pool run until I find someone, and
+each round I double down on the search budget," `payoff_diverges=True` yields
+`NoOptimalStoppingRuleExists` and the correct answer is not a later cutoff but:
+
+> **AI:** There is no optimal stopping rule for this problem. When the expected payoff at the
+> best conceivable stopping point diverges, no threshold caps optimal behavior at a finite
+> point, and "always continue" leads to ruin (c01 §8). This needs a bankroll-fraction
+> framework such as Kelly, not a stopping rule. I am not going to give you a cutoff number.
 
 ## Validation invariants (cross-cluster)
 

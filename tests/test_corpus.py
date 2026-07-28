@@ -326,3 +326,38 @@ def test_every_cluster_declares_its_source():
             cluster_path(key).read_text(encoding="utf-8").splitlines()[:6]
         )
         assert "Source" in head, f"{CLUSTERS[key]} lost its Source attribution"
+
+
+def test_worked_interaction_numbers_match_the_engine():
+    """Every number in SKILL.md's worked interaction must be computed, not plausible.
+
+    The transcript is the most-copied thing in the file; a stale number there is a
+    fabricated citation with extra steps.
+    """
+    from dominant_circuit import (
+        InputContract, Job, Horizon, Information, Payoff, dispatch,
+    )
+
+    text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    start = text.index("## Worked interaction")
+    section = text[start:text.index("\n## ", start + 10)]
+
+    contract = InputContract(
+        job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
+        information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=False, payoff_diverges=False,
+    )
+    report = dispatch(Job.STOPPING, contract)
+
+    r_star = int(report.numeric["r_star"])
+    assert f"r\\* = {r_star}" in section, f"transcript r* disagrees with engine ({r_star})"
+    assert f"first {r_star - 1} of 50" in section
+    assert f"From #{r_star} onward" in section
+    assert f"P = {report.numeric['P_n']:.4f}" in section
+    assert report.citation in section
+    # the action string itself must be quoted faithfully. The transcript wraps it
+    # across blockquote lines, so compare with markers and whitespace normalized.
+    flat = re.sub(r"\s+", " ", section.replace("\n> ", " ").replace("**", ""))
+    assert report.action.split(".")[0] in flat, (
+        "SKILL.md's transcript no longer quotes report.action verbatim"
+    )

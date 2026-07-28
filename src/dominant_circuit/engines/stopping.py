@@ -431,6 +431,12 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         cal = CALIBRATIONS["cost_aware_threshold"]
         return OutputReport(
             decision=thr,
+            action=(
+                f"Accept the first offer at or above {thr:.4f} (normalized [0,1] scale). "
+                "This threshold is fixed for the entire search: do not lower it as time "
+                "passes, and never revisit a rejected offer — under a per-offer cost, "
+                "recall is provably never optimal (c01 §9)."
+            ),
             formula_name=cal.rule,
             formula_latex=r"p^* = 1 - \sqrt{2c}",
             citation=cal.citation,
@@ -460,6 +466,12 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         cal = CALIBRATIONS["burglar_rule"]
         return OutputReport(
             decision={"stop_when_accumulated_at_least": ceiling},
+            action=(
+                f"Keep going while your accumulated gains are below {ceiling:.6g}; stop "
+                f"the moment you reach it. Expect roughly {expected_trials:.4g} trials "
+                "before stopping. The ceiling is a fixed quantity of accumulated value, "
+                "not a number of attempts (c01 §11)."
+            ),
             formula_name=cal.rule,
             formula_latex=r"\text{ceiling} = \frac{mq}{1-q}",
             citation=cal.citation,
@@ -506,6 +518,15 @@ def solve_stopping(contract: InputContract) -> OutputReport:
                 "accept_at": accepted,
                 "schedule": schedule,
             },
+            action=(
+                (f"Accept candidate #{accepted} — it is the first whose score clears the "
+                 f"threshold for its position." if accepted is not None else
+                 f"Score each candidate as it arrives and accept the first whose percentile "
+                 f"score reaches the threshold for its position (position 1 needs "
+                 f"{schedule[1]:.4f}, falling to {schedule[n]:.4f} at the last). ")
+                + " No look phase is required: full information makes the two-phase "
+                  "Look-Then-Leap structure unnecessary (c01 §6)."
+            ),
             formula_name=cal.rule,
             formula_latex=r"t_k = 1/(1 + 0.804/k + 0.183/k^2)",
             citation=cal.citation,
@@ -566,6 +587,15 @@ def solve_stopping(contract: InputContract) -> OutputReport:
 
         return OutputReport(
             decision={"look_until": r_star - 1, "leap_from": r_star, "n": n},
+            action=(
+                f"Reject the first {r_star - 1} of {n} outright, whatever they look like, "
+                f"while recording the best you see. From #{r_star} onward, accept the first "
+                f"one that beats every candidate in that opening block."
+                + (f" If none does, fall back and recall the best from the look phase — it "
+                   f"is accepted with probability {contract.recall_accept_prob}."
+                   if cal.rule.endswith("fallback recall") else
+                   f" If none does, you are forced to take #{n}.")
+            ),
             formula_name=formula,
             formula_latex=latex,
             citation=cite,
@@ -601,6 +631,11 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         cal = CALIBRATIONS["unknown_n_uniform_27"]
         return OutputReport(
             decision={"look_until": r_star - 1, "leap_from": r_star},
+            action=(
+                f"Reject the first {r_star - 1} outright while recording the best, then "
+                f"accept the first candidate that beats them all. The pool size is unknown, "
+                f"so this cutoff is set from n_max={n_max}, not from a count you have seen."
+            ),
             formula_name=cal.rule,
             formula_latex=r"r \approx n_{\max}/e^2",
             citation=cal.citation,
@@ -620,6 +655,12 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         cal = CALIBRATIONS["stochastic_stop_236"]
         return OutputReport(
             decision={"look_until": r_star - 1, "leap_from": r_star},
+            action=(
+                f"Reject the first {r_star - 1} outright while recording the best, then "
+                f"accept the first that beats them all. The stream can end at any step "
+                f"(p={p}), so the cutoff is a count of opportunities, not a fraction of a "
+                "known pool."
+            ),
             formula_name=cal.rule,
             formula_latex=r"r \approx 0.18 / p",
             citation=cal.citation,

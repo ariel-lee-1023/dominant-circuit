@@ -31,6 +31,9 @@ from .multiobjective import (
     run_flip_test,
     FlipTestResult,
     check_independence_and_form,
+    independence_questions,
+    record_independence,
+    FLIP_TEST_QUESTION,
 )
 from .sequential import (
     solve_sequential,
@@ -70,6 +73,9 @@ __all__ = [
     "run_flip_test",
     "FlipTestResult",
     "check_independence_and_form",
+    "independence_questions",
+    "record_independence",
+    "FLIP_TEST_QUESTION",
     "solve_sequential",
     "belief_update",
     "value_iteration",

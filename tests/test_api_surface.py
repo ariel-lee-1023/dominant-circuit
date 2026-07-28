@@ -24,7 +24,7 @@ EXPECTED_EXPORTS = {
     # pipeline
     "dispatch", "missing_fields", "next_question", "require_complete",
     "classify_job", "QUESTION_BANK", "verify_preconditions",
-    "run_validation_invariants", "check_range_fixed_weights",
+    "run_validation_invariants", "check_range_fixed_weights", "INVARIANT_FIELDS",
     # engine A — optimal stopping (c01)
     "optimal_cutoff", "asymptotic_cutoff", "parking_cutoff", "parking_cutoff_exact",
     "threshold_percentile", "threshold_rule", "threshold_schedule",
@@ -38,6 +38,8 @@ EXPECTED_EXPORTS = {
     "required_independence_subsets", "run_flip_test", "FlipTestResult",
     "efficient_frontier", "dominates", "dominance_screen",
     "check_independence_and_form",
+    # stage 2 elicitation helpers — the flip-test checkpoint, host-drivable
+    "independence_questions", "record_independence", "FLIP_TEST_QUESTION",
     # engine C — sequential decisions (c03)
     "belief_update", "value_iteration",
 }

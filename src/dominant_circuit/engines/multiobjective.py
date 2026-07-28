@@ -73,6 +73,64 @@ def _format_subsets(subsets: set[frozenset]) -> list[str]:
     return sorted("{" + ", ".join(sorted(s)) + "}" for s in subsets)
 
 
+# The two-lottery discriminator, worded so a host can put it to a user verbatim.
+FLIP_TEST_QUESTION = (
+    "Consider two 50-50 gambles built from the same four outcomes. "
+    "Gamble A pairs them 'straight': a coin flip between (best on every attribute) "
+    "and (worst on every attribute). Gamble B pairs them 'crossed': a coin flip "
+    "between (best on the first, worst on the rest) and (worst on the first, best "
+    "on the rest). Do you prefer A, prefer B, or are you indifferent?"
+)
+
+
+def independence_questions(
+    contract: InputContract,
+) -> list[tuple[frozenset, frozenset, str]]:
+    """Stage 2, driveable. The exact independence claims still unverified for this
+    contract, each as a question a host can put to the user verbatim.
+
+    Returns (subset, complement, question) per uncovered subset. Empty means the
+    registry already covers mutual independence and the gate will pass.
+
+    This is the elicitation counterpart to `uncovered_independence_subsets`, which
+    reports the gaps as sets; here they are phrased. c02 §7.3.
+    """
+    attributes = contract.attributes or []
+    all_attrs = frozenset(a.name for a in attributes)
+    kind = contract.independence_kind
+    uncovered = uncovered_independence_subsets(
+        contract.independence_assumptions, all_attrs, kind
+    )
+
+    # Singular noun phrases, so the generated question reads grammatically.
+    subject = ("your ranking of outcomes on" if kind == "preferential"
+               else "your risk attitude toward")
+    out = []
+    for subset in sorted(uncovered, key=lambda s: (len(s), sorted(s))):
+        complement = all_attrs - subset
+        y = ", ".join(sorted(subset))
+        z = ", ".join(sorted(complement))
+        out.append((
+            subset,
+            complement,
+            f"Holding {z} fixed at any level, does {subject} {y} stay the same "
+            f"regardless of what that fixed level is? (If changing {z} would "
+            f"reorder how you rank outcomes on {y}, the answer is no.)"
+        ))
+    return out
+
+
+def record_independence(
+    subset, complement, kind: str, verified: bool, evidence: str = ""
+) -> IndependenceAssumption:
+    """Convenience constructor so a host can turn an answer to
+    `independence_questions` straight into a registry entry. c02 §7.3."""
+    return IndependenceAssumption(
+        subset=frozenset(subset), complement=frozenset(complement),
+        kind=kind, verified=verified, evidence=evidence,
+    )
+
+
 # --- Flip test (c02 §7.5) ---------------------------------------------------------
 
 @dataclass
@@ -415,8 +473,25 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     n_eq = len(registry)
     overdet = n_eq > max(1, n_params - 1)
 
+    if best is None:
+        action = (
+            f"No alternatives were supplied, so there is nothing to rank. The "
+            f"{form} form is the valid one for your elicited structure "
+            f"(Σk_i={total:.4g}); supply alternatives to score them."
+        )
+    else:
+        action = f"Choose {best} (utility {best_score:.4f} under the {form} form)."
+        if n_screened:
+            action += (
+                f" {n_screened} of {len(list(contract.alternatives or []))} alternatives "
+                f"({', '.join(screened_out)}) were eliminated by dominance before any "
+                "preference was applied — they lose on every attribute, so no choice of "
+                "weights could rescue them (c02 §2.4)."
+            )
+
     return OutputReport(
         decision=decision,
+        action=action,
         formula_name=formula_name,
         formula_latex=latex,
         citation=cite,
