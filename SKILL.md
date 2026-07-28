@@ -163,6 +163,23 @@ raw dict. Always show the formula name and `citation` next to the number, and st
 assumptions that make the action valid, because the answer is **not transferable** to a
 different assumption set.
 
+Report the answer as a **zero-order expansion** (零阶展开), not a bare number — this is what
+lets a user see which assumptions are load-bearing:
+
+```python
+report.zero_order        # 零阶: the trunk
+report.corrections       # 一阶修正: refine it, cannot overturn it
+report.overturns         # 翻盘: a DIFFERENT trunk — this is the flip test's answer
+report.dropped           # 舍去项: thrown away by 主导平衡
+report.hard_constraints  # 硬约束: conditions under which no trunk exists
+```
+
+`corrections` vs `overturns` is decided structurally, not by size: a term is a correction when
+it refines the same calibrated model, an overturn when it moves to a different row of the
+corpus decision table. **Do not re-sort them by magnitude** — for n=50 the +6% term is a
+correction and the −33% term is an overturn. Presenting recall or rejection as a "small
+adjustment to the 37% rule" is precisely the cargo-cult error this system exists to prevent.
+
 Then answer the question users actually have: *may I stop thinking about this?*
 
 ```python

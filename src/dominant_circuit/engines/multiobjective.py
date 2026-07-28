@@ -12,7 +12,11 @@ from ..core.contract import (
     InputContract, AttributeRange, IndependenceAssumption, IndependenceTest, Job,
 )
 from ..core.errors import IndependenceNotVerified, PreconditionViolation, UnclassifiedVariant
-from ..core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+from ..core.report import (
+    OutputReport, AuditResult, InvariantResult, SensitivityEntry,
+    PerturbationTerm, relative_shift,
+    ORDER_ZERO, ORDER_FIRST, ORDER_OVERTURN, ORDER_HARD, ORDER_DROPPED,
+)
 
 
 # --- Independence registry coverage (c02 §7.3) ------------------------------------
@@ -489,9 +493,55 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
                 "weights could rescue them (c02 §2.4)."
             )
 
+    # --- zero-order expansion ------------------------------------------------------
+    # c02 §5.3: "Additive is the special case k=0 of the multiplicative form, not a
+    # separately-derived rule." So k IS the perturbation parameter, and the additive
+    # score is the genuine zero-order term of the multiplicative one.
+    expansion: list[PerturbationTerm] = []
+    if best is not None:
+        additive_best = max(
+            (additive_value(s["levels"], attributes, weights) for s in scored),
+            default=None,
+        )
+        expansion.append(PerturbationTerm(
+            order=ORDER_ZERO,
+            label=f"additive form (k=0), best = {best}",
+            value=round(additive_best, 6) if additive_best is not None else None,
+            citation="c02 §5.3",
+            note="the trunk: Σ k_i u_i(x_i), the k→0 limit of the multiplicative form",
+        ))
+        if form == "multiplicative":
+            expansion.append(PerturbationTerm(
+                order=ORDER_FIRST,
+                label=f"multiplicative correction (k={k:.4g})",
+                value=round(best_score, 6),
+                citation="c02 §5.3",
+                relative_shift=relative_shift(best_score, additive_best),
+                note=f"interaction term from Σk_i={total:.4g} ≠ 1; refines the score. "
+                     "It reorders alternatives only if the shift exceeds their spacing",
+            ))
+    if n_screened:
+        expansion.append(PerturbationTerm(
+            order=ORDER_DROPPED,
+            label=f"dominance screen removed {n_screened}",
+            value=screened_out,
+            citation="c02 §2.4",
+            note="主导平衡: these lose on every attribute, so no choice of weights "
+                 "revives them. Dropped before any preference was elicited",
+        ))
+    expansion.append(PerturbationTerm(
+        order=ORDER_OVERTURN,
+        label="any covered independence subset turns out unverified",
+        value="REFUSED (IndependenceNotVerified)",
+        citation="c02 §7.3",
+        note="翻盘: without covered independence neither form is licensed, so there is "
+             "no trunk to correct — not a smaller number",
+    ))
+
     return OutputReport(
         decision=decision,
         action=action,
+        perturbation=expansion,
         formula_name=formula_name,
         formula_latex=latex,
         citation=cite,

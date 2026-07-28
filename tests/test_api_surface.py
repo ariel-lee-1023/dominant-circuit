@@ -17,6 +17,9 @@ EXPECTED_EXPORTS = {
     "AttributeRange", "IndependenceTest", "IndependenceAssumption",
     # output contract
     "OutputReport", "AuditResult", "InvariantResult", "SensitivityEntry",
+    # zero-order expansion (零阶展开)
+    "PerturbationTerm", "relative_shift",
+    "ORDER_ZERO", "ORDER_FIRST", "ORDER_OVERTURN", "ORDER_HARD", "ORDER_DROPPED",
     # error taxonomy
     "DominantCircuitError", "ContractIncomplete", "PreconditionViolation",
     "NoOptimalStoppingRuleExists", "IndependenceNotVerified", "NonMarkovProcess",

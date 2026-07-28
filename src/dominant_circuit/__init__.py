@@ -8,7 +8,11 @@ from .core.contract import (
     InputContract, Job, Horizon, Information, Payoff, RiskAttitude,
     AttributeRange, IndependenceTest, IndependenceAssumption,
 )
-from .core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+from .core.report import (
+    OutputReport, AuditResult, InvariantResult, SensitivityEntry,
+    PerturbationTerm, relative_shift,
+    ORDER_ZERO, ORDER_FIRST, ORDER_OVERTURN, ORDER_HARD, ORDER_DROPPED,
+)
 from .core.errors import (
     DominantCircuitError, ContractIncomplete, PreconditionViolation,
     NoOptimalStoppingRuleExists, IndependenceNotVerified, NonMarkovProcess,
@@ -43,6 +47,8 @@ __all__ = [
     "Job", "Horizon", "Information", "Payoff", "RiskAttitude",
     "AttributeRange", "IndependenceTest", "IndependenceAssumption",
     "OutputReport", "AuditResult", "InvariantResult", "SensitivityEntry",
+    "PerturbationTerm", "relative_shift",
+    "ORDER_ZERO", "ORDER_FIRST", "ORDER_OVERTURN", "ORDER_HARD", "ORDER_DROPPED",
     "DominantCircuitError", "ContractIncomplete", "PreconditionViolation",
     "NoOptimalStoppingRuleExists", "IndependenceNotVerified", "NonMarkovProcess",
     "UnclassifiedVariant", "AuditFailure", "NotInCorpus",

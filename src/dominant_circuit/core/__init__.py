@@ -2,7 +2,9 @@ from .contract import (
     InputContract, Job, Horizon, Information, Payoff, RiskAttitude,
     AttributeRange, IndependenceTest, IndependenceAssumption,
 )
-from .report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+from .report import (
+    OutputReport, AuditResult, InvariantResult, SensitivityEntry, PerturbationTerm,
+)
 from .errors import (
     DominantCircuitError, ContractIncomplete, PreconditionViolation,
     NoOptimalStoppingRuleExists, IndependenceNotVerified, NonMarkovProcess,
@@ -17,6 +19,7 @@ __all__ = [
     "InputContract", "Job", "Horizon", "Information", "Payoff", "RiskAttitude",
     "AttributeRange", "IndependenceTest", "IndependenceAssumption",
     "OutputReport", "AuditResult", "InvariantResult", "SensitivityEntry",
+    "PerturbationTerm",
     "DominantCircuitError", "ContractIncomplete", "PreconditionViolation",
     "NoOptimalStoppingRuleExists", "IndependenceNotVerified", "NonMarkovProcess",
     "UnclassifiedVariant", "AuditFailure", "NotInCorpus",
