@@ -50,6 +50,7 @@ src/dominant_circuit/
     sequential.py                 # Engine C (c03)
 tests/
   test_api.py
+  test_corpus.py                  # corpus/code drift guards (sizes, sections, citations)
   test_multiobjective.py
   test_sequential.py
   test_stopping.py
