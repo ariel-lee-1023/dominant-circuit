@@ -398,3 +398,83 @@ def test_readme_states_the_stage_ownership():
     for stage in ("Elicitation", "Verification", "Computation", "Auditing", "Reporting"):
         assert stage in readme, f"README no longer names the {stage} stage"
     assert "Host" in readme and "Library" in readme
+
+
+# Docs that must describe the code as it is right now.
+LIVE_DOCS = ("README.md", "AGENTS.md", "SKILL.md", "DESIGN.md")
+
+# Historical records of intent, deliberately NOT held to current reality: they
+# describe target state at the time of writing and are partly superseded.
+# SPEC.md §3, for instance, names test files that were later reorganised.
+HISTORICAL_DOCS = ("SPEC.md", "SPEC-2-PUNCHLIST.md")
+
+# Things that look like a module path in prose, e.g. `engines/stopping.py`,
+# `core/dispatch.py`, `src/dominant_circuit/core/audit.py`, `tests/test_corpus.py`.
+MODULE_REF_RE = re.compile(
+    r"`((?:src/dominant_circuit/|core/|engines/|tests/)[A-Za-z0-9_/]+\.py)"
+    r"(?:::[A-Za-z0-9_]+)?`"
+)
+
+
+def test_live_docs_name_only_modules_that_exist():
+    """The `solvers.py` class of bug: a document telling a reader to look at a file
+    that is not there. Historical specs are exempt; docs describing current
+    reality are not."""
+    problems = []
+    for name in LIVE_DOCS:
+        doc = ROOT / name
+        if not doc.is_file():
+            problems.append(f"{name} is missing")
+            continue
+        for ref in set(MODULE_REF_RE.findall(doc.read_text(encoding="utf-8"))):
+            path = ref if ref.startswith("src/") or ref.startswith("tests/") \
+                else f"src/dominant_circuit/{ref}"
+            if not (ROOT / path).is_file():
+                problems.append(f"{name} references {ref!r} -> no such file")
+    assert not problems, "docs name non-existent modules:\n  " + "\n  ".join(problems)
+
+
+def test_no_live_doc_cites_solvers_py_as_real():
+    """`solvers.py` was the pre-rewrite Stage 3 module, replaced by
+    core/dispatch.py + engines/ (SPEC.md, defects D-12 and D-13).
+
+    A live doc may *explain* its absence — that is how a reader of older text finds
+    the current code — but none may present it as a file that exists. So any doc
+    mentioning it must also say it does not exist.
+    """
+    disclaimers = ("does not exist", "must not be reintroduced",
+                   "not missing", "superseded", "pre-rewrite")
+    for name in LIVE_DOCS:
+        text = (ROOT / name).read_text(encoding="utf-8")
+        if "solvers.py" not in text:
+            continue
+        assert any(d in text for d in disclaimers), (
+            f"{name} mentions solvers.py without saying it no longer exists"
+        )
+    # and the reconciliation must be findable from the design document
+    assert "Naming note" in (ROOT / "DESIGN.md").read_text(encoding="utf-8")
+
+
+def test_governing_documents_are_committed():
+    """SPEC.md and SPEC-2-PUNCHLIST.md are cited by AGENTS.md, DESIGN.md and the
+    commit history. A fresh clone must be able to read them."""
+    for name in HISTORICAL_DOCS + LIVE_DOCS:
+        assert (ROOT / name).is_file(), f"{name} is cited but not committed"
+
+
+def test_spec_layout_matches_the_package():
+    """SPEC.md §3 defines the module layout; the package must still match it.
+
+    This is what makes `engines/` canonical rather than `solvers.py`: SPEC.md
+    records `solvers.py` as the *pre-rewrite* file (baseline commit a66504d) whose
+    defects D-12 and D-13 were closed by replacing it with `core/dispatch.py`
+    routing to the `engines/` package.
+    """
+    for module in ("core/contract.py", "core/elicit.py", "core/verify.py",
+                   "core/audit.py", "core/dispatch.py", "core/report.py",
+                   "core/errors.py", "engines/stopping.py",
+                   "engines/multiobjective.py", "engines/sequential.py"):
+        assert (SRC / module).is_file(), f"SPEC.md §3 requires {module}"
+    assert not (SRC / "solvers.py").exists(), (
+        "solvers.py is the superseded pre-rewrite module; it must not come back"
+    )
