@@ -27,6 +27,9 @@ EXPECTED_EXPORTS = {
     # pipeline
     "dispatch", "missing_fields", "next_question", "require_complete",
     "classify_job", "QUESTION_BANK", "verify_preconditions",
+    # weight screening — the overturn test (翻盘检验)
+    "overturn_test", "OverturnResult", "elicitation_plan", "screenable_fields",
+    "WEIGHT_PREREQUISITES",
     "run_validation_invariants", "check_range_fixed_weights", "INVARIANT_FIELDS",
     # engine A — optimal stopping (c01)
     "optimal_cutoff", "asymptotic_cutoff", "parking_cutoff", "parking_cutoff_exact",

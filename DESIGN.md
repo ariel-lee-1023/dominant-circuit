@@ -170,6 +170,68 @@ is part of the deliverable, not a courtesy.
 
 ---
 
+## Weight (权重) and the overturn test
+
+**Weight is the magnitude of causal control a factor exerts over the outcome, given a concrete
+goal, a specific time scale, and defined objects of comparison.** There is no standard answer
+for weight; it depends entirely on the objective function (目标函数).
+
+Two consequences shape the whole of Stage 1.
+
+**Weight is a product of the dialogue, not a library computation.** The AI cannot rank factors
+by importance in the abstract, because importance is not a property of a factor — it is a
+property of a factor *relative to a stated goal*. So the AI **coaches** the user toward
+articulating the goal, and the **user decides** it. `classify_job` reads contract fields and
+never user prose for precisely this reason: the moment the AI picks the objective function,
+every weight downstream is the AI's opinion wearing the user's name.
+
+The three prerequisites (`WEIGHT_PREREQUISITES`) are therefore not screenable:
+
+| Prerequisite | Contract fields |
+|---|---|
+| 给定目标 | `payoff`, `attributes`, `scaling_constants`, `risk_attitude` |
+| 给定时间尺度 | `horizon`, `gamma`, `n`, `n_max`, `stop_prob_per_step` |
+| 给定比较对象 | `alternatives`, `states`, `actions` |
+
+`overturn_test` raises `ContractIncomplete` before these are stated, rather than inventing a
+baseline. Without them no factor has a weight yet.
+
+**The test for weight is overturn capacity.** Do not ask "what other details have I not
+considered?" — details are infinite and the question never terminates. Ask the one question
+that does:
+
+> Is the presence or absence of this factor sufficient to overturn my current conclusion?
+
+If it is not sufficient, it is a high-order perturbation — a small quantity — so throw it out of
+the dominant equation immediately.
+
+```python
+plan = elicitation_plan(contract)
+plan["required"]      # no conclusion exists yet; ask these
+plan["load_bearing"]  # passed the overturn test
+plan["droppable"]     # failed it — do not ask
+```
+
+`overturn_test` answers by *recomputing*, not by heuristic: it re-dispatches the contract under
+each corpus-calibrated alternative and compares decisions. A refusal counts as an overturn — if
+setting a factor makes the problem uncalibrated, the factor is emphatically load-bearing.
+
+This is why the library can screen honestly instead of guessing. The same factor goes both ways:
+
+| Pool size | exact | asymptotic | Overturn? | Verdict |
+|---|---|---|---|---|
+| n = 50 | 19 | 18 | **yes** | load-bearing — worth a question |
+| n = 45 | 17 | 17 | no | 舍去项 — throw it out |
+| n = 102 | 38 | 38 | no | 舍去项 — throw it out |
+
+"Should I use the exact computation or the famous 37% rule?" is a real question at n=50 and a
+waste of the user's attention at n=45. No fixed list of "important factors" survives between
+conversations; each must be screened against the goal actually stated.
+
+This is also the answer to 大局观的另一半 — knowing when to stop looking. `plan["required"] == []`
+with an empty `load_bearing` means there is nothing left worth asking, which is a computed
+result rather than a judgement call.
+
 ## The zero-order expansion (零阶展开)
 
 Every report carries `report.perturbation` — the answer as a labelled series rather than a
