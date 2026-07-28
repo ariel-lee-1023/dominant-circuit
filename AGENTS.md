@@ -54,6 +54,7 @@ tests/
   test_audit_and_report.py        # INV-1..INV-7 and Output Contract rendering
   test_corpus.py                  # corpus/code drift guards (sizes, sections, citations)
   test_multiobjective.py
+  test_product_intent.py          # the four claims the product exists to make good on
   test_sequential.py
   test_stopping.py
 ```
