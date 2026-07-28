@@ -3,11 +3,214 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
+from itertools import combinations
 from typing import Any, Optional, Sequence
 
-from ..core.contract import InputContract, AttributeRange, IndependenceTest, Job
+from ..core.audit import check_range_fixed_weights
+from ..core.contract import (
+    InputContract, AttributeRange, IndependenceAssumption, IndependenceTest, Job,
+)
 from ..core.errors import IndependenceNotVerified, PreconditionViolation, UnclassifiedVariant
 from ..core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+
+
+# --- Independence registry coverage (c02 §7.3) ------------------------------------
+
+def required_independence_subsets(all_attrs: frozenset) -> set[frozenset]:
+    """Every proper nonempty subset of the attribute set. c02 §7.3."""
+    attrs = list(all_attrs)
+    needed: set[frozenset] = set()
+    for r in range(1, len(attrs)):
+        for combo in combinations(attrs, r):
+            needed.add(frozenset(combo))
+    return needed
+
+
+def _verified_subsets(assumptions: Optional[Sequence[IndependenceAssumption]],
+                      all_attrs: frozenset, kind: str) -> set[frozenset]:
+    return {
+        a.subset for a in (assumptions or [])
+        if a.kind == kind and a.verified and a.complement == all_attrs - a.subset
+    }
+
+
+def uncovered_independence_subsets(
+    assumptions: Optional[Sequence[IndependenceAssumption]],
+    all_attrs: frozenset,
+    kind: str,
+) -> set[frozenset]:
+    """The proper nonempty subsets the registry does not cover. Empty == mutual
+    independence is established by the registry."""
+    verified = _verified_subsets(assumptions, all_attrs, kind)
+    needed = required_independence_subsets(all_attrs)
+
+    if len(all_attrs) == 3:
+        # c02 §3.4: for n = 3, pairwise preferential independence -- each 2-element
+        # subset independent of its complementary singleton -- is equivalent to
+        # mutual preferential independence, so the pairwise checks suffice.
+        pairwise = {s for s in needed if len(s) == 2}
+        if pairwise.issubset(verified):
+            return set()
+        return pairwise - verified
+
+    return needed - verified
+
+
+def mutual_independence_holds(
+    assumptions: Optional[Sequence[IndependenceAssumption]],
+    all_attrs: frozenset,
+    kind: str,
+) -> bool:
+    """Mutual (preferential or utility) independence requires every proper
+    nonempty subset to be independent of its complement (c02 §7.3). This checks
+    that the assumption registry actually covers that requirement -- it does not
+    itself elicit anything."""
+    return not uncovered_independence_subsets(assumptions, all_attrs, kind)
+
+
+def _format_subsets(subsets: set[frozenset]) -> list[str]:
+    return sorted("{" + ", ".join(sorted(s)) + "}" for s in subsets)
+
+
+# The two-lottery discriminator, worded so a host can put it to a user verbatim.
+FLIP_TEST_QUESTION = (
+    "Consider two 50-50 gambles built from the same four outcomes. "
+    "Gamble A pairs them 'straight': a coin flip between (best on every attribute) "
+    "and (worst on every attribute). Gamble B pairs them 'crossed': a coin flip "
+    "between (best on the first, worst on the rest) and (worst on the first, best "
+    "on the rest). Do you prefer A, prefer B, or are you indifferent?"
+)
+
+
+def independence_questions(
+    contract: InputContract,
+) -> list[tuple[frozenset, frozenset, str]]:
+    """Stage 2, driveable. The exact independence claims still unverified for this
+    contract, each as a question a host can put to the user verbatim.
+
+    Returns (subset, complement, question) per uncovered subset. Empty means the
+    registry already covers mutual independence and the gate will pass.
+
+    This is the elicitation counterpart to `uncovered_independence_subsets`, which
+    reports the gaps as sets; here they are phrased. c02 §7.3.
+    """
+    attributes = contract.attributes or []
+    all_attrs = frozenset(a.name for a in attributes)
+    kind = contract.independence_kind
+    uncovered = uncovered_independence_subsets(
+        contract.independence_assumptions, all_attrs, kind
+    )
+
+    # Singular noun phrases, so the generated question reads grammatically.
+    subject = ("your ranking of outcomes on" if kind == "preferential"
+               else "your risk attitude toward")
+    out = []
+    for subset in sorted(uncovered, key=lambda s: (len(s), sorted(s))):
+        complement = all_attrs - subset
+        y = ", ".join(sorted(subset))
+        z = ", ".join(sorted(complement))
+        out.append((
+            subset,
+            complement,
+            f"Holding {z} fixed at any level, does {subject} {y} stay the same "
+            f"regardless of what that fixed level is? (If changing {z} would "
+            f"reorder how you rank outcomes on {y}, the answer is no.)"
+        ))
+    return out
+
+
+def record_independence(
+    subset, complement, kind: str, verified: bool, evidence: str = ""
+) -> IndependenceAssumption:
+    """Convenience constructor so a host can turn an answer to
+    `independence_questions` straight into a registry entry. c02 §7.3."""
+    return IndependenceAssumption(
+        subset=frozenset(subset), complement=frozenset(complement),
+        kind=kind, verified=verified, evidence=evidence,
+    )
+
+
+# --- Flip test (c02 §7.5) ---------------------------------------------------------
+
+@dataclass
+class FlipTestResult:
+    indifferent: bool         # True if decision maker was indifferent between the two lotteries
+    implied_form: str         # 'additive' or 'multiplicative'
+    k_yz_sign: Optional[int]  # +1, -1, 0, or None if not applicable
+
+
+def run_flip_test(preferred_pairing: Optional[str],
+                  mutual_utility_independence_verified: bool = False) -> FlipTestResult:
+    """Operationalizes the book's discriminating corollary (c02 §5.2, §5.3,
+    Theorem 6.1 corollary): offer two 50-50 lotteries built from the same
+    consequences but with attributes 'straight' vs. 'crossed' across the pairing,
+    and record whether the decision maker is indifferent (additive) or has a
+    strict preference (multiplicative).
+
+    This test's conclusion is conditional on mutual utility independence already
+    holding: the representation from which k_YZ is defined only exists under that
+    structure, so the test cannot be interpreted, and must not be run, until
+    mutual_utility_independence_verified is True. The test only distinguishes
+    additive from multiplicative *within* that structure; it does not establish
+    the independence structure itself.
+
+    preferred_pairing: None if indifferent; 'straight' if the pairing
+    (high,high)/(low,low) is preferred; 'crossed' if (high,low)/(low,high).
+    """
+    if not mutual_utility_independence_verified:
+        raise ValueError(
+            "Mutual utility independence must be verified before the flip "
+            "test's conclusion about additive vs. multiplicative form is "
+            "meaningful (c02 §5.1, §5.3)."
+        )
+    if preferred_pairing is None:
+        return FlipTestResult(indifferent=True, implied_form="additive", k_yz_sign=0)
+    if preferred_pairing == "straight":
+        return FlipTestResult(indifferent=False, implied_form="multiplicative", k_yz_sign=1)
+    if preferred_pairing == "crossed":
+        return FlipTestResult(indifferent=False, implied_form="multiplicative", k_yz_sign=-1)
+    raise ValueError("preferred_pairing must be None, 'straight', or 'crossed'.")
+
+
+def check_independence_and_form(contract: InputContract,
+                                flip_result: Optional[FlipTestResult],
+                                k_sum: float) -> InvariantResult:
+    """INV-3. (a) registry coverage holds; (b) the recorded flip test's implied_form
+    agrees with the form implied by sum(k_i). Disagreement means the elicitation is
+    internally inconsistent — surface it, do not average it away (c02 §7.8)."""
+    all_attrs = frozenset(a.name for a in (contract.attributes or []))
+    kind = contract.independence_kind
+    uncovered = uncovered_independence_subsets(
+        contract.independence_assumptions, all_attrs, kind
+    )
+
+    form_from_k = "additive" if abs(k_sum - 1.0) < 1e-9 else "multiplicative"
+
+    problems: list[str] = []
+    if uncovered:
+        problems.append(
+            f"{kind} independence registry does not cover {_format_subsets(uncovered)} (c02 §7.3)"
+        )
+    if flip_result is not None and flip_result.implied_form != form_from_k:
+        problems.append(
+            f"form disagreement: recorded flip test implies {flip_result.implied_form} "
+            f"(c02 §7.5) but Σk_i={k_sum:.6g} implies {form_from_k} (c02 §5.3). "
+            "Σk_i = 1 ⟺ k = 0 ⟺ additive, so these cannot both be right"
+        )
+
+    passed = not problems
+    if passed:
+        detail = f"form={form_from_k}, Σk_i={k_sum:.6g}"
+        if flip_result is not None:
+            detail += f", flip test agrees (k_YZ sign {flip_result.k_yz_sign})"
+        else:
+            detail += ", no flip test recorded"
+        message = f"Mutual {kind} independence covered by the registry; {detail}"
+    else:
+        message = "; ".join(problems)
+
+    return InvariantResult("INV-3", "independence_and_form", passed, message=message)
 
 
 def dominates(a: Sequence[float], b: Sequence[float], increasing: Sequence[bool]) -> bool:
@@ -49,6 +252,31 @@ def efficient_frontier(
         if not dominated:
             frontier.append(cand)
     return frontier
+
+
+def dominance_screen(
+    alternatives: Optional[Sequence[dict[str, Any]]],
+    attributes: list[AttributeRange],
+) -> tuple[list[dict[str, Any]], list[str], int]:
+    """Screen dominated alternatives before any preference elicitation.
+    c02 §2.4 (dominance and the efficient frontier) and §7.2.
+
+    A dominated alternative can never be optimal under any monotone value or
+    utility function, so eliciting preferences over it wastes the decision
+    maker's attention and adds inconsistency risk for nothing.
+
+    Returns (survivors, names_screened_out, n_screened_out).
+    """
+    alts = [a for a in (alternatives or []) if isinstance(a, dict)]
+    if not alts or not attributes:
+        return alts, [], 0
+
+    survivors = efficient_frontier(alts, attributes)
+    kept = {id(a) for a in survivors}
+    screened = [
+        str(a.get("name", a)) for a in alts if id(a) not in kept
+    ]
+    return survivors, sorted(screened), len(screened)
 
 
 def _normalize(raw: float, attr: AttributeRange) -> float:
@@ -141,12 +369,31 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     if not attributes:
         raise PreconditionViolation("attributes required", field="attributes")
 
-    tests = contract.independence_tests or []
-    if not any(t.passed for t in tests):
+    # Dominance screening runs BEFORE preference elicitation is consumed:
+    # never elicit preferences over alternatives that cannot win (c02 §2.4, §7.2).
+    frontier, screened_out, n_screened = dominance_screen(
+        contract.alternatives, attributes
+    )
+
+    all_attrs = frozenset(a.name for a in attributes)
+    kind = contract.independence_kind
+    assumptions_registry = contract.independence_assumptions
+    uncovered = uncovered_independence_subsets(assumptions_registry, all_attrs, kind)
+    if uncovered:
         raise IndependenceNotVerified(
-            "Independence not verified. Flip-test (or equivalent) required before any multiattribute form.",
-            remedy="Run flip test (c02 §5.2) and record IndependenceTest(passed=True).",
-            field="independence_tests",
+            "Mutual independence is not covered by the assumption registry: "
+            f"missing subsets {_format_subsets(uncovered)}.",
+            remedy="Elicit and record an IndependenceAssumption for each listed subset (c02 §7.3).",
+            field="independence_assumptions",
+        )
+
+    # The flip test discriminates additive vs. multiplicative *within* an already
+    # verified independence structure (c02 §7.5); it never establishes it.
+    flip_result: Optional[FlipTestResult] = None
+    if contract.flip_test_performed:
+        flip_result = run_flip_test(
+            contract.flip_test_preferred_pairing,
+            mutual_utility_independence_verified=True,
         )
 
     weights = contract.scaling_constants or {}
@@ -167,9 +414,9 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     if abs(total - 1.0) < 1e-9:
         form = "additive"
         k = 0.0
-        formula_name = "Additive Multiattribute Utility"
+        formula_name = "Additive Multiattribute Utility (additive special case)"
         latex = r"u(x) = \sum_i k_i u_i(x_i)"
-        cite = "c02 §5.3 (additive special case)"
+        cite = "c02 §5.3"
     else:
         form = "multiplicative"
         k = solve_multiplicative_k(k_list)
@@ -177,24 +424,21 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         latex = r"1 + k\,u(x) = \prod_i (1 + k\,k_i\,u_i(x_i))"
         cite = "c02 §5.3"
 
-    alts = list(contract.alternatives or [])
     scored: list[dict[str, Any]] = []
     best = None
     best_score = -math.inf
 
-    if alts and all(isinstance(a, dict) for a in alts):
-        frontier = efficient_frontier(alts, attributes)
-        for alt in frontier:
-            levels = {attr.name: float(alt.get(attr.name, 0)) for attr in attributes}
-            label = alt.get("name", str(alt))
-            if form == "additive":
-                score = additive_value(levels, attributes, weights)
-            else:
-                score = multiplicative_utility(levels, attributes, weights, k)
-            scored.append({"name": label, "utility": score, "levels": levels})
-            if score > best_score:
-                best_score = score
-                best = label
+    for alt in frontier:
+        levels = {attr.name: float(alt.get(attr.name, 0)) for attr in attributes}
+        label = alt.get("name", str(alt))
+        if form == "additive":
+            score = additive_value(levels, attributes, weights)
+        else:
+            score = multiplicative_utility(levels, attributes, weights, k)
+        scored.append({"name": label, "utility": score, "levels": levels})
+        if score > best_score:
+            best_score = score
+            best = label
 
     decision = {
         "form": form,
@@ -202,11 +446,19 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         "best_alternative": best,
         "best_utility": best_score if best is not None else None,
         "ranked": sorted(scored, key=lambda x: -x["utility"]),
+        "dominated_screened_out": screened_out,
     }
 
+    registry = assumptions_registry or []
     assumptions = {
         "form": form,
+        "independence_kind": kind,
         "independence_verified": True,
+        "independence_subsets_verified": _format_subsets(
+            _verified_subsets(registry, all_attrs, kind)
+        ),
+        "flip_test_performed": contract.flip_test_performed,
+        "flip_test_implied_form": flip_result.implied_form if flip_result else None,
         "n_attributes": len(attributes),
         "sum_k_i": total,
         "k": k,
@@ -218,11 +470,28 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     }
 
     n_params = len(attributes)
-    n_eq = len(tests)
+    n_eq = len(registry)
     overdet = n_eq > max(1, n_params - 1)
+
+    if best is None:
+        action = (
+            f"No alternatives were supplied, so there is nothing to rank. The "
+            f"{form} form is the valid one for your elicited structure "
+            f"(Σk_i={total:.4g}); supply alternatives to score them."
+        )
+    else:
+        action = f"Choose {best} (utility {best_score:.4f} under the {form} form)."
+        if n_screened:
+            action += (
+                f" {n_screened} of {len(list(contract.alternatives or []))} alternatives "
+                f"({', '.join(screened_out)}) were eliminated by dominance before any "
+                "preference was applied — they lose on every attribute, so no choice of "
+                "weights could rescue them (c02 §2.4)."
+            )
 
     return OutputReport(
         decision=decision,
+        action=action,
         formula_name=formula_name,
         formula_latex=latex,
         citation=cite,
@@ -230,12 +499,15 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
             "k": k,
             "sum_k_i": total,
             "best_utility": best_score if best is not None else float("nan"),
+            "n_alternatives": float(len(list(contract.alternatives or []))),
+            "n_dominated_screened_out": float(n_screened),
+            "n_on_efficient_frontier": float(len(frontier)),
         },
         assumptions=assumptions,
         sensitivity=[
             SensitivityEntry(
-                assumption="independence_tests",
-                perturbation="passed → failed",
+                assumption="independence_assumptions",
+                perturbation="any covered subset → unverified",
                 new_decision="REFUSED (IndependenceNotVerified)",
                 decision_changed=True,
                 fragility="critical",
@@ -249,16 +521,12 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
             ),
         ],
         audit=AuditResult(results=[
-            InvariantResult("INV-3", "independence_verified", True, message="Flip-test recorded"),
-            InvariantResult("INV-5", "range_fixed_weights", True, message="Every k_i has AttributeRange"),
+            check_independence_and_form(contract, flip_result, total),
+            check_range_fixed_weights(contract),
             InvariantResult(
                 "INV-7", "overdetermination", overdet,
-                message=f"{n_eq} tests vs {n_params} parameters" if overdet
-                else f"Underdetermined: {n_eq} tests for {n_params} parameters",
-            ),
-            InvariantResult(
-                "INV-weight-sum", "form_consistency", True,
-                message=f"form={form}, k={k:.6g}, Σk_i={total:.6g}",
+                message=f"{n_eq} recorded assumptions vs {n_params} parameters" if overdet
+                else f"Underdetermined: {n_eq} recorded assumptions for {n_params} parameters",
             ),
         ]),
     )

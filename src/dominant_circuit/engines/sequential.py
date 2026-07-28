@@ -148,9 +148,15 @@ def solve_sequential(contract: InputContract) -> OutputReport:
         total = sum(belief.values())
         return OutputReport(
             decision={"belief": belief, "history_len": len(history)},
+            action=(
+                f"After {len(contract.observations)} observation(s), the most likely state "
+                f"is {max(belief, key=belief.get)!r} at probability "
+                f"{max(belief.values()):.4f}. Act on the full belief vector, not the mode "
+                "alone — the remaining mass is the part that can still surprise you."
+            ),
             formula_name="Recursive Bayesian Belief Update",
             formula_latex=r"b'(s) \propto O(o|s)\,b(s)",
-            citation="c03 §belief",
+            citation="c03 §9",
             numeric={"belief_sum": total, **{f"b[{s}]": p for s, p in belief.items()}},
             assumptions={
                 "gamma": gamma,
@@ -202,9 +208,16 @@ def solve_sequential(contract: InputContract) -> OutputReport:
             "iterations": len(residuals),
             "final_residual": residuals[-1] if residuals else None,
         },
+        action=(
+            f"From state {start!r}, take action {policy.get(start)!r}. "
+            f"Value iteration converged in {len(residuals)} sweeps to a residual of "
+            f"{residuals[-1]:.2e}; the policy above is optimal for γ={gamma}. "
+            "Re-plan after you observe the next state rather than executing the whole "
+            "policy blind."
+        ),
         formula_name="Bellman Optimality / Value Iteration",
         formula_latex=r"U^*(s)=\max_a\bigl(R(s,a)+\gamma\sum_{s'}T(s'|s,a)U^*(s')\bigr)",
-        citation="c03 §Bellman",
+        citation="c03 §6",
         numeric={
             "gamma": gamma,
             "iterations": float(len(residuals)),

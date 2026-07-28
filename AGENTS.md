@@ -9,26 +9,97 @@ This repository is the **executable knowledge base + physics engines** for the D
 3. Before answering any decision-structure query, the host AI **must** consult the matching cluster under `references/clusters/` and, when computation is required, invoke the corresponding engine via the `dominant_circuit` package.
 4. Matching content is authoritative. If no matching content exists, the host must stay in character and must **not** invent formulas outside the zero-order set documented here.
 5. Never silently substitute the classical 37 % assumption set. The Input Contract must be fully elicited.
+6. The `dominant_circuit` package is a pure, non-interactive library. It performs no I/O and asks no questions. All conversation is the host's responsibility.
+7. Install with `pip install -e .` from the repository root before use. If the import fails, the host must say the engine is unavailable rather than computing in prose.
+8. If a cluster file required by the query is missing or does not cover the elicited assumption set, refuse the query and say so. Never answer from `SKILL.md`'s inlined formulas while citing a cluster section — that produces a real-looking citation for a number the corpus does not support.
 
 ## Directory Map
 
+Generated from `find . -not -path './.git/*' -type f | sort`.
+
 ```
+.github/workflows/python-app.yml  # CI: lint, install package, pytest + coverage gate
+.gitignore
+AGENTS.md                         # This file — host-AI pairing rules
+LICENSE
+NOTICE.md                         # Source attribution for the corpus
+README.md
 SKILL.md                          # Router skill (elicitation + dispatch rules)
+main.py                           # Non-interactive demo of the three engines
+pyproject.toml
 references/clusters/
   c01-optimal-stopping.md         # Engine A source of truth
   c02-multiple-objectives.md      # Engine B source of truth
   c03-sequential-decisions.md     # Engine C source of truth
 src/dominant_circuit/
-  core/                           # Contract, verify, audit, dispatch
-  engines/                        # The three physics engines
-tests/                            # Smoke tests for every engine
+  __init__.py                     # Public API surface (__all__)
+  py.typed
+  core/
+    __init__.py
+    contract.py                   # InputContract, enums, AttributeRange, independence records
+    elicit.py                     # Stage 1: QUESTION_BANK, missing_fields, next_question
+    verify.py                     # Stage 2: hard precondition blockers
+    dispatch.py                   # Stage 3: verify -> compute -> audit -> report
+    audit.py                      # Stage 4: validation invariants INV-1..INV-7
+    report.py                     # OutputReport, AuditResult, InvariantResult
+    errors.py                     # Typed error taxonomy with .remedy / .field
+  engines/
+    __init__.py
+    stopping.py                   # Engine A (c01)
+    multiobjective.py             # Engine B (c02)
+    sequential.py                 # Engine C (c03)
+tests/
+  test_api.py
+  test_api_surface.py             # public __all__ may not shrink silently
+  test_audit_and_report.py        # INV-1..INV-7 and Output Contract rendering
+  test_corpus.py                  # corpus/code drift guards (sizes, sections, citations)
+  test_interaction_stages.py      # the five-stage interaction model, as a host drives it
+  test_multiobjective.py
+  test_product_intent.py          # the four claims the product exists to make good on
+  test_sequential.py
+  test_stopping.py
 ```
 
 ## Engineering Invariants
 
-- All hard preconditions (diverging payoff, independence, Markov, range-fixed weights) are enforced in code before any formula runs.
+What is actually enforced in code, by invariant ID:
+
+- **INV-1 (assumption-set match)** — enforced. `engines/stopping.py::check_assumption_set_match`
+  compares the elicited assumption tuple against the `Calibration` record of the constant
+  actually dispatched. A mismatch on any pinned field fails the audit; it is not a literal.
+- **INV-2 (belief normalization)** — enforced, computed from the posterior in `engines/sequential.py`.
+- **INV-3 (independence verified + form agreement)** — enforced. Registry coverage is checked by
+  `mutual_independence_holds` (c02 §7.3), and the recorded flip test's implied form must agree
+  with the form implied by `sum(k_i)`.
+- **INV-4 (Bellman residual monotonicity)** — enforced, computed from the residual history.
+- **INV-5 (range-fixed weights)** — enforced twice, deliberately: `core/verify.py` blocks before
+  computing, `check_range_fixed_weights` records the result in the report.
+- **INV-6 (finite expectation)** — enforced. `payoff_diverges=True` raises
+  `NoOptimalStoppingRuleExists` in Stage 2, before any formula runs.
+- **INV-7 (overdetermination)** — **conditional, not blocking.** It is reported when the
+  elicitation supplies enough structure to count trade-off equations against free parameters,
+  and is otherwise omitted. A passing report does not prove the elicitation was overdetermined.
+
+Additionally:
+
 - Every returned `OutputReport` carries the full assumption list and audit results.
 - Scaling constants are never treated as free-floating “importance weights”; ranges are attached.
+
+## Change discipline
+
+Deleting corpus content or public API symbols requires an explicit line in the commit body
+beginning `REMOVES:`. A commit whose stated purpose is a fix must not also delete unrelated
+content.
+
+Two tests enforce this mechanically, and both are meant to be *updated in the same commit*
+as any deliberate removal, never silenced:
+
+- `tests/test_corpus.py::test_cluster_minimum_sizes` — line floors on the three cluster files,
+  set ~10% below their restored sizes. This is what commit `a2d99aa` would have tripped when
+  it deleted 223 lines of `c01` under the title "Correct c01 §10 parking formula".
+- `tests/test_api_surface.py::test_public_api_surface_is_stable` — `EXPECTED_EXPORTS` is the
+  public `__all__` as of T8. Removing an export fails the build until the removal is written
+  down.
 
 ## License & Attribution
 

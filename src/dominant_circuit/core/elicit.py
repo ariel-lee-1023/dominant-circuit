@@ -20,13 +20,79 @@ QUESTION_BANK = {
     "payoff_diverges": "Does the expected reward grow without bound if you never stop (e.g. triple-or-nothing)?",
     "payoff": "What is the payoff structure: best-or-nothing, net-value-minus-cost, ruin-risk, multiattribute, or discounted return?",
     "search_cost": "What is the per-look cost, normalized to the [0,1] outcome scale?",
+    "ruin_success_prob": "What is the per-trial probability q that a trial succeeds rather than wiping out everything accumulated?",
+    "ruin_mean_gain": "What is the average gain m per successful trial?",
     "gamma": "What discount factor γ ∈ [0,1) should be used?",
     "markov_verified": "Have you confirmed that the next state depends only on the current state and action (Markov property)?",
-    "independence_tests": "Has mutual (or pairwise) utility/preferential independence been verified via the flip test?",
+    "independence_assumptions": "Has mutual (or pairwise) utility/preferential independence been verified, and against which attribute subsets?",
     "attributes": "What are the attributes and their explicit [worst, best] ranges?",
     "scaling_constants": "What are the scaling constants k_i, each attached to its assessed range?",
     "risk_attitude": "Is the decision maker risk-averse, risk-neutral, or risk-prone?",
+    "flip_test_preferred_pairing": "In the two 50-50 gambles built from the same outcomes, do you prefer the 'straight' pairing, the 'crossed' pairing, or are you indifferent?",
 }
+
+
+def classify_job(contract: InputContract) -> Job:
+    """SPEC §5. Determine the job from CONTRACT FIELDS ONLY.
+
+    Never from substring matching on user prose — that was defect D-06, and it
+    is what this rewrite exists to eliminate. A phrase like "what are my options"
+    does not tell you whether the user faces a stream to stop, a fixed set to
+    rank, or a policy to plan; only the structure they described does.
+
+    Raises ContractIncomplete(field='job') when the fields do not determine it.
+    """
+    if contract.job is not None:
+        return contract.job
+
+    # Sequential: a state/action space, or dynamics, or a belief to track.
+    sequential_signals = (
+        contract.states is not None or contract.actions is not None
+        or contract.transition is not None or contract.observation_model is not None
+        or contract.prior_belief is not None or contract.markov_verified is not None
+        or contract.gamma is not None
+    )
+    # Multiobjective: several attributes traded off against each other.
+    multiobjective_signals = (
+        contract.attributes is not None or contract.scaling_constants is not None
+        or contract.independence_assumptions is not None
+    )
+    # Stopping: a search over a horizon with recall/rejection/search-cost structure.
+    stopping_signals = (
+        contract.horizon is not None or contract.n is not None
+        or contract.n_max is not None or contract.stop_prob_per_step is not None
+        or contract.recall_allowed is not None or contract.rejection_prob is not None
+        or contract.search_cost is not None or contract.payoff_diverges is not None
+    )
+
+    matched = [
+        job for job, signal in (
+            (Job.SEQUENTIAL, sequential_signals),
+            (Job.MULTIOBJECTIVE, multiobjective_signals),
+            (Job.STOPPING, stopping_signals),
+        )
+        if signal
+    ]
+
+    if len(matched) == 1:
+        return matched[0]
+
+    if not matched:
+        raise ContractIncomplete(
+            "No contract field determines the job. Nothing has been elicited that "
+            "distinguishes a stopping problem from a multi-objective ranking or a "
+            "sequential plan.",
+            remedy=QUESTION_BANK["job"],
+            field="job",
+        )
+
+    raise ContractIncomplete(
+        "The elicited fields are consistent with more than one job "
+        f"({', '.join(j.value for j in matched)}); the job cannot be inferred "
+        "from structure alone.",
+        remedy=QUESTION_BANK["job"],
+        field="job",
+    )
 
 
 def missing_fields(contract: InputContract) -> list[str]:
@@ -51,14 +117,23 @@ def missing_fields(contract: InputContract) -> list[str]:
             missing.append("stop_prob_per_step")
         if contract.payoff == Payoff.COST_OF_SEARCH and contract.search_cost is None:
             missing.append("search_cost")
+        if contract.payoff == Payoff.RUIN_RISK:
+            # Burglar Rule, c01 §11: ceiling = m*q/(1-q). Both are required.
+            if contract.ruin_success_prob is None:
+                missing.append("ruin_success_prob")
+            if contract.ruin_mean_gain is None:
+                missing.append("ruin_mean_gain")
         if contract.recall_allowed is True and contract.recall_accept_prob is None:
             missing.append("recall_accept_prob")
 
     elif contract.job == Job.MULTIOBJECTIVE:
-        if not contract.attributes:
+        # `is None` means "never elicited" -> Stage 1 asks for it.
+        # An empty collection is elicited data ("asked, nothing recorded") and must
+        # fall through to Stage 2, where IndependenceNotVerified is the right answer.
+        if contract.attributes is None:
             missing.append("attributes")
-        if not contract.independence_tests:
-            missing.append("independence_tests")
+        if contract.independence_assumptions is None:
+            missing.append("independence_assumptions")
         if contract.scaling_constants is None:
             missing.append("scaling_constants")
 

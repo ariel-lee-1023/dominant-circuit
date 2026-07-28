@@ -3,11 +3,226 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass, replace
 from typing import Any, Optional, Sequence, Tuple
 
 from ..core.contract import InputContract, Horizon, Information, Payoff
 from ..core.errors import UnclassifiedVariant, NoOptimalStoppingRuleExists
 from ..core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+
+
+@dataclass(frozen=True)
+class Calibration:
+    """The assumption set a constant was derived under. c01 §8 / Decision Table."""
+    rule: str
+    citation: str
+    horizon: Optional[Horizon]
+    information: Optional[Information]
+    payoff: Optional[Payoff]
+    recall_allowed: Optional[bool]
+    recall_accept_prob: Optional[float]   # None = not applicable
+    rejection_prob: Optional[float]
+    constant: Optional[float]             # 0.37 / 0.58 / 0.61 / 0.25 / ... ; None if exact
+
+
+# One entry per row of c01's Decision Table ("Which Rule Applies"), transcribed.
+# `constant` is the calibrated figure in the table's final Success-rate column;
+# it is None where that column reads "scenario-dependent" or "undefined", i.e.
+# where nothing is reused and the quantity is computed exactly from inputs.
+# A field set to None is NOT pinned by that row and matches any elicited value.
+CALIBRATIONS: dict[str, Calibration] = {
+    # Ordinal | Fixed known n | No recall | No rejection | Best-or-nothing
+    "classical_37": Calibration(
+        rule="Look-Then-Leap (37% Rule)",
+        citation="c01 §5",
+        horizon=Horizon.FIXED_KNOWN,
+        information=Information.ORDINAL,
+        payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=False,
+        recall_accept_prob=None,
+        rejection_prob=0.0,
+        constant=0.37,
+    ),
+    # Cardinal | Fixed known n | No recall | No rejection | Best-or-nothing
+    "threshold_rule_58": Calibration(
+        rule="Threshold Rule",
+        citation="c01 §6",
+        horizon=Horizon.FIXED_KNOWN,
+        information=Information.CARDINAL,
+        payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=False,
+        recall_accept_prob=None,
+        rejection_prob=0.0,
+        constant=0.58,
+    ),
+    # Ordinal | Fixed known n | Recall @ 50% recall-accept | No rejection
+    "recall_61": Calibration(
+        rule="Look-Then-Leap + fallback recall",
+        citation="c01 §7",
+        horizon=Horizon.FIXED_KNOWN,
+        information=Information.ORDINAL,
+        payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=True,
+        recall_accept_prob=0.5,
+        rejection_prob=0.0,
+        constant=0.61,
+    ),
+    # Ordinal | Fixed known n | No recall | Rejection @ 50% accept
+    "rejection_25": Calibration(
+        rule="Early-and-often proposing",
+        citation="c01 §7",
+        horizon=Horizon.FIXED_KNOWN,
+        information=Information.ORDINAL,
+        payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=False,
+        recall_accept_prob=None,
+        rejection_prob=0.5,
+        constant=0.25,
+    ),
+    # Ordinal | Unknown n ~ Uniform[1, n_max] | No recall | No rejection
+    "unknown_n_uniform_27": Calibration(
+        rule="Look-Then-Leap (unknown n ~ Uniform)",
+        citation="c01 §8",
+        horizon=Horizon.FIXED_UNKNOWN_UNIFORM,
+        information=Information.ORDINAL,
+        payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=False,
+        recall_accept_prob=None,
+        rejection_prob=0.0,
+        constant=2.0 / (math.e ** 2),
+    ),
+    # Ordinal | Open-ended, stops w.p. p per step | No recall | No rejection
+    "stochastic_stop_236": Calibration(
+        rule="Look-Then-Leap (stochastic termination)",
+        citation="c01 §8",
+        horizon=Horizon.OPEN_ENDED_STOCHASTIC,
+        information=Information.ORDINAL,
+        payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=False,
+        recall_accept_prob=None,
+        rejection_prob=0.0,
+        constant=0.236,
+    ),
+    # Cardinal | Unbounded stream, per-offer cost c | Recall never optimal
+    "cost_aware_threshold": Calibration(
+        rule="Cost-Aware Threshold",
+        citation="c01 §9",
+        horizon=None,                       # table: "Unbounded stream"
+        information=Information.CARDINAL,
+        payoff=Payoff.COST_OF_SEARCH,
+        recall_allowed=False,               # table: "Never optimal"
+        recall_accept_prob=None,
+        rejection_prob=None,                # table: N/A
+        constant=None,                      # exact: p* solves (1-p)^2/2 = c
+    ),
+    # Ordinal/positional | Unbounded spatial sequence, occupancy p
+    "parking_threshold": Calibration(
+        rule="Parking Threshold",
+        citation="c01 §10",
+        horizon=None,                       # table: "Unbounded spatial sequence"
+        information=None,                   # table: "Ordinal/positional" (a disjunction)
+        payoff=Payoff.DURATION,             # table: "Minimize distance"
+        recall_allowed=False,
+        recall_accept_prob=None,
+        rejection_prob=0.0,
+        constant=None,                      # exact: floor(-log 2 / log p)
+    ),
+    # N/A | Repeated trials, ruin on failure | Accumulate then stop
+    "burglar_rule": Calibration(
+        rule="Burglar Rule",
+        citation="c01 §11",
+        horizon=None,
+        information=None,
+        payoff=Payoff.RUIN_RISK,
+        recall_allowed=None,
+        recall_accept_prob=None,
+        rejection_prob=None,
+        constant=None,                      # exact: ceiling = mq/(1-q)
+    ),
+    # N/A | Any | Reward diverges at the best stopping point -> no rule exists
+    "no_rule_exists": Calibration(
+        rule="No rule exists",
+        citation="c01 §8",
+        horizon=None,
+        information=None,
+        payoff=None,
+        recall_allowed=None,
+        recall_accept_prob=None,
+        rejection_prob=None,
+        constant=None,
+    ),
+}
+
+# Fields compared by INV-1, in report order.
+_PINNED_FIELDS = (
+    "horizon", "information", "payoff",
+    "recall_allowed", "recall_accept_prob", "rejection_prob",
+)
+
+# How solve_stopping's own branch logic reads an unelicited value. INV-1 compares
+# against the same normalization so it flags real contradictions, not silence.
+_CONTRACT_DEFAULTS = {"recall_allowed": False, "rejection_prob": 0.0}
+
+
+def _elicited(contract: InputContract, field_name: str) -> Any:
+    value = getattr(contract, field_name)
+    if value is None and field_name in _CONTRACT_DEFAULTS:
+        return _CONTRACT_DEFAULTS[field_name]
+    return value
+
+
+def _values_match(pinned: Any, elicited: Any) -> bool:
+    if isinstance(pinned, float) and isinstance(elicited, (int, float)) and not isinstance(elicited, bool):
+        return abs(float(elicited) - pinned) <= 1e-9
+    return pinned == elicited
+
+
+def _tuple_repr(source: Any, getter) -> str:
+    parts = []
+    for name in _PINNED_FIELDS:
+        value = getter(source, name)
+        parts.append(f"{name}={getattr(value, 'value', value)!r}")
+    return "(" + ", ".join(parts) + ")"
+
+
+def check_assumption_set_match(contract: InputContract,
+                               calibration: Calibration) -> InvariantResult:
+    """INV-1. Compare the elicited assumption tuple against the calibration record
+    of the constant actually dispatched. Any mismatch on a field the calibration
+    pins is a FAILURE, with both tuples in the message."""
+    mismatches: list[str] = []
+    for name in _PINNED_FIELDS:
+        pinned = getattr(calibration, name)
+        if pinned is None:
+            continue                                  # not pinned by this rule
+        got = _elicited(contract, name)
+        if not _values_match(pinned, got):
+            mismatches.append(
+                f"{name}: calibrated for {getattr(pinned, 'value', pinned)!r}, "
+                f"elicited {getattr(got, 'value', got)!r}"
+            )
+
+    calibrated_tuple = _tuple_repr(calibration, lambda c, n: getattr(c, n))
+    elicited_tuple = _tuple_repr(contract, _elicited)
+    constant_note = (
+        "no constant reused (computed exactly)" if calibration.constant is None
+        else f"constant {calibration.constant:.4g} reused"
+    )
+
+    passed = not mismatches
+    if passed:
+        message = (
+            f"'{calibration.rule}' ({calibration.citation}) matches the elicited "
+            f"assumption set {elicited_tuple} [{constant_note}]"
+        )
+    else:
+        message = (
+            f"'{calibration.rule}' ({calibration.citation}) is not calibrated for the "
+            f"elicited assumption set. Mismatches: {'; '.join(mismatches)}. "
+            f"calibration={calibrated_tuple} elicited={elicited_tuple} [{constant_note}]"
+        )
+
+    return InvariantResult("INV-1", "assumption_set_match", passed, message=message)
 
 
 def optimal_cutoff(n: int) -> Tuple[int, float]:
@@ -31,13 +246,59 @@ def asymptotic_cutoff(n: int) -> Tuple[int, float]:
 
 
 def threshold_percentile(k: int) -> float:
+    """t_k for a candidate with k candidates remaining after it. c01 §6.
+    k = 0 is the last candidate: accept unconditionally, threshold 0."""
     if k <= 0:
         return 0.0
     return 1.0 / (1.0 + 0.804 / k + 0.183 / (k * k))
 
 
+def threshold_schedule(n: int) -> dict[int, float]:
+    """The full Threshold Rule schedule for a pool of n, keyed by position
+    i = 1..n, with k = n - i candidates remaining after position i. c01 §6."""
+    if n < 1:
+        raise ValueError("n must be ≥ 1")
+    return {i: threshold_percentile(n - i) for i in range(1, n + 1)}
+
+
+def threshold_rule(n: int, scores: Optional[Sequence[float]] = None):
+    """Threshold Rule, c01 §6.
+
+    With `scores` (percentile scores in [0,1], one per candidate, in arrival
+    order) returns the 1-based index of the accepted candidate: the first i whose
+    score clears t_{n-i}, falling through to forced acceptance of the last.
+    Without `scores`, returns the schedule {position: threshold}.
+    """
+    schedule = threshold_schedule(n)
+    if scores is None:
+        return schedule
+    if len(scores) != n:
+        raise ValueError(f"expected {n} scores, got {len(scores)}")
+    for i in range(1, n + 1):
+        if scores[i - 1] >= schedule[i]:
+            return i
+    return n            # forced acceptance of the final candidate
+
+
 def cost_aware_threshold(low: float, high: float, c_normalized: float) -> float:
-    c = max(0.0, min(0.5, c_normalized))
+    """Cost-Aware Threshold, c01 §9: p* solves (1-p)^2/2 = c on the normalized
+    [0,1] outcome scale, then rescaled onto [low, high].
+
+    `c_normalized` is a cost, so it must be non-negative; a negative cost is
+    physically meaningless and raises rather than silently clamping to 0 (which
+    would return the top of the range — maximal selectivity — for nonsense input).
+
+    Costs above 0.5 are clamped to 0.5. c01 §9 states that a waiting cost at or
+    above half the total offer range collapses the threshold to the bottom of the
+    range (accept the very first offer), so 0.5 is where the formula saturates,
+    not an arbitrary cutoff.
+    """
+    if c_normalized < 0:
+        raise ValueError(
+            f"search_cost must be non-negative; got {c_normalized}. "
+            "A negative cost of search has no meaning in c01 §9."
+        )
+    c = min(0.5, c_normalized)
     p = 1.0 - math.sqrt(2.0 * c)
     return low + p * (high - low)
 
@@ -105,6 +366,50 @@ def solve_stopping(contract: InputContract) -> OutputReport:
             field="payoff_diverges",
         )
 
+    # --- Silent-precedence guards -------------------------------------------------
+    # Each of these assumption combinations previously fell through to whichever
+    # branch happened to be tested first, silently returning a constant calibrated
+    # for a different problem. No row of c01's Decision Table covers them.
+
+    recall_active = bool(contract.recall_allowed) and contract.recall_accept_prob is not None
+    rejection_active = contract.rejection_prob is not None and contract.rejection_prob > 0
+    if recall_active and rejection_active:
+        raise UnclassifiedVariant(
+            "c01's Decision Table has no row for simultaneous recall and rejection risk. "
+            "The two move the look/leap boundary in opposite directions (c01 §7 Invariant) "
+            "and their combination is not calibrated in the corpus.",
+            remedy="Set rejection_prob=0 (or recall_allowed=False), or supply a source "
+                   "that calibrates the joint case.",
+            field="recall_allowed",
+        )
+
+    # c01 §9 applies only under full information ("Applies when: full information
+    # exists"); Decision Table row 7 pins Cardinal. Ordinal + cost-of-search is
+    # uncalibrated, and previously took the cost-aware branch regardless.
+    if contract.payoff == Payoff.COST_OF_SEARCH and contract.information == Information.ORDINAL:
+        raise UnclassifiedVariant(
+            "The Cost-Aware Threshold (c01 §9) is derived under full cardinal information; "
+            "c01 has no cost-of-search row for ordinal-only information.",
+            remedy="Supply cardinal scores (information=CARDINAL), or restate the payoff "
+                   "as best-or-nothing.",
+            field="information",
+        )
+
+    # Decision Table row 2 (Threshold Rule) pins a fixed, known n. The cardinal
+    # branch is tested before the horizon branches, so any other horizon silently
+    # received the 0.58-calibrated Threshold Rule.
+    if (contract.information == Information.CARDINAL
+            and contract.payoff != Payoff.COST_OF_SEARCH
+            and contract.horizon is not None
+            and contract.horizon != Horizon.FIXED_KNOWN):
+        raise UnclassifiedVariant(
+            f"c01 has no cardinal-information row for horizon={contract.horizon.value}. "
+            "The Threshold Rule (c01 §6) is calibrated for a fixed, known n; the "
+            "unknown-n and stochastic-termination rows are ordinal-only.",
+            remedy="Supply a fixed, known n, or restate the problem as ordinal-only.",
+            field="horizon",
+        )
+
     assumptions = {
         "horizon": contract.horizon.value if contract.horizon else None,
         "n": contract.n,
@@ -115,17 +420,26 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         "payoff": contract.payoff.value if contract.payoff else None,
         "exact_finite_n": contract.exact_finite_n,
         "payoff_diverges": contract.payoff_diverges,
+        "ruin_success_prob": contract.ruin_success_prob,
+        "ruin_mean_gain": contract.ruin_mean_gain,
     }
 
     if contract.payoff == Payoff.COST_OF_SEARCH:
         if contract.search_cost is None:
             raise ValueError("search_cost required for COST_OF_SEARCH")
         thr = cost_aware_threshold(0.0, 1.0, contract.search_cost)
+        cal = CALIBRATIONS["cost_aware_threshold"]
         return OutputReport(
             decision=thr,
-            formula_name="Cost-Aware Threshold",
+            action=(
+                f"Accept the first offer at or above {thr:.4f} (normalized [0,1] scale). "
+                "This threshold is fixed for the entire search: do not lower it as time "
+                "passes, and never revisit a rejected offer — under a per-offer cost, "
+                "recall is provably never optimal (c01 §9)."
+            ),
+            formula_name=cal.rule,
             formula_latex=r"p^* = 1 - \sqrt{2c}",
-            citation="c01 §9",
+            citation=cal.citation,
             numeric={"threshold": thr, "c": contract.search_cost},
             assumptions=assumptions,
             sensitivity=[
@@ -138,25 +452,90 @@ def solve_stopping(contract: InputContract) -> OutputReport:
                 )
             ],
             audit=AuditResult(results=[
+                check_assumption_set_match(contract, cal),
                 InvariantResult("INV-6", "finite_expectation", True, message="cost-of-search has finite expectation"),
             ]),
         )
 
     if contract.payoff == Payoff.RUIN_RISK:
-        raise UnclassifiedVariant("RUIN_RISK requires explicit q and m parameters in this version.")
+        q, m = contract.ruin_success_prob, contract.ruin_mean_gain
+        if q is None or m is None:
+            raise ValueError("ruin_success_prob (q) and ruin_mean_gain (m) required for RUIN_RISK")
+        ceiling = burglar_ceiling(q, m)
+        expected_trials = q / (1.0 - q)
+        cal = CALIBRATIONS["burglar_rule"]
+        return OutputReport(
+            decision={"stop_when_accumulated_at_least": ceiling},
+            action=(
+                f"Keep going while your accumulated gains are below {ceiling:.6g}; stop "
+                f"the moment you reach it. Expect roughly {expected_trials:.4g} trials "
+                "before stopping. The ceiling is a fixed quantity of accumulated value, "
+                "not a number of attempts (c01 §11)."
+            ),
+            formula_name=cal.rule,
+            formula_latex=r"\text{ceiling} = \frac{mq}{1-q}",
+            citation=cal.citation,
+            numeric={
+                "ceiling": ceiling,
+                "q": q,
+                "m": m,
+                "expected_trials_before_stopping": expected_trials,
+            },
+            assumptions=assumptions,
+            sensitivity=[
+                SensitivityEntry(
+                    assumption="ruin_success_prob",
+                    perturbation=f"q={q} → higher (closer to 1)",
+                    new_decision="ceiling rises without bound as q → 1",
+                    decision_changed=True,
+                    fragility="critical",
+                ),
+            ],
+            audit=AuditResult(results=[
+                check_assumption_set_match(contract, cal),
+                InvariantResult(
+                    "INV-6", "finite_expectation", True,
+                    message="ruin-risk accumulation has a finite ceiling mq/(1-q)",
+                ),
+            ]),
+        )
 
     info = contract.information
     horizon = contract.horizon
     n = contract.n
 
     if info == Information.CARDINAL:
-        schedule = {k: threshold_percentile(k) for k in range(0, 11)}
+        cal = CALIBRATIONS["threshold_rule_58"]
+        if n is None or n < 1:
+            raise ValueError("n required for the Threshold Rule (c01 §6)")
+        # Built over the actual pool size: position i faces k = n - i remaining.
+        schedule = threshold_schedule(n)
+        accepted = threshold_rule(n, contract.scores) if contract.scores else None
         return OutputReport(
-            decision="threshold_schedule",
-            formula_name="Threshold Rule",
+            decision={
+                "rule": "threshold_schedule",
+                "n": n,
+                "accept_at": accepted,
+                "schedule": schedule,
+            },
+            action=(
+                (f"Accept candidate #{accepted} — it is the first whose score clears the "
+                 f"threshold for its position." if accepted is not None else
+                 f"Score each candidate as it arrives and accept the first whose percentile "
+                 f"score reaches the threshold for its position (position 1 needs "
+                 f"{schedule[1]:.4f}, falling to {schedule[n]:.4f} at the last). ")
+                + " No look phase is required: full information makes the two-phase "
+                  "Look-Then-Leap structure unnecessary (c01 §6)."
+            ),
+            formula_name=cal.rule,
             formula_latex=r"t_k = 1/(1 + 0.804/k + 0.183/k^2)",
-            citation="c01 §6",
-            numeric={f"t_{k}": v for k, v in schedule.items()},
+            citation=cal.citation,
+            numeric={
+                "n": float(n),
+                **({"accept_at": float(accepted)} if accepted is not None else {}),
+                # threshold faced at each position i (k = n - i remaining after it)
+                **{f"t_at_position_{i}": v for i, v in schedule.items()},
+            },
             assumptions=assumptions,
             sensitivity=[
                 SensitivityEntry(
@@ -168,7 +547,7 @@ def solve_stopping(contract: InputContract) -> OutputReport:
                 )
             ],
             audit=AuditResult(results=[
-                InvariantResult("INV-1", "assumption_set_match", True, message="cardinal → Threshold Rule"),
+                check_assumption_set_match(contract, cal),
             ]),
         )
 
@@ -177,28 +556,46 @@ def solve_stopping(contract: InputContract) -> OutputReport:
             raise ValueError("n required for FIXED_KNOWN")
         if contract.recall_allowed and contract.recall_accept_prob is not None:
             r_star, p_star = cutoff_with_recall(n, contract.recall_accept_prob)
-            formula = "Look-Then-Leap + fallback recall"
-            latex = r"r \\approx 0.61 n \\quad (50\\%\\ \\mathrm{recall\\text{-}accept})"
-            cite = "c01 §7"
+            cal = CALIBRATIONS["recall_61"]
+            latex = r"r \approx 0.61 n \quad (50\%\ \mathrm{recall\text{-}accept})"
         elif contract.rejection_prob is not None and contract.rejection_prob > 0:
             r_star, p_star = cutoff_with_rejection(n, contract.rejection_prob)
-            formula = "Early-and-often proposing (rejection risk)"
-            latex = r"r \\approx 0.25 n \\quad (50\\%\\ \\mathrm{accept})"
-            cite = "c01 §7"
+            cal = CALIBRATIONS["rejection_25"]
+            latex = r"r \approx 0.25 n \quad (50\%\ \mathrm{accept})"
         else:
             if contract.exact_finite_n:
                 r_star, p_star = optimal_cutoff(n)
-                formula = "Look-Then-Leap (exact finite-n)"
-                latex = r"r^* = \\arg\\max_r P_n(r),\\quad P_n(r)=\\frac{r-1}{n}\\sum_{j=r}^{n}\\frac{1}{j-1}"
-                cite = "c01 §4.1"
+                # Row 1's assumption set, but computed exactly: no constant is reused,
+                # so `constant` is None and the citation is the finite-n argmax.
+                cal = replace(
+                    CALIBRATIONS["classical_37"],
+                    rule="Look-Then-Leap (exact finite-n)",
+                    citation="c01 §4.1",
+                    constant=None,
+                )
+                latex = r"r^* = \arg\max_r P_n(r),\quad P_n(r)=\frac{r-1}{n}\sum_{j=r}^{n}\frac{1}{j-1}"
             else:
                 r_star, p_star = asymptotic_cutoff(n)
-                formula = "Look-Then-Leap (asymptotic 1/e)"
-                latex = r"r \\approx n/e,\\quad P\\to 1/e"
-                cite = "c01 §5"
+                cal = replace(
+                    CALIBRATIONS["classical_37"],
+                    rule="Look-Then-Leap (asymptotic 1/e)",
+                )
+                latex = r"r \approx n/e,\quad P\to 1/e"
+
+        formula = cal.rule
+        cite = cal.citation
 
         return OutputReport(
             decision={"look_until": r_star - 1, "leap_from": r_star, "n": n},
+            action=(
+                f"Reject the first {r_star - 1} of {n} outright, whatever they look like, "
+                f"while recording the best you see. From #{r_star} onward, accept the first "
+                f"one that beats every candidate in that opening block."
+                + (f" If none does, fall back and recall the best from the look phase — it "
+                   f"is accepted with probability {contract.recall_accept_prob}."
+                   if cal.rule.endswith("fallback recall") else
+                   f" If none does, you are forced to take #{n}.")
+            ),
             formula_name=formula,
             formula_latex=latex,
             citation=cite,
@@ -221,8 +618,7 @@ def solve_stopping(contract: InputContract) -> OutputReport:
                 ),
             ],
             audit=AuditResult(results=[
-                InvariantResult("INV-1", "assumption_set_match", True,
-                                message=f"constant locked to elicited assumption set ({cite})"),
+                check_assumption_set_match(contract, cal),
                 InvariantResult("INV-6", "finite_expectation", True, message="best-or-nothing has finite expectation"),
             ]),
         )
@@ -232,16 +628,22 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         if n_max is None:
             raise ValueError("n_max required")
         r_star, p_star = cutoff_unknown_horizon_uniform(n_max)
+        cal = CALIBRATIONS["unknown_n_uniform_27"]
         return OutputReport(
             decision={"look_until": r_star - 1, "leap_from": r_star},
-            formula_name="Look-Then-Leap (unknown n ~ Uniform)",
-            formula_latex=r"r \\approx n_{\\max}/e^2",
-            citation="c01 §8",
+            action=(
+                f"Reject the first {r_star - 1} outright while recording the best, then "
+                f"accept the first candidate that beats them all. The pool size is unknown, "
+                f"so this cutoff is set from n_max={n_max}, not from a count you have seen."
+            ),
+            formula_name=cal.rule,
+            formula_latex=r"r \approx n_{\max}/e^2",
+            citation=cal.citation,
             numeric={"r_star": float(r_star), "P": p_star},
             assumptions=assumptions,
             sensitivity=[],
             audit=AuditResult(results=[
-                InvariantResult("INV-1", "assumption_set_match", True, message="unknown-uniform calibrated"),
+                check_assumption_set_match(contract, cal),
             ]),
         )
 
@@ -250,16 +652,23 @@ def solve_stopping(contract: InputContract) -> OutputReport:
         if p is None or p <= 0:
             raise ValueError("stop_prob_per_step required")
         r_star, p_star = cutoff_stochastic_stop(p)
+        cal = CALIBRATIONS["stochastic_stop_236"]
         return OutputReport(
             decision={"look_until": r_star - 1, "leap_from": r_star},
-            formula_name="Look-Then-Leap (stochastic termination)",
-            formula_latex=r"r \\approx 0.18 / p",
-            citation="c01 §8",
+            action=(
+                f"Reject the first {r_star - 1} outright while recording the best, then "
+                f"accept the first that beats them all. The stream can end at any step "
+                f"(p={p}), so the cutoff is a count of opportunities, not a fraction of a "
+                "known pool."
+            ),
+            formula_name=cal.rule,
+            formula_latex=r"r \approx 0.18 / p",
+            citation=cal.citation,
             numeric={"r_star": float(r_star), "P": p_star},
             assumptions=assumptions,
             sensitivity=[],
             audit=AuditResult(results=[
-                InvariantResult("INV-1", "assumption_set_match", True, message="stochastic-stop calibrated"),
+                check_assumption_set_match(contract, cal),
             ]),
         )
 
