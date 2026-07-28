@@ -13,6 +13,27 @@ This repository is the **executable knowledge base + physics engines** for the D
 7. Install with `pip install -e .` from the repository root before use. If the import fails, the host must say the engine is unavailable rather than computing in prose.
 8. If a cluster file required by the query is missing or does not cover the elicited assumption set, refuse the query and say so. Never answer from `SKILL.md`'s inlined formulas while citing a cluster section — that produces a real-looking citation for a number the corpus does not support.
 
+## Governing documents
+
+Read in this order. All are committed; a fresh clone is self-contained.
+
+| Document | What it is | Status |
+|---|---|---|
+| [DESIGN.md](DESIGN.md) | The five-stage interaction model — what the product is *for*, and why every refusal is a designed output rather than an error path. | **Current.** Authoritative on intent. |
+| [SKILL.md](SKILL.md) | The file a host AI loads. Host protocol, elicitation questions, worked transcript. | **Current.** Authoritative on host behaviour. |
+| AGENTS.md | This file. Pairing rules, enforced invariants, change discipline. | **Current.** |
+| [README.md](README.md) | Front door: purpose, install, quick start. | **Current.** |
+| [SPEC.md](SPEC.md) | Implementation specification v1.0 — module layout (§3), data contracts (§4), the D-01…D-29 defect register, acceptance criteria (§15). | **Historical, partly superseded.** Authoritative for the numbered requirements other documents cite. Its §3 layout still holds; some test filenames in it were later reorganised. |
+| [SPEC-2-PUNCHLIST.md](SPEC-2-PUNCHLIST.md) | Punch list v2.0 — tasks T0–T9, implemented in PR #1. | **Historical.** Supersedes SPEC.md where they conflict. |
+
+Where DESIGN.md and the SPEC documents disagree about *mechanics*, the SPEC documents win.
+Where a reader wants to know *why* a refusal is correct behaviour, DESIGN.md wins.
+
+**`solvers.py` does not exist and must not be reintroduced.** It was the pre-rewrite Stage 3
+module (baseline `a66504d`); SPEC.md logs defects D-12 and D-13 against it and closes them by
+splitting it into `core/dispatch.py` (routing) and the `engines/` package (solving). Older text
+naming `solvers.py` means those two together. See DESIGN.md § Stage 3.
+
 ## Directory Map
 
 Generated from `find . -not -path './.git/*' -type f | sort`.
@@ -21,10 +42,13 @@ Generated from `find . -not -path './.git/*' -type f | sort`.
 .github/workflows/python-app.yml  # CI: lint, install package, pytest + coverage gate
 .gitignore
 AGENTS.md                         # This file — host-AI pairing rules
+DESIGN.md                         # The five-stage interaction model (design intent)
 LICENSE
 NOTICE.md                         # Source attribution for the corpus
 README.md
 SKILL.md                          # Router skill (elicitation + dispatch rules)
+SPEC.md                           # Implementation spec v1.0 (historical, cited by §number)
+SPEC-2-PUNCHLIST.md               # Punch list v2.0, tasks T0-T9 (historical)
 main.py                           # Non-interactive demo of the three engines
 pyproject.toml
 references/clusters/

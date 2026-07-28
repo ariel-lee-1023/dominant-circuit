@@ -45,7 +45,10 @@ The host AI owns the conversation at both ends; the library owns the physics in 
 `AuditFailure` carries `.invariant_ids` and `.fields`, so Stage 4 loops back to Stage 1 on the
 *specific* contradictory input rather than restarting the interrogation.
 
-See [SKILL.md](SKILL.md) for the host protocol and a worked interaction transcript.
+See [SKILL.md](SKILL.md) for the host protocol and a worked interaction transcript, and
+[DESIGN.md](DESIGN.md) for the interaction model in full — including why each refusal is a
+designed output rather than a failure. [AGENTS.md](AGENTS.md) indexes every governing document
+and its status.
 
 ---
 
@@ -151,6 +154,8 @@ src/dominant_circuit/
     └── sequential.py     # Engine C (c03)
 references/clusters/      # authoritative corpus — never edited to fit the code
 tests/                    # golden numeric oracles + corpus/API drift guards
+DESIGN.md                 # the five-stage interaction model
+SPEC.md, SPEC-2-PUNCHLIST.md   # implementation spec + punch list (historical)
 main.py                   # five non-interactive demos
 ```
 
