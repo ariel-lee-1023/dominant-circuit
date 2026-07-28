@@ -196,6 +196,31 @@ def efficient_frontier(
     return frontier
 
 
+def dominance_screen(
+    alternatives: Optional[Sequence[dict[str, Any]]],
+    attributes: list[AttributeRange],
+) -> tuple[list[dict[str, Any]], list[str], int]:
+    """Screen dominated alternatives before any preference elicitation.
+    c02 §2.4 (dominance and the efficient frontier) and §7.2.
+
+    A dominated alternative can never be optimal under any monotone value or
+    utility function, so eliciting preferences over it wastes the decision
+    maker's attention and adds inconsistency risk for nothing.
+
+    Returns (survivors, names_screened_out, n_screened_out).
+    """
+    alts = [a for a in (alternatives or []) if isinstance(a, dict)]
+    if not alts or not attributes:
+        return alts, [], 0
+
+    survivors = efficient_frontier(alts, attributes)
+    kept = {id(a) for a in survivors}
+    screened = [
+        str(a.get("name", a)) for a in alts if id(a) not in kept
+    ]
+    return survivors, sorted(screened), len(screened)
+
+
 def _normalize(raw: float, attr: AttributeRange) -> float:
     lo, hi = attr.worst, attr.best
     if abs(hi - lo) < 1e-15:
@@ -286,6 +311,12 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     if not attributes:
         raise PreconditionViolation("attributes required", field="attributes")
 
+    # Dominance screening runs BEFORE preference elicitation is consumed:
+    # never elicit preferences over alternatives that cannot win (c02 §2.4, §7.2).
+    frontier, screened_out, n_screened = dominance_screen(
+        contract.alternatives, attributes
+    )
+
     all_attrs = frozenset(a.name for a in attributes)
     kind = contract.independence_kind
     assumptions_registry = contract.independence_assumptions
@@ -335,24 +366,21 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         latex = r"1 + k\,u(x) = \prod_i (1 + k\,k_i\,u_i(x_i))"
         cite = "c02 §5.3"
 
-    alts = list(contract.alternatives or [])
     scored: list[dict[str, Any]] = []
     best = None
     best_score = -math.inf
 
-    if alts and all(isinstance(a, dict) for a in alts):
-        frontier = efficient_frontier(alts, attributes)
-        for alt in frontier:
-            levels = {attr.name: float(alt.get(attr.name, 0)) for attr in attributes}
-            label = alt.get("name", str(alt))
-            if form == "additive":
-                score = additive_value(levels, attributes, weights)
-            else:
-                score = multiplicative_utility(levels, attributes, weights, k)
-            scored.append({"name": label, "utility": score, "levels": levels})
-            if score > best_score:
-                best_score = score
-                best = label
+    for alt in frontier:
+        levels = {attr.name: float(alt.get(attr.name, 0)) for attr in attributes}
+        label = alt.get("name", str(alt))
+        if form == "additive":
+            score = additive_value(levels, attributes, weights)
+        else:
+            score = multiplicative_utility(levels, attributes, weights, k)
+        scored.append({"name": label, "utility": score, "levels": levels})
+        if score > best_score:
+            best_score = score
+            best = label
 
     decision = {
         "form": form,
@@ -360,6 +388,7 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         "best_alternative": best,
         "best_utility": best_score if best is not None else None,
         "ranked": sorted(scored, key=lambda x: -x["utility"]),
+        "dominated_screened_out": screened_out,
     }
 
     registry = assumptions_registry or []
@@ -395,6 +424,9 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
             "k": k,
             "sum_k_i": total,
             "best_utility": best_score if best is not None else float("nan"),
+            "n_alternatives": float(len(list(contract.alternatives or []))),
+            "n_dominated_screened_out": float(n_screened),
+            "n_on_efficient_frontier": float(len(frontier)),
         },
         assumptions=assumptions,
         sensitivity=[

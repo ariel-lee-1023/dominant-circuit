@@ -13,6 +13,7 @@ from dominant_circuit.engines.stopping import (
     cost_aware_threshold, parking_cutoff, parking_cutoff_exact,
     cutoff_with_recall, cutoff_with_rejection,
     CALIBRATIONS, Calibration, check_assumption_set_match,
+    threshold_rule, threshold_schedule,
 )
 
 SRC = Path(__file__).resolve().parents[1] / "src" / "dominant_circuit"
@@ -256,3 +257,62 @@ def test_report_has_six_fields():
         assert getattr(r, f) is not None
     assert "§" in r.citation
     assert r.audit.passed
+
+
+# --- T8 small correctness items ---------------------------------------------------
+
+def test_negative_search_cost_raises():
+    """c = -5.0 previously clamped to 0 and returned 1.0, the TOP of the range."""
+    with pytest.raises(ValueError):
+        cost_aware_threshold(0.0, 1.0, -5.0)
+    with pytest.raises(ValueError):
+        cost_aware_threshold(0.0, 1.0, -1e-9)
+
+
+def test_search_cost_upper_clamp_retained():
+    """c01 §9: a cost at or above half the range collapses to the bottom."""
+    assert cost_aware_threshold(0.0, 1.0, 0.5) == pytest.approx(0.0)
+    assert cost_aware_threshold(0.0, 1.0, 5.0) == pytest.approx(0.0)
+    assert cost_aware_threshold(10.0, 20.0, 0.5) == pytest.approx(10.0)
+
+
+def test_threshold_schedule_uses_actual_n():
+    """The cardinal branch built a hardcoded 0..10 schedule regardless of n."""
+    sched = threshold_schedule(5)
+    assert set(sched) == {1, 2, 3, 4, 5}
+    assert sched[5] == 0.0                       # last candidate: accept unconditionally
+    assert sched[4] == pytest.approx(threshold_percentile(1))
+    # earlier positions are strictly more selective
+    assert sched[1] > sched[2] > sched[3] > sched[4] > sched[5]
+
+
+def test_threshold_rule_returns_accepted_index():
+    n = 5
+    sched = threshold_schedule(n)
+    # a candidate at position 2 that clears its threshold is accepted there
+    scores = [0.0, min(1.0, sched[2] + 1e-9), 0.0, 0.0, 0.0]
+    assert threshold_rule(n, scores) == 2
+    # nobody clears -> forced acceptance of the last
+    assert threshold_rule(n, [0.0] * n) == n
+    # no scores -> the schedule itself
+    assert threshold_rule(n) == sched
+    with pytest.raises(ValueError):
+        threshold_rule(n, [0.0] * (n - 1))
+
+
+def test_cardinal_dispatch_uses_n():
+    c = _contract_with(information=Information.CARDINAL, n=7)
+    report = dispatch(Job.STOPPING, c)
+    assert report.decision["n"] == 7
+    assert set(report.decision["schedule"]) == set(range(1, 8))
+    assert report.citation == "c01 §6"
+    assert report.audit.passed
+
+
+def test_cardinal_dispatch_with_scores_returns_index():
+    n = 6
+    sched = threshold_schedule(n)
+    scores = [0.0, 0.0, min(1.0, sched[3] + 1e-9), 0.0, 0.0, 0.0]
+    report = dispatch(Job.STOPPING, _contract_with(
+        information=Information.CARDINAL, n=n, scores=scores))
+    assert report.decision["accept_at"] == 3

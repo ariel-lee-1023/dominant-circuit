@@ -31,6 +31,69 @@ QUESTION_BANK = {
 }
 
 
+def classify_job(contract: InputContract) -> Job:
+    """SPEC §5. Determine the job from CONTRACT FIELDS ONLY.
+
+    Never from substring matching on user prose — that was defect D-06, and it
+    is what this rewrite exists to eliminate. A phrase like "what are my options"
+    does not tell you whether the user faces a stream to stop, a fixed set to
+    rank, or a policy to plan; only the structure they described does.
+
+    Raises ContractIncomplete(field='job') when the fields do not determine it.
+    """
+    if contract.job is not None:
+        return contract.job
+
+    # Sequential: a state/action space, or dynamics, or a belief to track.
+    sequential_signals = (
+        contract.states is not None or contract.actions is not None
+        or contract.transition is not None or contract.observation_model is not None
+        or contract.prior_belief is not None or contract.markov_verified is not None
+        or contract.gamma is not None
+    )
+    # Multiobjective: several attributes traded off against each other.
+    multiobjective_signals = (
+        contract.attributes is not None or contract.scaling_constants is not None
+        or contract.independence_assumptions is not None
+    )
+    # Stopping: a search over a horizon with recall/rejection/search-cost structure.
+    stopping_signals = (
+        contract.horizon is not None or contract.n is not None
+        or contract.n_max is not None or contract.stop_prob_per_step is not None
+        or contract.recall_allowed is not None or contract.rejection_prob is not None
+        or contract.search_cost is not None or contract.payoff_diverges is not None
+    )
+
+    matched = [
+        job for job, signal in (
+            (Job.SEQUENTIAL, sequential_signals),
+            (Job.MULTIOBJECTIVE, multiobjective_signals),
+            (Job.STOPPING, stopping_signals),
+        )
+        if signal
+    ]
+
+    if len(matched) == 1:
+        return matched[0]
+
+    if not matched:
+        raise ContractIncomplete(
+            "No contract field determines the job. Nothing has been elicited that "
+            "distinguishes a stopping problem from a multi-objective ranking or a "
+            "sequential plan.",
+            remedy=QUESTION_BANK["job"],
+            field="job",
+        )
+
+    raise ContractIncomplete(
+        "The elicited fields are consistent with more than one job "
+        f"({', '.join(j.value for j in matched)}); the job cannot be inferred "
+        "from structure alone.",
+        remedy=QUESTION_BANK["job"],
+        field="job",
+    )
+
+
 def missing_fields(contract: InputContract) -> list[str]:
     missing: list[str] = []
     if contract.job is None:

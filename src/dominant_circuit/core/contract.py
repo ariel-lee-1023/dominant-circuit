@@ -138,6 +138,9 @@ class InputContract:
 
     # 5. Uncertainty
     information: Optional[Information] = None
+    # Percentile scores in [0,1], one per candidate in arrival order. Only
+    # meaningful under Information.CARDINAL (c01 §6).
+    scores: Optional[Sequence[float]] = None
     transition: Optional[Callable | dict] = None
     reward: Optional[Callable | dict] = None
     observation_model: Optional[Callable | dict] = None

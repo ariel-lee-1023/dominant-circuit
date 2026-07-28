@@ -232,3 +232,47 @@ def test_dominance():
     names = {a["name"] for a in frontier}
     assert "dom" not in names
     assert "better" in names
+
+
+# --- T8.5 dominance screening -----------------------------------------------------
+
+def test_dominance_screen_removes_dominated_before_elicitation():
+    from dominant_circuit import dominance_screen
+    attrs = [AttributeRange("x", 0, 10), AttributeRange("y", 0, 10)]
+    alts = [
+        {"name": "dom", "x": 5, "y": 5},        # dominated by "better"
+        {"name": "better", "x": 8, "y": 8},
+        {"name": "mixed", "x": 9, "y": 3},
+        {"name": "dom2", "x": 1, "y": 1},       # dominated too
+    ]
+    survivors, screened, n = dominance_screen(alts, attrs)
+    assert n == 2
+    assert screened == ["dom", "dom2"]
+    assert {a["name"] for a in survivors} == {"better", "mixed"}
+
+
+def test_dominance_screen_handles_empty():
+    from dominant_circuit import dominance_screen
+    assert dominance_screen(None, []) == ([], [], 0)
+    assert dominance_screen([], [AttributeRange("x", 0, 1)]) == ([], [], 0)
+
+
+def test_solve_multiobjective_reports_screened_count():
+    contract = InputContract(
+        job=Job.MULTIOBJECTIVE,
+        attributes=[AttributeRange("x", 0, 10), AttributeRange("y", 0, 10)],
+        scaling_constants={"x": 0.5, "y": 0.5},
+        independence_assumptions=_mutually_independent(["x", "y"]),
+        alternatives=[
+            {"name": "dom", "x": 5, "y": 5},
+            {"name": "better", "x": 8, "y": 8},
+            {"name": "mixed", "x": 9, "y": 3},
+        ],
+    )
+    report = dispatch(Job.MULTIOBJECTIVE, contract)
+    assert report.numeric["n_alternatives"] == 3.0
+    assert report.numeric["n_dominated_screened_out"] == 1.0
+    assert report.numeric["n_on_efficient_frontier"] == 2.0
+    assert report.decision["dominated_screened_out"] == ["dom"]
+    # the dominated alternative never reaches the ranking
+    assert "dom" not in {r["name"] for r in report.decision["ranked"]}

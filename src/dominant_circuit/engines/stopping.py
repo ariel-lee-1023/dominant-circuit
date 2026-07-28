@@ -246,13 +246,59 @@ def asymptotic_cutoff(n: int) -> Tuple[int, float]:
 
 
 def threshold_percentile(k: int) -> float:
+    """t_k for a candidate with k candidates remaining after it. c01 §6.
+    k = 0 is the last candidate: accept unconditionally, threshold 0."""
     if k <= 0:
         return 0.0
     return 1.0 / (1.0 + 0.804 / k + 0.183 / (k * k))
 
 
+def threshold_schedule(n: int) -> dict[int, float]:
+    """The full Threshold Rule schedule for a pool of n, keyed by position
+    i = 1..n, with k = n - i candidates remaining after position i. c01 §6."""
+    if n < 1:
+        raise ValueError("n must be ≥ 1")
+    return {i: threshold_percentile(n - i) for i in range(1, n + 1)}
+
+
+def threshold_rule(n: int, scores: Optional[Sequence[float]] = None):
+    """Threshold Rule, c01 §6.
+
+    With `scores` (percentile scores in [0,1], one per candidate, in arrival
+    order) returns the 1-based index of the accepted candidate: the first i whose
+    score clears t_{n-i}, falling through to forced acceptance of the last.
+    Without `scores`, returns the schedule {position: threshold}.
+    """
+    schedule = threshold_schedule(n)
+    if scores is None:
+        return schedule
+    if len(scores) != n:
+        raise ValueError(f"expected {n} scores, got {len(scores)}")
+    for i in range(1, n + 1):
+        if scores[i - 1] >= schedule[i]:
+            return i
+    return n            # forced acceptance of the final candidate
+
+
 def cost_aware_threshold(low: float, high: float, c_normalized: float) -> float:
-    c = max(0.0, min(0.5, c_normalized))
+    """Cost-Aware Threshold, c01 §9: p* solves (1-p)^2/2 = c on the normalized
+    [0,1] outcome scale, then rescaled onto [low, high].
+
+    `c_normalized` is a cost, so it must be non-negative; a negative cost is
+    physically meaningless and raises rather than silently clamping to 0 (which
+    would return the top of the range — maximal selectivity — for nonsense input).
+
+    Costs above 0.5 are clamped to 0.5. c01 §9 states that a waiting cost at or
+    above half the total offer range collapses the threshold to the bottom of the
+    range (accept the very first offer), so 0.5 is where the formula saturates,
+    not an arbitrary cutoff.
+    """
+    if c_normalized < 0:
+        raise ValueError(
+            f"search_cost must be non-negative; got {c_normalized}. "
+            "A negative cost of search has no meaning in c01 §9."
+        )
+    c = min(0.5, c_normalized)
     p = 1.0 - math.sqrt(2.0 * c)
     return low + p * (high - low)
 
@@ -448,13 +494,27 @@ def solve_stopping(contract: InputContract) -> OutputReport:
 
     if info == Information.CARDINAL:
         cal = CALIBRATIONS["threshold_rule_58"]
-        schedule = {k: threshold_percentile(k) for k in range(0, 11)}
+        if n is None or n < 1:
+            raise ValueError("n required for the Threshold Rule (c01 §6)")
+        # Built over the actual pool size: position i faces k = n - i remaining.
+        schedule = threshold_schedule(n)
+        accepted = threshold_rule(n, contract.scores) if contract.scores else None
         return OutputReport(
-            decision="threshold_schedule",
+            decision={
+                "rule": "threshold_schedule",
+                "n": n,
+                "accept_at": accepted,
+                "schedule": schedule,
+            },
             formula_name=cal.rule,
             formula_latex=r"t_k = 1/(1 + 0.804/k + 0.183/k^2)",
             citation=cal.citation,
-            numeric={f"t_{k}": v for k, v in schedule.items()},
+            numeric={
+                "n": float(n),
+                **({"accept_at": float(accepted)} if accepted is not None else {}),
+                # threshold faced at each position i (k = n - i remaining after it)
+                **{f"t_at_position_{i}": v for i, v in schedule.items()},
+            },
             assumptions=assumptions,
             sensitivity=[
                 SensitivityEntry(
