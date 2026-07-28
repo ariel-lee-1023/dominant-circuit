@@ -284,13 +284,18 @@ def dominance_screen(
 
 
 def _normalize(raw: float, attr: AttributeRange) -> float:
-    lo, hi = attr.worst, attr.best
-    if abs(hi - lo) < 1e-15:
+    """Normalize a raw level onto [0,1] with v(worst)=0 and v(best)=1.
+
+    c02 §3.4 fixes the convention: each component function is normalized
+    v_i(worst) = 0, v_i(best) = 1. That holds regardless of preference direction,
+    so the single expression (raw - worst) / (best - worst) is correct for both:
+    for a decreasing attribute `best < worst`, and both numerator and denominator
+    change sign together.
+    """
+    worst, best = attr.worst, attr.best
+    if abs(best - worst) < 1e-15:
         raise PreconditionViolation(f"Degenerate range for {attr.name}")
-    if attr.monotonic_increasing:
-        u = (raw - lo) / (hi - lo)
-    else:
-        u = (hi - raw) / (hi - lo)
+    u = (raw - worst) / (best - worst)
     return max(0.0, min(1.0, u))
 
 
