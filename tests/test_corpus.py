@@ -361,3 +361,40 @@ def test_worked_interaction_numbers_match_the_engine():
     assert report.action.split(".")[0] in flat, (
         "SKILL.md's transcript no longer quotes report.action verbatim"
     )
+
+
+def _python_blocks(doc: str) -> list[str]:
+    return re.findall(r"```python\n(.*?)```", doc, re.S)
+
+
+def test_readme_quick_start_actually_runs():
+    """SPEC.md §15.10: README must describe only software that exists.
+
+    The quick start is the first thing a user copies. Execute every python block
+    in it rather than trusting that it still matches the API.
+    """
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    blocks = _python_blocks(readme)
+    assert blocks, "README has no python blocks to verify"
+    for i, block in enumerate(blocks):
+        # `...` placeholders stand in for host-side prompting
+        exec(compile(block, f"README.md[block {i}]", "exec"), {})
+
+
+def test_readme_teaches_the_current_independence_api():
+    """The front door must not teach the deprecated IndependenceTest."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    quick_start = "\n".join(_python_blocks(readme))
+    assert "IndependenceTest(" not in quick_start, (
+        "README quick start uses the deprecated IndependenceTest; "
+        "use IndependenceAssumption / record_independence (c02 §7.3)"
+    )
+    assert "record_independence" in quick_start
+
+
+def test_readme_states_the_stage_ownership():
+    """The design purpose — who owns which stage — must survive edits."""
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    for stage in ("Elicitation", "Verification", "Computation", "Auditing", "Reporting"):
+        assert stage in readme, f"README no longer names the {stage} stage"
+    assert "Host" in readme and "Library" in readme

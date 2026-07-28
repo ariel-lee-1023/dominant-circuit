@@ -85,3 +85,16 @@ def test_package_is_typed_and_versioned():
     assert dominant_circuit.__version__
     marker = Path(dominant_circuit.__file__).parent / "py.typed"
     assert marker.is_file(), "py.typed marker missing; the package claims to ship types"
+
+
+def test_version_is_consistent_between_package_and_pyproject():
+    """A release that changes the public API must say so in one place, not two."""
+    import re
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[1]
+    declared = re.search(r'^version = "([^"]+)"',
+                         (root / "pyproject.toml").read_text(), re.M).group(1)
+    assert dominant_circuit.__version__ == declared, (
+        f"package says {dominant_circuit.__version__}, pyproject says {declared}"
+    )

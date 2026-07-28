@@ -35,7 +35,7 @@ from .engines.multiobjective import (
 )
 from .engines.sequential import belief_update, value_iteration
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = [
     "dispatch",
