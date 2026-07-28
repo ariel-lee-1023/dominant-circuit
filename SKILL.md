@@ -51,7 +51,7 @@ If any field is missing, run the Socratic elicitation loop below before computin
 ## Hard preconditions (check before dispatch; violating these invalidates the corresponding cluster's formulas)
 
 - **Cluster 01**: a stopping rule exists only if the expected payoff at the best conceivable stopping point is finite; diverging-expectation games (e.g., triple-or-nothing) have no optimal stopping rule and must be handled by a different framework (e.g., fractional-bankroll rules).
-- **Cluster 02**: the additive value/utility form requires mutual (or, for \(n=3\), pairwise) preferential or utility independence, verified by an explicit indifference test, not assumed for simplicity. Scaling constants are only interpretable jointly with the attribute ranges they were assessed against.
+- **Cluster 02**: the additive value/utility form requires mutual (or, for \(n=3\), pairwise) preferential or utility independence, verified by an explicit indifference test, not assumed for simplicity. "Verified" means the assumption registry covers **every proper nonempty subset** of the attribute set against its complement (c02 §7.3) — one recorded pair among many is not coverage. Note the flip test (c02 §7.5) does **not** establish independence; it discriminates additive from multiplicative *within* an already-verified structure, and raises if run before it. Scaling constants are only interpretable jointly with the attribute ranges they were assessed against.
 - **Cluster 03**: the Markov assumption must hold (next state depends only on current state and action); Bellman-backup convergence requires \(\gamma \in [0,1)\) and bounded rewards; belief updates require a well-defined observation model and must reset to uniform on zero-likelihood evidence rather than divide by zero.
 
 ## Unified pipeline
@@ -91,7 +91,7 @@ Each row names the **contract field** it fills. Never fill a field the user did 
 | 13 | "What is the per-trial probability q that a trial succeeds rather than wiping out everything accumulated?" | `ruin_success_prob` |
 | 14 | "What is the average gain m per successful trial?" | `ruin_mean_gain` |
 | 15 | "What are the attributes and their explicit [worst, best] ranges?" | `attributes` |
-| 16 | "Has mutual (or pairwise) utility/preferential independence been verified via the flip test?" | `independence_tests` |
+| 16 | "Has mutual (or pairwise) utility/preferential independence been verified, and against which attribute subsets?" | `independence_assumptions` |
 | 17 | "What are the scaling constants k_i, each attached to its assessed range?" | `scaling_constants` |
 | 18 | "Is the decision maker risk-averse, risk-neutral, or risk-prone?" | `risk_attitude` |
 | 19 | "Does the next state depend only on the current state and your action, or does the earlier history matter?" | `markov_verified` |

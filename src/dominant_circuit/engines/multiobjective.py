@@ -3,12 +3,156 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
+from itertools import combinations
 from typing import Any, Optional, Sequence
 
 from ..core.audit import check_range_fixed_weights
-from ..core.contract import InputContract, AttributeRange, IndependenceTest, Job
+from ..core.contract import (
+    InputContract, AttributeRange, IndependenceAssumption, IndependenceTest, Job,
+)
 from ..core.errors import IndependenceNotVerified, PreconditionViolation, UnclassifiedVariant
 from ..core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
+
+
+# --- Independence registry coverage (c02 §7.3) ------------------------------------
+
+def required_independence_subsets(all_attrs: frozenset) -> set[frozenset]:
+    """Every proper nonempty subset of the attribute set. c02 §7.3."""
+    attrs = list(all_attrs)
+    needed: set[frozenset] = set()
+    for r in range(1, len(attrs)):
+        for combo in combinations(attrs, r):
+            needed.add(frozenset(combo))
+    return needed
+
+
+def _verified_subsets(assumptions: Optional[Sequence[IndependenceAssumption]],
+                      all_attrs: frozenset, kind: str) -> set[frozenset]:
+    return {
+        a.subset for a in (assumptions or [])
+        if a.kind == kind and a.verified and a.complement == all_attrs - a.subset
+    }
+
+
+def uncovered_independence_subsets(
+    assumptions: Optional[Sequence[IndependenceAssumption]],
+    all_attrs: frozenset,
+    kind: str,
+) -> set[frozenset]:
+    """The proper nonempty subsets the registry does not cover. Empty == mutual
+    independence is established by the registry."""
+    verified = _verified_subsets(assumptions, all_attrs, kind)
+    needed = required_independence_subsets(all_attrs)
+
+    if len(all_attrs) == 3:
+        # c02 §3.4: for n = 3, pairwise preferential independence -- each 2-element
+        # subset independent of its complementary singleton -- is equivalent to
+        # mutual preferential independence, so the pairwise checks suffice.
+        pairwise = {s for s in needed if len(s) == 2}
+        if pairwise.issubset(verified):
+            return set()
+        return pairwise - verified
+
+    return needed - verified
+
+
+def mutual_independence_holds(
+    assumptions: Optional[Sequence[IndependenceAssumption]],
+    all_attrs: frozenset,
+    kind: str,
+) -> bool:
+    """Mutual (preferential or utility) independence requires every proper
+    nonempty subset to be independent of its complement (c02 §7.3). This checks
+    that the assumption registry actually covers that requirement -- it does not
+    itself elicit anything."""
+    return not uncovered_independence_subsets(assumptions, all_attrs, kind)
+
+
+def _format_subsets(subsets: set[frozenset]) -> list[str]:
+    return sorted("{" + ", ".join(sorted(s)) + "}" for s in subsets)
+
+
+# --- Flip test (c02 §7.5) ---------------------------------------------------------
+
+@dataclass
+class FlipTestResult:
+    indifferent: bool         # True if decision maker was indifferent between the two lotteries
+    implied_form: str         # 'additive' or 'multiplicative'
+    k_yz_sign: Optional[int]  # +1, -1, 0, or None if not applicable
+
+
+def run_flip_test(preferred_pairing: Optional[str],
+                  mutual_utility_independence_verified: bool = False) -> FlipTestResult:
+    """Operationalizes the book's discriminating corollary (c02 §5.2, §5.3,
+    Theorem 6.1 corollary): offer two 50-50 lotteries built from the same
+    consequences but with attributes 'straight' vs. 'crossed' across the pairing,
+    and record whether the decision maker is indifferent (additive) or has a
+    strict preference (multiplicative).
+
+    This test's conclusion is conditional on mutual utility independence already
+    holding: the representation from which k_YZ is defined only exists under that
+    structure, so the test cannot be interpreted, and must not be run, until
+    mutual_utility_independence_verified is True. The test only distinguishes
+    additive from multiplicative *within* that structure; it does not establish
+    the independence structure itself.
+
+    preferred_pairing: None if indifferent; 'straight' if the pairing
+    (high,high)/(low,low) is preferred; 'crossed' if (high,low)/(low,high).
+    """
+    if not mutual_utility_independence_verified:
+        raise ValueError(
+            "Mutual utility independence must be verified before the flip "
+            "test's conclusion about additive vs. multiplicative form is "
+            "meaningful (c02 §5.1, §5.3)."
+        )
+    if preferred_pairing is None:
+        return FlipTestResult(indifferent=True, implied_form="additive", k_yz_sign=0)
+    if preferred_pairing == "straight":
+        return FlipTestResult(indifferent=False, implied_form="multiplicative", k_yz_sign=1)
+    if preferred_pairing == "crossed":
+        return FlipTestResult(indifferent=False, implied_form="multiplicative", k_yz_sign=-1)
+    raise ValueError("preferred_pairing must be None, 'straight', or 'crossed'.")
+
+
+def check_independence_and_form(contract: InputContract,
+                                flip_result: Optional[FlipTestResult],
+                                k_sum: float) -> InvariantResult:
+    """INV-3. (a) registry coverage holds; (b) the recorded flip test's implied_form
+    agrees with the form implied by sum(k_i). Disagreement means the elicitation is
+    internally inconsistent — surface it, do not average it away (c02 §7.8)."""
+    all_attrs = frozenset(a.name for a in (contract.attributes or []))
+    kind = contract.independence_kind
+    uncovered = uncovered_independence_subsets(
+        contract.independence_assumptions, all_attrs, kind
+    )
+
+    form_from_k = "additive" if abs(k_sum - 1.0) < 1e-9 else "multiplicative"
+
+    problems: list[str] = []
+    if uncovered:
+        problems.append(
+            f"{kind} independence registry does not cover {_format_subsets(uncovered)} (c02 §7.3)"
+        )
+    if flip_result is not None and flip_result.implied_form != form_from_k:
+        problems.append(
+            f"form disagreement: recorded flip test implies {flip_result.implied_form} "
+            f"(c02 §7.5) but Σk_i={k_sum:.6g} implies {form_from_k} (c02 §5.3). "
+            "Σk_i = 1 ⟺ k = 0 ⟺ additive, so these cannot both be right"
+        )
+
+    passed = not problems
+    if passed:
+        detail = f"form={form_from_k}, Σk_i={k_sum:.6g}"
+        if flip_result is not None:
+            detail += f", flip test agrees (k_YZ sign {flip_result.k_yz_sign})"
+        else:
+            detail += ", no flip test recorded"
+        message = f"Mutual {kind} independence covered by the registry; {detail}"
+    else:
+        message = "; ".join(problems)
+
+    return InvariantResult("INV-3", "independence_and_form", passed, message=message)
 
 
 def dominates(a: Sequence[float], b: Sequence[float], increasing: Sequence[bool]) -> bool:
@@ -142,12 +286,25 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     if not attributes:
         raise PreconditionViolation("attributes required", field="attributes")
 
-    tests = contract.independence_tests or []
-    if not any(t.passed for t in tests):
+    all_attrs = frozenset(a.name for a in attributes)
+    kind = contract.independence_kind
+    assumptions_registry = contract.independence_assumptions
+    uncovered = uncovered_independence_subsets(assumptions_registry, all_attrs, kind)
+    if uncovered:
         raise IndependenceNotVerified(
-            "Independence not verified. Flip-test (or equivalent) required before any multiattribute form.",
-            remedy="Run flip test (c02 §5.2) and record IndependenceTest(passed=True).",
-            field="independence_tests",
+            "Mutual independence is not covered by the assumption registry: "
+            f"missing subsets {_format_subsets(uncovered)}.",
+            remedy="Elicit and record an IndependenceAssumption for each listed subset (c02 §7.3).",
+            field="independence_assumptions",
+        )
+
+    # The flip test discriminates additive vs. multiplicative *within* an already
+    # verified independence structure (c02 §7.5); it never establishes it.
+    flip_result: Optional[FlipTestResult] = None
+    if contract.flip_test_performed:
+        flip_result = run_flip_test(
+            contract.flip_test_preferred_pairing,
+            mutual_utility_independence_verified=True,
         )
 
     weights = contract.scaling_constants or {}
@@ -205,9 +362,16 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         "ranked": sorted(scored, key=lambda x: -x["utility"]),
     }
 
+    registry = assumptions_registry or []
     assumptions = {
         "form": form,
+        "independence_kind": kind,
         "independence_verified": True,
+        "independence_subsets_verified": _format_subsets(
+            _verified_subsets(registry, all_attrs, kind)
+        ),
+        "flip_test_performed": contract.flip_test_performed,
+        "flip_test_implied_form": flip_result.implied_form if flip_result else None,
         "n_attributes": len(attributes),
         "sum_k_i": total,
         "k": k,
@@ -219,7 +383,7 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     }
 
     n_params = len(attributes)
-    n_eq = len(tests)
+    n_eq = len(registry)
     overdet = n_eq > max(1, n_params - 1)
 
     return OutputReport(
@@ -235,8 +399,8 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         assumptions=assumptions,
         sensitivity=[
             SensitivityEntry(
-                assumption="independence_tests",
-                perturbation="passed → failed",
+                assumption="independence_assumptions",
+                perturbation="any covered subset → unverified",
                 new_decision="REFUSED (IndependenceNotVerified)",
                 decision_changed=True,
                 fragility="critical",
@@ -250,16 +414,12 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
             ),
         ],
         audit=AuditResult(results=[
-            InvariantResult("INV-3", "independence_verified", True, message="Flip-test recorded"),
+            check_independence_and_form(contract, flip_result, total),
             check_range_fixed_weights(contract),
             InvariantResult(
                 "INV-7", "overdetermination", overdet,
-                message=f"{n_eq} tests vs {n_params} parameters" if overdet
-                else f"Underdetermined: {n_eq} tests for {n_params} parameters",
-            ),
-            InvariantResult(
-                "INV-weight-sum", "form_consistency", True,
-                message=f"form={form}, k={k:.6g}, Σk_i={total:.6g}",
+                message=f"{n_eq} recorded assumptions vs {n_params} parameters" if overdet
+                else f"Underdetermined: {n_eq} recorded assumptions for {n_params} parameters",
             ),
         ]),
     )

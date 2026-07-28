@@ -24,7 +24,7 @@ QUESTION_BANK = {
     "ruin_mean_gain": "What is the average gain m per successful trial?",
     "gamma": "What discount factor γ ∈ [0,1) should be used?",
     "markov_verified": "Have you confirmed that the next state depends only on the current state and action (Markov property)?",
-    "independence_tests": "Has mutual (or pairwise) utility/preferential independence been verified via the flip test?",
+    "independence_assumptions": "Has mutual (or pairwise) utility/preferential independence been verified, and against which attribute subsets?",
     "attributes": "What are the attributes and their explicit [worst, best] ranges?",
     "scaling_constants": "What are the scaling constants k_i, each attached to its assessed range?",
     "risk_attitude": "Is the decision maker risk-averse, risk-neutral, or risk-prone?",
@@ -63,10 +63,13 @@ def missing_fields(contract: InputContract) -> list[str]:
             missing.append("recall_accept_prob")
 
     elif contract.job == Job.MULTIOBJECTIVE:
-        if not contract.attributes:
+        # `is None` means "never elicited" -> Stage 1 asks for it.
+        # An empty collection is elicited data ("asked, nothing recorded") and must
+        # fall through to Stage 2, where IndependenceNotVerified is the right answer.
+        if contract.attributes is None:
             missing.append("attributes")
-        if not contract.independence_tests:
-            missing.append("independence_tests")
+        if contract.independence_assumptions is None:
+            missing.append("independence_assumptions")
         if contract.scaling_constants is None:
             missing.append("scaling_constants")
 

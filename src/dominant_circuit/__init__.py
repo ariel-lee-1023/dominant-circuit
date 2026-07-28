@@ -6,7 +6,7 @@ Host AI owns conversation. This package is the physics engine.
 
 from .core.contract import (
     InputContract, Job, Horizon, Information, Payoff, RiskAttitude,
-    AttributeRange, IndependenceTest,
+    AttributeRange, IndependenceTest, IndependenceAssumption,
 )
 from .core.report import OutputReport, AuditResult, InvariantResult, SensitivityEntry
 from .core.errors import (
@@ -21,6 +21,8 @@ from .core.dispatch import dispatch
 from .engines.stopping import optimal_cutoff, asymptotic_cutoff, parking_cutoff
 from .engines.multiobjective import (
     solve_multiplicative_k, additive_value, multiplicative_utility,
+    mutual_independence_holds, uncovered_independence_subsets,
+    run_flip_test, FlipTestResult, efficient_frontier, dominates,
 )
 from .engines.sequential import belief_update, value_iteration
 
@@ -30,7 +32,7 @@ __all__ = [
     "dispatch",
     "InputContract",
     "Job", "Horizon", "Information", "Payoff", "RiskAttitude",
-    "AttributeRange", "IndependenceTest",
+    "AttributeRange", "IndependenceTest", "IndependenceAssumption",
     "OutputReport", "AuditResult", "InvariantResult", "SensitivityEntry",
     "DominantCircuitError", "ContractIncomplete", "PreconditionViolation",
     "NoOptimalStoppingRuleExists", "IndependenceNotVerified", "NonMarkovProcess",
@@ -40,5 +42,7 @@ __all__ = [
     "run_validation_invariants",
     "optimal_cutoff", "asymptotic_cutoff", "parking_cutoff",
     "solve_multiplicative_k", "additive_value", "multiplicative_utility",
+    "mutual_independence_holds", "uncovered_independence_subsets",
+    "run_flip_test", "FlipTestResult", "efficient_frontier", "dominates",
     "belief_update", "value_iteration",
 ]

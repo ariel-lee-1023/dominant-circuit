@@ -25,14 +25,23 @@ def verify_preconditions(contract: InputContract) -> None:
             )
 
     if contract.job == Job.MULTIOBJECTIVE:
-        tests = contract.independence_tests or []
-        if not any(t.passed for t in tests):
+        # Deferred import: engines must not be imported by core at module load.
+        from ..engines.multiobjective import (
+            mutual_independence_holds, uncovered_independence_subsets,
+        )
+
+        attrs = frozenset(a.name for a in (contract.attributes or []))
+        kind = contract.independence_kind
+        if not mutual_independence_holds(contract.independence_assumptions, attrs, kind):
+            uncovered = uncovered_independence_subsets(
+                contract.independence_assumptions, attrs, kind
+            )
+            missing_desc = sorted("{" + ", ".join(sorted(s)) + "}" for s in uncovered)
             raise IndependenceNotVerified(
-                "Additive or multiplicative multiattribute forms are forbidden until "
-                "mutual (or pairwise) preferential/utility independence has been "
-                "explicitly verified via the flip test (or equivalent).",
-                remedy="Run the flip test (c02 §5.2) and record an IndependenceTest with passed=True.",
-                field="independence_tests",
+                "Mutual independence is not covered by the assumption registry: "
+                f"missing subsets {missing_desc}.",
+                remedy="Elicit and record an IndependenceAssumption for each listed subset (c02 §7.3).",
+                field="independence_assumptions",
             )
         if contract.attributes:
             for attr in contract.attributes:

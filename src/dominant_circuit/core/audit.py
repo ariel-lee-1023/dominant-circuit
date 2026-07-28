@@ -72,12 +72,10 @@ def run_validation_invariants(
         ))
 
     if job == Job.MULTIOBJECTIVE:
-        tests = contract.independence_tests or []
-        ok = any(t.passed for t in tests)
-        results.append(InvariantResult(
-            "INV-3", "independence_verified", ok,
-            message="Recorded flip-test present" if ok else "No verified independence test",
-        ))
+        # Deferred import: the check lives with the corpus functions it transcribes.
+        from ..engines.multiobjective import check_independence_and_form
+        k_sum = sum((contract.scaling_constants or {}).values())
+        results.append(check_independence_and_form(contract, extras.get("flip_result"), k_sum))
 
     residuals = extras.get("residual_history") or extras.get("bellman_residuals")
     gamma = contract.gamma
