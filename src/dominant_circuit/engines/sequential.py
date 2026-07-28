@@ -150,7 +150,7 @@ def solve_sequential(contract: InputContract) -> OutputReport:
             decision={"belief": belief, "history_len": len(history)},
             formula_name="Recursive Bayesian Belief Update",
             formula_latex=r"b'(s) \propto O(o|s)\,b(s)",
-            citation="c03 §belief",
+            citation="c03 §9",
             numeric={"belief_sum": total, **{f"b[{s}]": p for s, p in belief.items()}},
             assumptions={
                 "gamma": gamma,
@@ -204,7 +204,7 @@ def solve_sequential(contract: InputContract) -> OutputReport:
         },
         formula_name="Bellman Optimality / Value Iteration",
         formula_latex=r"U^*(s)=\max_a\bigl(R(s,a)+\gamma\sum_{s'}T(s'|s,a)U^*(s')\bigr)",
-        citation="c03 §Bellman",
+        citation="c03 §6",
         numeric={
             "gamma": gamma,
             "iterations": float(len(residuals)),

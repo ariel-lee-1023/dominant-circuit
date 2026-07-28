@@ -325,9 +325,9 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     if abs(total - 1.0) < 1e-9:
         form = "additive"
         k = 0.0
-        formula_name = "Additive Multiattribute Utility"
+        formula_name = "Additive Multiattribute Utility (additive special case)"
         latex = r"u(x) = \sum_i k_i u_i(x_i)"
-        cite = "c02 §5.3 (additive special case)"
+        cite = "c02 §5.3"
     else:
         form = "multiplicative"
         k = solve_multiplicative_k(k_list)
