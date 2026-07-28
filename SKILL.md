@@ -86,6 +86,45 @@ while (q := next_question(contract)) is not None:
   (ordinal ranks or cardinal scores?), and the **hard constraints** (can you recall a
   passed-over option? can an accepted offer decline?).
 
+**先问权重，再问真假 — ask weight before truth.** Details are infinite; "what else haven't I
+considered?" never terminates. Only one question terminates, and it is the **overturn test**:
+
+> Is the presence or absence of this factor sufficient to overturn my current conclusion?
+
+If not, it is a high-order small quantity — throw it out of the dominant equation and **do not
+spend the user's attention on it.**
+
+```python
+plan = elicitation_plan(contract)
+plan["required"]      # ask these — no conclusion exists yet
+plan["load_bearing"]  # passed the overturn test; worth asking about
+plan["droppable"]     # failed it. DO NOT ASK. It cannot change the answer.
+
+overturn_test(contract, "recall_allowed").verdict   # the reasoning, per factor
+```
+
+Two rules on using it:
+
+- **Weight has three prerequisites and they are never screenable.** 给定目标、时间尺度、比较对象 —
+  the goal, the time scale, the comparison set (`WEIGHT_PREREQUISITES`). A factor has no weight
+  until there is an objective function to weigh it against, so `overturn_test` *raises*
+  `ContractIncomplete` rather than inventing a baseline. Ask `plan["required"]` first; screening
+  only becomes possible once a conclusion exists to test against.
+- **There is no standard answer for weight; it depends entirely on the objective function.**
+  The same factor genuinely goes both ways: for n=50, "exact computation or the famous 37%?"
+  changes the answer (19 vs 18) and is load-bearing; for n=45 both give 17, so the question is
+  a 舍去项 and asking it wastes the user's time. Never carry a fixed list of "important
+  factors" between conversations — screen against *this* goal.
+
+**A refusal counts as an overturn.** If setting a factor makes the problem uncalibrated, that
+factor is emphatically load-bearing, not neutral.
+
+**The user owns the goal; you only help them see it.** You may coach — lay out what a goal
+would have to specify, offer candidate framings, point out that "the best job" is not yet an
+objective function. You may not decide it. `classify_job` reads contract fields, never prose,
+for exactly this reason: the moment the AI picks the objective function, every weight downstream
+is the AI's opinion wearing the user's name.
+
 ### Stage 2 — Verification: reject premises that break the mathematics
 
 Before a single equation loads, the library checks the user is not asking for something

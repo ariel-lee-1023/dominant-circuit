@@ -18,7 +18,11 @@ from .core.errors import (
     NoOptimalStoppingRuleExists, IndependenceNotVerified, NonMarkovProcess,
     UnclassifiedVariant, AuditFailure, NotInCorpus,
 )
-from .core.elicit import missing_fields, next_question, require_complete, classify_job, QUESTION_BANK
+from .core.elicit import (
+    missing_fields, next_question, require_complete, classify_job, QUESTION_BANK,
+    overturn_test, OverturnResult, elicitation_plan, screenable_fields,
+    WEIGHT_PREREQUISITES,
+)
 from .core.verify import verify_preconditions
 from .core.audit import run_validation_invariants, check_range_fixed_weights, INVARIANT_FIELDS
 from .core.dispatch import dispatch
@@ -53,6 +57,8 @@ __all__ = [
     "NoOptimalStoppingRuleExists", "IndependenceNotVerified", "NonMarkovProcess",
     "UnclassifiedVariant", "AuditFailure", "NotInCorpus",
     "missing_fields", "next_question", "require_complete", "classify_job", "QUESTION_BANK",
+    "overturn_test", "OverturnResult", "elicitation_plan", "screenable_fields",
+    "WEIGHT_PREREQUISITES",
     "verify_preconditions",
     "run_validation_invariants", "check_range_fixed_weights", "INVARIANT_FIELDS",
     "optimal_cutoff", "asymptotic_cutoff", "parking_cutoff", "parking_cutoff_exact",
