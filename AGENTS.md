@@ -50,6 +50,8 @@ src/dominant_circuit/
     sequential.py                 # Engine C (c03)
 tests/
   test_api.py
+  test_api_surface.py             # public __all__ may not shrink silently
+  test_audit_and_report.py        # INV-1..INV-7 and Output Contract rendering
   test_corpus.py                  # corpus/code drift guards (sizes, sections, citations)
   test_multiobjective.py
   test_sequential.py
@@ -80,6 +82,22 @@ Additionally:
 
 - Every returned `OutputReport` carries the full assumption list and audit results.
 - Scaling constants are never treated as free-floating “importance weights”; ranges are attached.
+
+## Change discipline
+
+Deleting corpus content or public API symbols requires an explicit line in the commit body
+beginning `REMOVES:`. A commit whose stated purpose is a fix must not also delete unrelated
+content.
+
+Two tests enforce this mechanically, and both are meant to be *updated in the same commit*
+as any deliberate removal, never silenced:
+
+- `tests/test_corpus.py::test_cluster_minimum_sizes` — line floors on the three cluster files,
+  set ~10% below their restored sizes. This is what commit `a2d99aa` would have tripped when
+  it deleted 223 lines of `c01` under the title "Correct c01 §10 parking formula".
+- `tests/test_api_surface.py::test_public_api_surface_is_stable` — `EXPECTED_EXPORTS` is the
+  public `__all__` as of T8. Removing an export fails the build until the removal is written
+  down.
 
 ## License & Attribution
 
