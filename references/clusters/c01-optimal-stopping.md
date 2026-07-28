@@ -292,10 +292,22 @@ Same mathematical family as Section 9, restated over distance instead of price, 
 **Cutoff formula**:
 
 \[
-d^{*} = \left\lfloor \frac{-\log 2}{\log(1-p)} \right\rfloor
+d^{*} = \left\lfloor \frac{-\log 2}{\log p} \right\rfloor
 \]
 
+(The probability that \(d\) consecutive spots are all occupied is \(p^d\); setting \(p^d = 1/2\) and solving yields the expression above.)
+
 spots from the destination, where \(p\) is the occupancy rate (probability any given spot is occupied).
+
+**Worked values**:
+
+| occupancy \(p\) | \(d^{*}\) |
+|---|---|
+| 0.50 | 1 |
+| 0.85 | 4 |
+| 0.90 | 6 |
+| 0.95 | 13 |
+| 0.99 | 68 |
 
 **Invariant**: higher occupancy rate \(\to\) larger cutoff distance \(\to\) must start "seriously looking" farther from the destination. The relationship is highly nonlinear near \(p=1\): moving occupancy from 90% to 95% (a 5.5% relative increase) roughly doubles the expected search length.
 
@@ -382,7 +394,7 @@ function classify_and_solve(problem):
 | Ordinal only | Unknown \(n\), uniform on \([1,n_{max}]\) | No | No | Best-or-nothing | Look-Then-Leap | \(r \approx n_{max}/e^2 \approx 0.135\,n_{max}\) | \(2/e^2 \approx 27\%\) |
 | Ordinal only | Open-ended, stops w.p. \(p\) per step | No | No | Best-or-nothing | Look-Then-Leap | \(r \approx 0.18/p\) | \(\approx 23.6\%\) |
 | Cardinal (full) | Unbounded stream, per-offer cost \(c\) | Never optimal | N/A | Net value minus search cost | Cost-Aware Threshold | fixed \(p^{*}\) solving \((1-p)^2/2 = c\) | scenario-dependent |
-| Ordinal/positional | Unbounded spatial sequence, occupancy \(p\) | No | No | Minimize distance | Parking Threshold | \(d^{*} = \lfloor -\log 2/\log(1-p)\rfloor\) | scenario-dependent |
+| Ordinal/positional | Unbounded spatial sequence, occupancy \(p\) | No | No | Minimize distance | Parking Threshold | \(d^{*} = \lfloor -\log 2/\log p\rfloor\) | scenario-dependent |
 | N/A | Repeated trials, ruin on failure | N/A | N/A | Accumulate then stop | Burglar Rule | ceiling \(= mq/(1-q)\) | scenario-dependent |
 | N/A | Any | N/A | N/A | Reward diverges at best stopping point | **No rule exists** | undefined | undefined |
 
