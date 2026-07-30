@@ -406,7 +406,7 @@ LIVE_DOCS = ("README.md", "AGENTS.md", "SKILL.md", "DESIGN.md")
 # Historical records of intent, deliberately NOT held to current reality: they
 # describe target state at the time of writing and are partly superseded.
 # SPEC.md §3, for instance, names test files that were later reorganised.
-HISTORICAL_DOCS = ("SPEC.md", "SPEC-2-PUNCHLIST.md")
+HISTORICAL_DOCS = ("SPEC.md", "docs/SPEC-2-PUNCHLIST.md")
 
 # Things that look like a module path in prose, e.g. `engines/stopping.py`,
 # `core/dispatch.py`, `src/dominant_circuit/core/audit.py`, `tests/test_corpus.py`.
@@ -456,8 +456,8 @@ def test_no_live_doc_cites_solvers_py_as_real():
 
 
 def test_governing_documents_are_committed():
-    """SPEC.md and SPEC-2-PUNCHLIST.md are cited by AGENTS.md, DESIGN.md and the
-    commit history. A fresh clone must be able to read them."""
+    """SPEC.md and docs/SPEC-2-PUNCHLIST.md are cited by AGENTS.md, DESIGN.md and
+    the commit history. A fresh clone must be able to read them."""
     for name in HISTORICAL_DOCS + LIVE_DOCS:
         assert (ROOT / name).is_file(), f"{name} is cited but not committed"
 

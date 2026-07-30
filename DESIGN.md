@@ -2,7 +2,7 @@
 
 The product design, stated by stage of human–AI interaction. `SPEC.md` says how the code is
 built; this says what the interaction is *for*. Where they disagree about mechanics, `SPEC.md`
-and `SPEC-2-PUNCHLIST.md` win; where a reader wants to know *why* a refusal is a feature, this
+and `docs/SPEC-2-PUNCHLIST.md` win; where a reader wants to know *why* a refusal is a feature, this
 document wins.
 
 ---
