@@ -24,7 +24,7 @@ Read in this order. All are committed; a fresh clone is self-contained.
 | AGENTS.md | This file. Pairing rules, enforced invariants, change discipline. | **Current.** |
 | [README.md](README.md) | Front door: purpose, install, quick start. | **Current.** |
 | [SPEC.md](SPEC.md) | Implementation specification v1.0 — module layout (§3), data contracts (§4), the D-01…D-29 defect register, acceptance criteria (§15). | **Historical, partly superseded.** Authoritative for the numbered requirements other documents cite. Its §3 layout still holds; some test filenames in it were later reorganised. |
-| [SPEC-2-PUNCHLIST.md](SPEC-2-PUNCHLIST.md) | Punch list v2.0 — tasks T0–T9, implemented in PR #1. | **Historical.** Supersedes SPEC.md where they conflict. |
+| [docs/SPEC-2-PUNCHLIST.md](docs/SPEC-2-PUNCHLIST.md) | Punch list v2.0 — tasks T0–T9, implemented in PR #1. | **Historical.** Supersedes SPEC.md where they conflict. |
 
 Where DESIGN.md and the SPEC documents disagree about *mechanics*, the SPEC documents win.
 Where a reader wants to know *why* a refusal is correct behaviour, DESIGN.md wins.
@@ -48,7 +48,8 @@ NOTICE.md                         # Source attribution for the corpus
 README.md
 SKILL.md                          # Router skill (elicitation + dispatch rules)
 SPEC.md                           # Implementation spec v1.0 (historical, cited by §number)
-SPEC-2-PUNCHLIST.md               # Punch list v2.0, tasks T0-T9 (historical)
+docs/
+  SPEC-2-PUNCHLIST.md             # Punch list v2.0, tasks T0-T9 (historical, closed)
 main.py                           # Non-interactive demo of the three engines
 pyproject.toml
 references/clusters/

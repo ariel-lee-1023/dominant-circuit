@@ -1,5 +1,9 @@
 # Dominant-Circuit
 
+[![Python application](https://github.com/ariel-lee-1023/dominant-circuit/actions/workflows/python-app.yml/badge.svg?branch=main)](https://github.com/ariel-lee-1023/dominant-circuit/actions/workflows/python-app.yml)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
 **A pure, non-interactive decision-mechanics library.**
 Host AI owns conversation. This package is the physics engine.
 
@@ -155,7 +159,8 @@ src/dominant_circuit/
 references/clusters/      # authoritative corpus — never edited to fit the code
 tests/                    # golden numeric oracles + corpus/API drift guards
 DESIGN.md                 # the five-stage interaction model
-SPEC.md, SPEC-2-PUNCHLIST.md   # implementation spec + punch list (historical)
+SPEC.md                   # implementation spec v1.0 (historical)
+docs/SPEC-2-PUNCHLIST.md  # punch list v2.0, T0-T9 — closed (historical)
 main.py                   # five non-interactive demos
 ```
 
@@ -164,6 +169,9 @@ main.py                   # five non-interactive demos
 ```bash
 pytest
 ```
+
+170 tests, 93% coverage, with an 80% floor enforced in `pyproject.toml`. Every push and pull
+request to `main` runs lint plus the full suite — the badge above is that workflow.
 
 The suite includes guards that exist because of specific past failures:
 `tests/test_corpus.py` enforces cluster size floors and that every `citation=` string
