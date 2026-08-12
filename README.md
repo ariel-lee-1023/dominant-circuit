@@ -215,8 +215,10 @@ This is the library working correctly. There is no cutoff to report.
 
 ## Layout
 
+Only `src/dominant_circuit/` is packaged; everything else is repository content.
+
 ```
-stage0/                   # Stage 0 prose skill + its three references (not installed)
+stage0/                   # Stage 0 prose skill + its three structural-judgment references
 src/dominant_circuit/
 ├── core/          # contract, errors, elicit, verify, audit, dispatch, report
 └── engines/
@@ -225,7 +227,7 @@ src/dominant_circuit/
     └── sequential.py     # Engine C (c03)
 references/clusters/      # authoritative corpus — never edited to fit the code
 tests/                    # golden numeric oracles + corpus/API drift guards
-DESIGN.md                 # the five-stage interaction model
+DESIGN.md                 # the interaction model, Stage 0 through Stage 5
 SPEC.md                   # implementation spec v1.0 (historical)
 docs/SPEC-2-PUNCHLIST.md  # punch list v2.0, T0-T9 — closed (historical)
 main.py                   # five non-interactive demos

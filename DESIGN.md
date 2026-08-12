@@ -18,10 +18,15 @@ An AI that always returns a number is worthless here, because most vaguely-posed
 questions do not have one. Every `raise` in this library is a designed output, not an error
 path.
 
+That corollary has one deliberate exception, and it is Stage 0. See below: the centrifuge only
+works on a sample that has already been put in a tube, and putting it in the tube is a different
+job with the opposite default.
+
 ## Stage ownership
 
 | Stage | Owner | Code |
 |---|---|---|
+| 0. Structure | **Host AI** | none — prose skill, `stage0/SKILL.md` |
 | 1. Elicitation | **Host AI** | `core/elicit.py` |
 | 2. Verification | Library | `core/verify.py`, `engines/multiobjective.py` |
 | 3. Computation | Library | `core/dispatch.py` → `engines/` |
@@ -33,6 +38,92 @@ owns both ends of the conversation; the library owns the physics in the middle. 
 computes in prose instead of calling the library has defeated the entire design.
 
 ---
+
+## Stage 0 — Structure (the model you must bring)
+
+Stages 1–5 begin with a problem already reduced to job / horizon / information / payoff. Nothing in
+them produces that reduction. For a long time the design simply assumed the user would arrive with
+it, which is false often enough to matter: the most common real opening is not "rank these five
+offers" but "our support queue got slower and hiring didn't help."
+
+### Why this cannot be folded into Stage 1
+
+Stage 1 interrogates *within* a structure. It asks whether \(n\) is fixed, whether recall is
+possible, whether information is ordinal — every one of those questions presupposes that we already
+know there is a stream to stop. Ask them of an unshaped situation and you get answers, which is
+worse than getting none: the user will supply an \(n\) for a problem that turns out not to have a
+stream at all, and Stages 2–4 will faithfully verify, compute, and audit a number that answers a
+question nobody has established is the right one. Auditing cannot catch this. The invariants check
+that the arithmetic is consistent with the contract; they cannot check that the contract is about
+the user's actual problem.
+
+### Why the refusal default inverts here
+
+This is the single most counter-intuitive decision in the repository, and the one most likely to be
+"fixed" by a future contributor — including a future me — in the name of consistency. It must not be.
+
+Stages 1–5 refuse because their user asked for a number, and a user who receives a wrong number
+acts on it. Silence leaves them where they were; a spurious 37% moves them somewhere worse. Refusal
+is strictly protective.
+
+Stage 0's user is in the opposite position. They asked for **a direction to look**, and they arrived
+with no declared boundary and no named structure — that is *why* they came. Refusing there does not
+return them to neutral, because there is no neutral to return to: they will go on looking, using the
+unexamined model they walked in with. The error asymmetry runs the other way.
+
+The justification is in the sources, not in taste:
+
+- **Pearl.** "No causes in, no causes out." A causal conclusion is never a property of the data; it
+  is a property of the data plus a causal model supplied from outside it. There is no order of
+  operations in which the model comes second.
+- **Meadows.** A system boundary is a modelling decision, not a discovered fact. Deciding what to
+  measure has already committed to one.
+- **Page.** The model class fixes which answers are expressible. An equilibrium model cannot return
+  "it cycles forever," so choosing one has silently answered a question that was never asked.
+
+Taken together: prior commitment is unavoidable. The only available choice is **deliberate or
+inherited**. So Stage 0 commits — and pays for the privilege by making the commitment inspectable.
+
+### What it emits
+
+Six required fields, of which the second may never be omitted: starting model · **observation
+instruction** · commitments · prohibitions · overturn conditions · rival models. A committed model
+that does not say what would overturn it is not a model, it is a preference.
+
+Twelve verdicts, deliberately unequal in force:
+
+| Class | Count | Force |
+|---|---|---|
+| True refusals | 6 | Refuse a specific over-reaching *claim*, never the request. `NotIdentifiable` still hands back the graph and says which measurement would fix it. |
+| Forks | 3 | **May never terminate the stage.** A `BoundaryFork` lays out candidate boundaries and prices each, because the choice is the user's to make, not ours to make quietly. |
+| Conditional findings | 3 | Terminal only with a resolving measurement attached: "undetermined, and here is what would determine it." |
+
+### The handoff, and why it is all-or-nothing
+
+Stage 0 fills exactly four fields — `job`, `horizon`, `information`, `payoff` — and leaves **every
+numeric field `None`**, naming each in the observation instruction as something the host must still
+elicit. Filling one here would smuggle an unelicited assumption past the very check this repository
+exists to enforce, which is the failure named at the top of this document.
+
+All four must classify before the case moves to Stage 1. If one does not, the case stops with its
+six fields and a verdict. Partial handoff is not a lenient version of handoff; it is the specific
+failure described above, since Stage 1 would immediately begin demanding numbers for a shape that is
+still undetermined.
+
+Mapping onto the five-part `OutputReport` is direct: `zero_order` is the starting model,
+`corrections` are refinements to it, `overturns` are the rival models, `dropped` holds detail that
+cannot change where to look, `hard_constraints` are the true refusals, and
+`analysis_is_complete` means *stop reasoning and start observing* — not *the answer is in*.
+
+### Its limits, stated plainly
+
+Stage 0 is prose. There is no structure module, no graph algorithm, and no code enforcing any of
+it; the drift guards in `tests/test_stage0.py` check that the document stays internally consistent
+and honestly cited, not that a host obeyed it. The DAG it reasons over is user-supplied and can
+never be verified true — only what is identifiable *under* it, which is why assumption provenance is
+mandatory rather than decorative. Meadows' higher leverage ranks (rules, self-organization, goals,
+paradigms) are not computable and are reported as hard constraints; Stage 0 never names a direction
+to push. And it emits no numbers at all.
 
 ## Stage 1 — Elicitation (the Socratic interrogation)
 
@@ -282,7 +373,10 @@ c01 §8 says so formally. The veto is the framework's own boundary, not an excep
 
 ## What this design forbids
 
-Each of these is enforced in code and covered by a test, not merely aspired to.
+Everything above the rule is enforced in code and covered by a test, not merely aspired to. The
+three rows below it are Stage 0 conventions: there is no code to enforce them, because Stage 0 has
+no code. Their guards check that the document keeps saying so — which is weaker, and is the honest
+description.
 
 | Forbidden | Enforcement |
 |---|---|
@@ -297,3 +391,7 @@ Each of these is enforced in code and covered by a test, not merely aspired to.
 | Returning a decision whose audit failed | `AuditFailure` |
 | Citing a cluster section for a number the corpus doesn't support | `tests/test_corpus.py` |
 | Any I/O or prompting inside `src/` | `tests/test_api.py::test_no_input_calls_in_src` |
+| — *below: document-level guards only* — | |
+| Handing Stage 1 a numeric field Stage 0 invented | Stage 0 fills only the four classifying fields; `tests/test_stage0.py` |
+| Ending Stage 0 on a fork instead of a choice | Forks may not terminate the stage; `tests/test_stage0.py` |
+| Letting an acceptance probe's wording leak into the corpus it tests | `tests/test_stage0.py` |

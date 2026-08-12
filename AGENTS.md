@@ -19,7 +19,7 @@ Read in this order. All are committed; a fresh clone is self-contained.
 
 | Document | What it is | Status |
 |---|---|---|
-| [DESIGN.md](DESIGN.md) | The five-stage interaction model — what the product is *for*, and why every refusal is a designed output rather than an error path. | **Current.** Authoritative on intent. |
+| [DESIGN.md](DESIGN.md) | The interaction model, Stage 0 through Stage 5 — what the product is *for*, why every refusal is a designed output rather than an error path, and why Stage 0's default is the one deliberate exception. | **Current.** Authoritative on intent. |
 | [SKILL.md](SKILL.md) | The file a host AI loads. Host protocol, elicitation questions, worked transcript. | **Current.** Authoritative on host behaviour. |
 | AGENTS.md | This file. Pairing rules, enforced invariants, change discipline. | **Current.** |
 | [README.md](README.md) | Front door: purpose, install, quick start. | **Current.** |
@@ -51,7 +51,7 @@ Generated from `find . -not -path './.git/*' -type f | sort`.
 .github/workflows/python-app.yml  # CI: lint, install package, pytest + coverage gate
 .gitignore
 AGENTS.md                         # This file — host-AI pairing rules
-DESIGN.md                         # The five-stage interaction model (design intent)
+DESIGN.md                         # The interaction model, Stage 0-5 (design intent)
 LICENSE
 NOTICE.md                         # Source attribution for the corpus
 README.md
@@ -93,7 +93,7 @@ tests/
   test_api_surface.py             # public __all__ may not shrink silently
   test_audit_and_report.py        # INV-1..INV-7 and Output Contract rendering
   test_corpus.py                  # corpus/code drift guards (sizes, sections, citations)
-  test_interaction_stages.py      # the five-stage interaction model, as a host drives it
+  test_interaction_stages.py      # stages 1-5 of the interaction model, as a host drives it
   test_multiobjective.py
   test_product_intent.py          # the four claims the product exists to make good on
   test_sequential.py
