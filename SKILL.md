@@ -91,6 +91,11 @@ Skip only if the case arrives already shaped. Full protocol in
 - **Three of its twelve verdicts are forks, and a fork may not end the stage.** A `BoundaryFork`
   means you put the candidate boundaries to the user and let *them* pick. Choosing quietly on their
   behalf is the failure mode Stage 0 exists to prevent.
+- **A `risk_attitude` or objective-preference answer from Stage 1 row 18 below is a first-order
+  report, not a settled input, until the user has appointed it to govern this class of decision.**
+  Asking the question and getting an answer are not the same event as the user having formed a
+  second-order volition about it (`stage0/SKILL.md` §5.2, §6, §9). Do not write a confidently or
+  repeatedly stated risk attitude into the contract as though repetition promoted it.
 
 What comes back is a starting model, an **observation instruction** (the field that may never be
 omitted), commitments, prohibitions, overturn conditions, and rival models. Deliver all six. If the
@@ -304,6 +309,14 @@ Two of these are **hard-required** by `missing_fields()` and are the ones most o
 `payoff_diverges` (row 7) gates every stopping problem — a diverging payoff means *no optimal
 stopping rule exists*, not a smaller cutoff — and `markov_verified` (row 19) gates every
 sequential problem. Ask them; do not assume the benign answer.
+
+**Row 18 needs one more check than the others before you write it down.** Asking "is the decision
+maker risk-averse, risk-neutral, or risk-prone?" and getting an answer only ever returns a
+first-order report of the current inclination — not a standing appointment of which inclination
+governs this class of decision. The two are different events and this table cannot tell them apart
+for you; if Stage 0 ran on this case, check whether its output already flagged `risk_attitude` as a
+prohibited construct (an evaluative preference that has not cleared second-order volition) before
+treating the row-18 answer as settled (see Stage 0 above, and `stage0/SKILL.md` §5.2, §6, §9).
 
 **Combinations the corpus does not cover.** Some assumption sets are individually valid but
 jointly uncalibrated; `dispatch()` raises `UnclassifiedVariant` rather than picking whichever
