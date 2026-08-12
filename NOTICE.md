@@ -14,6 +14,19 @@ This repository is an archival conversion and engineering implementation of zero
 - *Decisions with Multiple Objectives* (Ralph L. Keeney & Howard Raiffa)
 - *Algorithms for Decision Making* (Mykel J. Kochenderfer, Tim A. Wheeler, et al.)
 
+The Stage 0 skill under `stage0/` is distilled from three further publicly available sources:
+
+- *Thinking in Systems: A Primer* (Donella H. Meadows)
+- *The Book of Why: The New Science of Cause and Effect* (Judea Pearl & Dana Mackenzie)
+- *The Model Thinker* (Scott E. Page)
+
+Those three files are structural-judgment references, not formula corpora, and they are held to a
+narrower claim than the `references/clusters/` files: they state decision criteria and named results,
+not derivations. Where a formal statement is transcribed from a popular treatment rather than the
+primary text, the file says so at the point of use — see the provenance notice in
+`stage0/references/reference-pearl-book-of-why.md`, whose do-calculus rules come from *The Book of
+Why* and not from Pearl's *Causality* (2009).
+
 All original mathematical formulations, theorems, and named rules remain the intellectual property of their respective authors and publishers. This repository does not claim ownership of any source material.
 
 The Python implementations, dispatch logic, validation invariants, Socratic elicitation contracts, packaging, and original engineering prose in this repository are original work by Ariel Lee and are released under the MIT License (see LICENSE).
