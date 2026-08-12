@@ -26,7 +26,7 @@ wheel would prefer. Wanting the reef to be softer is not a plan. Learning where 
 But there is a second reef, and it lies inside the person holding the wheel, not in the water. Wanting
 a thing is not yet a position on the wanting itself. A man gripped by a craving turns the wheel toward
 it, and calling that turn "his own" is too cheap a word for what just happened — the craving steered,
-he only held on. **The man who is truly at the helm does not merely want; he decides which of his
+he only held on. The man who is truly at the helm does not merely want; he decides which of his
 wants is allowed to hold the wheel.** He looks over his own urges the way a farmer looks over a field
 he did not plant himself, some of it worth keeping, some of it worth pulling up, and he does not
 pretend the sorting is beneath him. That sorting — naming which want gets to steer, in a way built to
