@@ -1,6 +1,6 @@
 ---
 name: dominant-circuit
-description: "Master decision-mechanics router for choosing when to stop a search, how to trade off multiple objectives under certainty or uncertainty, and how to select or time actions in sequential/uncertain environments. Use when the user asks when to stop looking or searching, how to decide among finitely many alternatives with competing objectives, how to weigh tradeoffs or set scaling constants/utility weights, how to update beliefs with new evidence (Bayes/POMDP), how to pick an action under a Markov Decision Process or Bellman framework, or invokes phrases like optimal stopping, secretary problem, 37% rule, satisficing threshold, multiattribute utility, preferential/utility independence, expected utility, risk aversion, MDP, POMDP, belief update, value iteration, Q-learning, or Monte Carlo tree search. Not for open-ended brainstorming or single-attribute certainty comparisons with no search, tradeoff, or sequential/uncertainty structure."
+description: "Master decision-mechanics router for choosing when to stop a search, how to trade off multiple objectives under certainty or uncertainty, and how to select or time actions in sequential/uncertain environments. Use when the user asks when to stop looking or searching, how to decide among finitely many alternatives with competing objectives, how to weigh tradeoffs or set scaling constants/utility weights, how to update beliefs with new evidence (Bayes/POMDP), how to pick an action under a Markov Decision Process or Bellman framework, or invokes phrases like optimal stopping, secretary problem, 37% rule, satisficing threshold, multiattribute utility, preferential/utility independence, expected utility, risk aversion, MDP, POMDP, belief update, value iteration, Q-learning, or Monte Carlo tree search. ALSO use when a situation has no decision structure yet — a metric moved and nobody knows why, an intervention did not work, a system feels stuck, or the user does not yet know what to measure or where to look — and route it to Stage 0 (stage0/SKILL.md) to install an explicit model first; those cases are in scope, not out of it. Not for single-attribute certainty comparisons, or requests for prose insight with no model to commit to."
 ---
 
 # Dominant-Circuit
@@ -9,7 +9,21 @@ Master router over three zero-order decision-mechanics clusters. This file dispa
 
 ## When to use
 
-Use when a request has **decision structure**, not just a question:
+**Route first.** Two different jobs live behind this file, and picking the wrong one is the most
+expensive mistake available:
+
+| The user's situation | Go to |
+|---|---|
+| Already reduced to a job, a horizon, an information type, and a payoff — or reducible by asking about those | Stage 1 below |
+| Has no structure yet: a metric moved and nobody knows why, an intervention failed, "what should I even look at" | **[stage0/SKILL.md](stage0/SKILL.md) first** |
+
+When in doubt, go to Stage 0. It is cheap and it hands back a contract. Starting at Stage 1 on an
+unshaped problem is not cheap: the elicitation questions below all presuppose a structure, so the
+user will answer them anyway, and Stages 2–4 will then verify, compute, and audit a real number for
+a question nobody established was the right one. **The audit cannot catch this** — the invariants
+check the arithmetic against the contract, never the contract against the user's actual problem.
+
+Use Stage 1 onward when a request has **decision structure**, not just a question:
 - A search/queue of options must be stopped at some point ("when do I stop looking/interviewing/dating/selling/renting").
 - Multiple competing objectives/attributes must be traded off into one ranking or score ("which alternative is best given cost, quality, risk...").
 - An action must be chosen now that affects a future state under known/unknown dynamics, or beliefs must be updated from observations ("what should I do next," "update my belief," "plan a sequence of moves").
@@ -54,12 +68,34 @@ If any field is missing, run the Socratic elicitation loop below before computin
 - **Cluster 02**: the additive value/utility form requires mutual (or, for \(n=3\), pairwise) preferential or utility independence, verified by an explicit indifference test, not assumed for simplicity. "Verified" means the assumption registry covers **every proper nonempty subset** of the attribute set against its complement (c02 §7.3) — one recorded pair among many is not coverage. Note the flip test (c02 §7.5) does **not** establish independence; it discriminates additive from multiplicative *within* an already-verified structure, and raises if run before it. Scaling constants are only interpretable jointly with the attribute ranges they were assessed against.
 - **Cluster 03**: the Markov assumption must hold (next state depends only on current state and action); Bellman-backup convergence requires \(\gamma \in [0,1)\) and bounded rewards; belief updates require a well-defined observation model and must reset to uniform on zero-likelihood evidence rather than divide by zero.
 
-## The five stages
+## The stages
 
-The user is not chatting. They are plugging a problem into a centrifuge. Your job across
-these five stages is to strip the vibes off their dilemma and show them the constants
-underneath. Each stage has an owner: **you own Stages 1 and 5** (the conversation), **the
-library owns Stages 2–4** (the physics). Never do the library's job in prose.
+The user is not chatting. They are plugging a problem into a centrifuge. Your job is to strip the
+vibes off their dilemma and show them the constants underneath. Each stage has an owner: **you own
+Stages 0, 1 and 5** (the conversation), **the library owns Stages 2–4** (the physics). Never do the
+library's job in prose.
+
+### Stage 0 — Structure: install a model before anyone looks
+
+Skip only if the case arrives already shaped. Full protocol in
+[stage0/SKILL.md](stage0/SKILL.md); what you must know here:
+
+- **Its default is the opposite of every stage below.** Stages 1–5 refuse rather than risk a wrong
+  number. Stage 0 **commits** to an explicit starting model rather than hand the user back the
+  unexamined one they arrived with. This is deliberate. Do not "harmonize" it.
+- **It emits no numbers.** It fills only `job`, `horizon`, `information`, `payoff`, and names every
+  numeric field as something *you* must still elicit in Stage 1.
+- **Handoff is all-or-nothing.** All four fields must classify. If one does not, the case stops at
+  Stage 0 with its six output fields and a verdict — report that, do not proceed to Stage 1 and
+  start asking for \(n\).
+- **Three of its twelve verdicts are forks, and a fork may not end the stage.** A `BoundaryFork`
+  means you put the candidate boundaries to the user and let *them* pick. Choosing quietly on their
+  behalf is the failure mode Stage 0 exists to prevent.
+
+What comes back is a starting model, an **observation instruction** (the field that may never be
+omitted), commitments, prohibitions, overturn conditions, and rival models. Deliver all six. If the
+honest answer is "stop reasoning and go measure this one thing," that is a complete Stage 0 answer —
+there is no obligation to reach a number.
 
 ### Stage 1 — Elicitation: refuse to compute until the boundary conditions are locked
 
@@ -365,9 +401,15 @@ while True:
 
 ## Worked interaction: vague input to executable answer
 
-What the five stages look like in practice. Note where the AI refuses.
+What the stages look like in practice. Note where the AI refuses.
 
 > **User:** I've been interviewing people for a role and I want to hire the best one. When should I stop?
+
+**Stage 0 — pass through, and say why.** This case arrives already shaped: there is a stream of
+candidates, they arrive in an order, and the decision is when to stop. Job, horizon type,
+information type and payoff shape are all determinable by asking, so Stage 0 hands off immediately
+and does not manufacture work. "Vague" is not the same as "unstructured" — this user is vague about
+*values*, not about *shape*. Compare the second transcript below, which is the other case.
 
 **Stage 1 — halt and interrogate.** No number yet. `classify_job` cannot even name the job
 from "hire the best one," and `next_question` asks for the horizon:
@@ -432,6 +474,45 @@ each round I double down on the search budget," `payoff_diverges=True` yields
 > point, and "always continue" leads to ruin (c01 §8). This needs a bankroll-fraction
 > framework such as Kelly, not a stopping rule. I am not going to give you a cutoff number.
 
+### The other case: Stage 0 does not hand off
+
+> **User:** Signups are up 40% since the redesign but monthly actives haven't moved at all.
+> Marketing wants more budget. What do we do?
+
+There is no stream to stop, no set to rank, and no state space — `classify_job` would raise, and the
+elicitation questions above are unanswerable as posed. **Do not ask them.** Go to Stage 0.
+
+What it returns is not a decision and not a number:
+
+> **AI:** Here is the model I am going to commit to, so you can see what it rules out. Monthly actives
+> is a **stock**; signups are an inflow and churn is an outflow. An inflow rose 40% and the stock did
+> not move, so on this model the outflow rose by very close to the same amount. That is the only way
+> a stock stays flat under a rising inflow.
+>
+> **Go measure this first: churn among the accounts created after the redesign, separately from
+> everyone else.** Not total churn — blended churn averages the new cohort into a much larger old
+> one and will look nearly unchanged no matter what happened.
+>
+> This commits me to one stock with one inflow and one outflow. It forbids me from telling you the
+> redesign worked or failed — you cannot tell those apart yet, because a 40% inflow rise with a flat
+> stock is exactly what both "we acquired worse-fit users" and "we broke week-one activation" look
+> like from the outside. It would be overturned if new-cohort churn is flat and the stock is still
+> flat: then my one-stock model is wrong and something is holding actives down independently.
+>
+> One rival model is live and I am not choosing it for you. If signups and actives are the same
+> people counted at different times, this is one stock; if the redesign brought in a population that
+> was never going to be monthly-active, the two series measure different things and no churn number
+> reconciles them. The cohort data separates these.
+>
+> I am not answering the budget question. Nothing here identifies a spend level, and the boundary —
+> whether "the system" is the acquisition funnel, or the funnel plus the activation experience it
+> feeds — is a choice you have to make. More budget is the right move under the first boundary and
+> the wrong one under the second.
+
+No Stage 1 follows. The correct next event is a measurement, not a question. If the series come back
+and the shape is then determined, the case re-enters at Stage 1 — and only then does anyone ask
+about \(n\).
+
 ## Validation invariants (cross-cluster)
 
 1. **Assumption-set match.** The constant/rule dispatched must correspond exactly to the elicited horizon/information/recall/rejection combination; reusing 37%, 58%, 61%, or 25% outside their calibrated assumption set is an audit failure.
@@ -451,3 +532,7 @@ each round I double down on the search budget," `payoff_diverges=True` yields
 - Never skip dominance screening before running full preference elicitation on a candidate set.
 - Never apply a Bellman/MDP method to a non-Markov process without first re-deriving or augmenting the state to restore the Markov property.
 - Never report a decision without its audit results; a passing computation with a failing invariant is not a valid answer.
+- Never start Stage 1 elicitation on a situation whose shape is undetermined. The questions presuppose the structure, so the user will answer them and the number will be real and irrelevant.
+- Never let Stage 0 fill a numeric field. It hands over four classifying fields; a value it supplies is an assumption the user never made, wearing a contract's clothes.
+- Never treat a Stage 0 fork as an answer. Candidate boundaries go to the user; picking one silently decides the outcome before any mathematics runs.
+- Never infer a causal claim from the user's observational data because the correlation is strong. If their own graph does not identify the effect, say which measurement would — that *is* the deliverable.

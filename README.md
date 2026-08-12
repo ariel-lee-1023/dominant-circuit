@@ -239,7 +239,7 @@ main.py                   # five non-interactive demos
 pytest
 ```
 
-180 tests, 93% coverage, with an 80% floor enforced in `pyproject.toml`. Every push and pull
+183 tests, 93% coverage, with an 80% floor enforced in `pyproject.toml`. Every push and pull
 request to `main` runs lint plus the full suite — the badge above is that workflow.
 
 The suite includes guards that exist because of specific past failures:

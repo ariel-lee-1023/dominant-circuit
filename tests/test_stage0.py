@@ -172,3 +172,51 @@ def test_references_do_not_hardcode_acceptance_probe_answers():
         if re.search(r"acceptance[- ](question|probe)", _read(path), re.IGNORECASE)
     ]
     assert not leaked, f"acceptance-probe wording leaked into: {leaked}"
+
+
+# Scenario fingerprints for the blind acceptance probes. Each entry is a set of terms
+# whose CO-OCCURRENCE identifies that probe's scenario; a document containing all of
+# them has, in effect, published the answer.
+#
+# These live here, and only here, on purpose. A test file is not loaded at inference
+# time; the reference corpus and the host-facing skill are. Naming the scenarios in a
+# document the model reads is the leak this guards against, so the registry has to sit
+# outside every such document.
+PROBE_FINGERPRINTS = {
+    "queue-slowdown": {"support", "queue", "headcount"},
+    "feature-retention": {"feature", "retention", "cohort"},
+    "price-equilibrium": {"house", "prices", "stabilize"},
+}
+
+# Documents a host AI or a distilling model actually reads.
+MODEL_FACING_DOCS = (
+    *REFS.values(),
+    SKILL,
+    ROOT / "SKILL.md",
+    ROOT / "README.md",
+    ROOT / "DESIGN.md",
+)
+
+
+@pytest.mark.parametrize("probe", sorted(PROBE_FINGERPRINTS))
+def test_no_model_facing_doc_reproduces_a_probe_scenario(probe):
+    """The phrase-level guard above is weaker than its own docstring.
+
+    The near-miss it did not catch: a worked transcript in the root SKILL.md that
+    reproduced a probe's scenario and its whole expected answer without ever using
+    the words "acceptance probe". A blind probe is worth nothing once a document the
+    model reads contains the case, so match on scenario co-occurrence, and check the
+    host-facing docs too rather than only the three references.
+    """
+    terms = PROBE_FINGERPRINTS[probe]
+    leaked = []
+    for path in MODEL_FACING_DOCS:
+        if not path.is_file():
+            continue
+        words = set(re.findall(r"[a-z]+", path.read_text(encoding="utf-8").lower()))
+        if terms <= words:
+            leaked.append(str(path.relative_to(ROOT)))
+    assert not leaked, (
+        f"probe {probe!r} scenario ({sorted(terms)}) appears in: {leaked}. "
+        "Pick a different worked example; that one is an acceptance probe."
+    )
