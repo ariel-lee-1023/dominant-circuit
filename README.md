@@ -17,6 +17,29 @@ This license covers the original text in this repository. It does not extend to 
 
 ---
 
+## The reef is the god's work. The helm is yours.
+
+A reef does not consult the ship. Prices move, competitors act, a body metabolizes a drug, a market
+clears or fails to — the world's mechanics run on their own terms, indifferent to what anyone at the
+wheel would prefer. Wanting the reef to be softer is not a plan. Learning where it lies is.
+
+But there is a second reef, and it lies inside the person holding the wheel, not in the water. Wanting
+a thing is not yet a position on the wanting itself. A man gripped by a craving turns the wheel toward
+it, and calling that turn "his own" is too cheap a word for what just happened — the craving steered,
+he only held on. **The man who is truly at the helm does not merely want; he decides which of his
+wants is allowed to hold the wheel.** He looks over his own urges the way a farmer looks over a field
+he did not plant himself, some of it worth keeping, some of it worth pulling up, and he does not
+pretend the sorting is beneath him. That sorting — naming which want gets to steer, in a way built to
+hold even when a louder want grabs for the wheel — is not the same act as having the want in the first
+place, however sincerely it was felt.
+
+This is why the two halves of this repository refuse different things. Stage 0 refuses to let the
+outer reef go unnamed — no boundary, no arrows, no model, no observation. The library refuses to let
+the inner one go unnamed either: a preference reported in the moment is not, by having been reported,
+a preference appointed to govern. Freedom here is not the freedom to do whatever you currently want.
+It is the freedom to want what you want to want — and this repository computes nothing until both
+reefs, the one in the water and the one in the wheelhouse, have been charted rather than assumed.
+
 ## The methodology
 
 Data does not announce what caused it. A person staring at a falling number cannot see, in the
@@ -264,6 +287,11 @@ formulas to compute with:
 - `stage0/references/reference-meadows-thinking-in-systems.md`
 - `stage0/references/reference-pearl-book-of-why.md`
 - `stage0/references/reference-page-model-thinker.md`
+
+Evaluative-claim reference, cited by Stage 0 for one narrow purpose — grading whether a stated
+preference has reached second-order volition, not judging the system at all:
+
+- `stage0/references/reference-frankfurt-freedom-of-the-will.md`
 
 Host AI (via [SKILL.md](SKILL.md)) must search the corpus before answering; matching content
 is authoritative. If the corpus does not cover the elicited assumption set, the correct
