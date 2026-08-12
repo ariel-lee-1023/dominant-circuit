@@ -27,10 +27,14 @@ REFS = {
     "meadows": STAGE0 / "references" / "reference-meadows-thinking-in-systems.md",
     "pearl": STAGE0 / "references" / "reference-pearl-book-of-why.md",
     "page": STAGE0 / "references" / "reference-page-model-thinker.md",
+    "frankfurt": STAGE0 / "references" / "reference-frankfurt-freedom-of-the-will.md",
 }
 
-# `meadows §2.4`, `pearl §2.10`, `page §2.5` -- the anchor scheme SKILL.md declares.
-CITATION_RE = re.compile(r"\b(meadows|pearl|page)\s+§(\d+(?:\.\d+)?)")
+# `meadows §2.4`, `pearl §2.10`, `page §2.5`, `frankfurt §2.3` -- the anchor scheme SKILL.md
+# declares. frankfurt is not a fifth pipeline stage in §4's fixed order -- it grades evaluative
+# constructs (§5.2) rather than supplying a stock, an arrow, or a model class -- but it is cited
+# with the same checkable §N.M anchors as the other three, so it belongs in the same registry.
+CITATION_RE = re.compile(r"\b(meadows|pearl|page|frankfurt)\s+§(\d+(?:\.\d+)?)")
 
 # Bare continuation anchors: `§2.9` inside a cell whose first citation named the book.
 BARE_ANCHOR_RE = re.compile(r"§(\d+(?:\.\d+)?)")

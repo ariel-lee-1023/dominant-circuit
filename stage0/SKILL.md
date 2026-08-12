@@ -1,14 +1,16 @@
 ---
 name: stage0-structure-first
-description: "Stage 0 for dominant-circuit, distilled from 3 sources: Meadows Thinking in Systems, Pearl & Mackenzie The Book of Why, Page The Model Thinker. Given an unshaped situation, installs an explicit starting model — names its stocks/flows/loops, its DAG and what that DAG makes identifiable, and its equilibrium/cycle/randomness/complexity class — and emits six required fields: starting model, observation instruction, commitments, prohibitions, overturn conditions, rival models. Then either hands off the four classifying InputContract fields to dominant-circuit or refuses a specific over-reaching claim. Never outputs a decision, a number, or prose insight. Use before any decision solver runs, whenever a case has not yet been reduced to job/horizon/information/payoff."
+description: "Stage 0 for dominant-circuit, distilled from 4 sources: Meadows Thinking in Systems, Pearl & Mackenzie The Book of Why, Page The Model Thinker, and Frankfurt's Freedom of the Will and the Concept of a Person (for grading stated preferences, not for structural modeling). Given an unshaped situation, installs an explicit starting model — names its stocks/flows/loops, its DAG and what that DAG makes identifiable, and its equilibrium/cycle/randomness/complexity class — and emits six required fields: starting model, observation instruction, commitments, prohibitions, overturn conditions, rival models. Then either hands off the four classifying InputContract fields to dominant-circuit or refuses a specific over-reaching claim. Never outputs a decision, a number, or prose insight. Use before any decision solver runs, whenever a case has not yet been reduced to job/horizon/information/payoff."
 ---
 
 # Stage 0 — Structure First
 
-**Books**: 3 | **Depth**: reference | **Citation anchors**: `§N` (top-level), `§N.M` (framework blocks)
+**Books**: 4 | **Depth**: reference | **Citation anchors**: `§N` (top-level), `§N.M` (framework blocks)
 
-Cite as `meadows §2.4`, `pearl §2.6`, `page §2.3` — every numbered heading in the three reference
-files is a stable anchor. Do not cite by heading text; text gets rewritten, numbers do not.
+Cite as `meadows §2.4`, `pearl §2.6`, `page §2.3`, `frankfurt §2.3` — every numbered heading in the
+four reference files is a stable anchor. Do not cite by heading text; text gets rewritten, numbers
+do not. Three of the four (Meadows, Pearl, Page) run in the fixed structural order `§4` describes;
+Frankfurt does not join that pipeline — see `§4`'s note and `§5.2`.
 
 ---
 
@@ -84,6 +86,14 @@ Pearl is the **only** source here with a mathematically hard definition of "medi
 (chain / fork / collider, back-door, do-calculus). When a case turns on that classification, Pearl
 is the sole authority — do not substitute intuition from the other two books.
 
+A fourth source, Frankfurt's *Freedom of the Will and the Concept of a Person* →
+[references/reference-frankfurt-freedom-of-the-will.md](references/reference-frankfurt-freedom-of-the-will.md),
+is cited elsewhere in this document (`§5.2`, `§6`, `§9`) but is **not a fourth row in this table**.
+The table above answers "what can be seen → what can be claimed → what shape the answer can take"
+about the *system* the user is describing, run in that fixed order for every case. Frankfurt answers
+a different question — what grade a stated preference about the *person's objective* has reached —
+and is consulted only when such a construct appears, not as a required pipeline stage.
+
 ## 5. The six capabilities, in fixed order
 
 ### 5.1 Domain triage (three questions, read-only)
@@ -112,23 +122,31 @@ claim is present — the DAG nodes and edges.
   Stage 0*. An added construct is a proposal the user may reject; an unmarked added construct is
   the AI's opinion wearing the user's name.
 - If constructs cannot yet be named, that is `ConstructProposal` (§7.2), not a stop.
-- **Evaluative constructs get a second provenance axis.** A stock or flow is a fact about the
-  system; a stated risk attitude or objective preference is a fact about the person, and those
-  come in three grades that must not be collapsed into one "stated by the user" bucket:
-  - **first-order** — what the user reports wanting right now ("I want to take the risk"). Record
-    it; it is data, not yet an input.
-  - **second-order desire** — what the user says they want to want ("I'd rather be the kind of
-    decision-maker who doesn't chase this"). Still not an input — an evaluation of a desire is not
-    a decision about which desire acts, and a construct can sit here indefinitely without ever
-    resolving.
-  - **second-order volition** — an explicit, forward-standing appointment: the user names which
-    desire governs *this class of decision*, in a form built to survive being contradicted by a
-    louder first-order desire at the moment of choice ("treat me as risk-neutral for calls like
-    this, even if I balk in the moment"). This is the only grade that may be treated as settled.
+- **Evaluative constructs get a second provenance axis (Frankfurt).** A stock or flow is a fact
+  about the system; a stated risk attitude or objective preference is a fact about the person, and
+  those come in three grades that must not be collapsed into one "stated by the user" bucket
+  (`frankfurt §2.1`–`§2.3`):
+  - **first-order** (`frankfurt §2.1`) — what the user reports wanting right now ("I want to take
+    the risk"). Record it; it is data, not yet an input. Confidence or repetition does not change
+    its grade — a first-order desire stated with total conviction is still first-order
+    (`frankfurt §2.4`).
+  - **second-order desire** (`frankfurt §2.2`) — what the user says they want to want ("I'd rather
+    be the kind of decision-maker who doesn't chase this"). Still not an input — an evaluation of a
+    desire is not a decision about which desire acts, and a construct can sit here indefinitely
+    without ever resolving.
+  - **second-order volition** (`frankfurt §2.3`) — an explicit, forward-standing appointment: the
+    user names which desire governs *this class of decision*, in a form built to survive being
+    contradicted by a louder first-order desire at the moment of choice ("treat me as risk-neutral
+    for calls like this, even if I balk in the moment") — the same structure that lets Frankfurt's
+    unwilling addict disown the desire that moves him (`frankfurt §2.5`). This is the only grade
+    that may be treated as settled.
   - Stage 0 never infers second-order volition from a first-order answer, no matter how confidently
     stated, and never manufactures it on the user's behalf — that would be Stage 0 doing the
-    weighing that only the user is entitled to do. Absent an explicit volition-grade statement, the
-    construct stays open.
+    weighing that only the user is entitled to do (`frankfurt §2.6`). Absent an explicit
+    volition-grade statement, the construct stays open, exactly as an ungraded second-order desire
+    may stay open indefinitely (`frankfurt §2.2`).
+  - Grading a construct's order is a structural classification, not a quality or sincerity check;
+    a capriciously formed second-order volition still counts as one (`frankfurt §2.8`).
 
 ### 5.3 Identifiability verdict (Pearl only)
 Given the DAG and the observable set: is the target quantity identifiable? Apply the
@@ -173,13 +191,14 @@ over-reaching claim (§7.1). Never both, never neither.
    **This is what the user actually came for, and it is the one field that may never be omitted.**
 3. **Commitments** — what adopting this starting point commits you to: which variables are
    endogenous, which arrows are asserted to exist, and which evaluative construct (§5.2) has
-   actually reached second-order volition and may therefore be treated as settled.
+   actually reached second-order volition (`frankfurt §2.3`) and may therefore be treated as
+   settled.
 4. **Prohibitions** — what it forbids: which variable must not be conditioned on, which questions
    cannot be asked under this boundary, which quantities are unidentifiable under this graph, and
    which evaluative construct has NOT cleared second-order volition and is therefore prohibited
    from being written into a solver field no matter how firmly it was stated ("reported risk-prone
    in the moment" stays a first-order fact until the user appoints it — it does not get promoted
-   by repetition or confidence).
+   by repetition or confidence, `frankfurt §2.4`).
 5. **Overturn conditions** — what observation would replace this starting point with another.
 6. **Rival models** — which other starting points are equally defensible, and what observation
    distinguishes them.
@@ -259,13 +278,13 @@ exists to enforce.
 `risk_attitude` and any part of `payoff` selection that is evaluative rather than structural are
 deliberately **not** in the table above, and Stage 0 never fills them. They are `InputContract`
 fields, but they are also exactly the evaluative constructs §5.2 governs: a host asking for them
-directly (as Stage 1's `QUESTION_BANK` does) receives a first-order answer, not a second-order
-volition, and must not write it into the contract as though the two were the same event. Stage 0
-cannot perform that check for the host after handoff — by §2 it never estimates or decides — so it
-discharges its share of the responsibility earlier: if the case in front of it surfaces a stated
-risk attitude or objective preference, §6 field 4 names that it has not cleared second-order
-volition, so the prohibition travels with the handoff instead of being silently dropped at the
-Stage 0 / Stage 1 boundary.
+directly (as Stage 1's `QUESTION_BANK` does) receives a first-order answer (`frankfurt §2.1`), not a
+second-order volition (`frankfurt §2.3`), and must not write it into the contract as though the two
+were the same event. Stage 0 cannot perform that check for the host after handoff — by §2 it never
+estimates or decides — so it discharges its share of the responsibility earlier: if the case in
+front of it surfaces a stated risk attitude or objective preference, §6 field 4 names that it has
+not cleared second-order volition, so the prohibition travels with the handoff instead of being
+silently dropped at the Stage 0 / Stage 1 boundary.
 
 Hand off only when all four classify. Otherwise emit §6 and the applicable §7 verdict, and say
 plainly that the case is not yet reduced to a solver input.
@@ -287,7 +306,8 @@ Terms appearing in two or more books.
 
 ## 11. Scope, limits, provenance
 
-Structural judgment only, from these three sources.
+Structural judgment about the system, from three sources; grading of evaluative claims about the
+person, from a fourth (`§4`'s note, `§5.2`).
 
 - **Pearl** supports identifiability and mediator / confounder / collider judgment but explicitly
   **not** numeric effect-size estimation (see the NOTICE in its reference file). A request for a
@@ -299,9 +319,15 @@ Structural judgment only, from these three sources.
   computable**; they are reported as hard constraints, not ranked. Only parameters, buffers,
   physical structure and delays admit sensitivity ranking, and even then Stage 0 names the
   structure and never the direction to push (`meadows §2.5`).
-- **This stage never selects the model for the user.** It may propose, order, and price the
-  alternatives. It may not silently pick one. The user owns the goal, and owns the starting point.
-- For a topic none of the three books addresses, say so rather than inventing a verdict.
+- **Frankfurt** supports grading a stated preference's order (first-order / second-order desire /
+  second-order volition) and nothing else — not the paper's argument for the freedom-of-the-will
+  thesis, its treatment of moral responsibility, or its reply to Chisholm (`frankfurt §1`). It
+  never supplies a stock, an arrow, or a model class, and it is never a substitute for §5.1–§5.5's
+  structural judgment about the system — only a check on claims about the person's objective.
+- **This stage never selects the model for the user, and never appoints a second-order volition on
+  the user's behalf either** (`frankfurt §2.6`). It may propose, order, and price the alternatives.
+  It may not silently pick one. The user owns the goal, and owns the starting point.
+- For a topic none of the four sources addresses, say so rather than inventing a verdict.
 - **Depth note.** These reference files were distilled at `reference` depth: dense on decision
   criteria, without worked end-to-end examples. Anything presented as a worked example downstream
   is constructed, not quoted, and must be labelled as such.
