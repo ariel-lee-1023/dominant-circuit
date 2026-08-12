@@ -261,11 +261,11 @@ is part of the deliverable, not a courtesy.
 
 ---
 
-## Weight (权重) and the overturn test
+## Weight and the overturn test
 
 **Weight is the magnitude of causal control a factor exerts over the outcome, given a concrete
 goal, a specific time scale, and defined objects of comparison.** There is no standard answer
-for weight; it depends entirely on the objective function (目标函数).
+for weight; it depends entirely on the objective function.
 
 Two consequences shape the whole of Stage 1.
 
@@ -280,9 +280,9 @@ The three prerequisites (`WEIGHT_PREREQUISITES`) are therefore not screenable:
 
 | Prerequisite | Contract fields |
 |---|---|
-| 给定目标 | `payoff`, `attributes`, `scaling_constants`, `risk_attitude` |
-| 给定时间尺度 | `horizon`, `gamma`, `n`, `n_max`, `stop_prob_per_step` |
-| 给定比较对象 | `alternatives`, `states`, `actions` |
+| A stated goal | `payoff`, `attributes`, `scaling_constants`, `risk_attitude` |
+| A stated time scale | `horizon`, `gamma`, `n`, `n_max`, `stop_prob_per_step` |
+| Stated objects of comparison | `alternatives`, `states`, `actions` |
 
 `overturn_test` raises `ContractIncomplete` before these are stated, rather than inventing a
 baseline. Without them no factor has a weight yet.
@@ -312,29 +312,29 @@ This is why the library can screen honestly instead of guessing. The same factor
 | Pool size | exact | asymptotic | Overturn? | Verdict |
 |---|---|---|---|---|
 | n = 50 | 19 | 18 | **yes** | load-bearing — worth a question |
-| n = 45 | 17 | 17 | no | 舍去项 — throw it out |
-| n = 102 | 38 | 38 | no | 舍去项 — throw it out |
+| n = 45 | 17 | 17 | no | dropped — throw it out |
+| n = 102 | 38 | 38 | no | dropped — throw it out |
 
 "Should I use the exact computation or the famous 37% rule?" is a real question at n=50 and a
 waste of the user's attention at n=45. No fixed list of "important factors" survives between
 conversations; each must be screened against the goal actually stated.
 
-This is also the answer to 大局观的另一半 — knowing when to stop looking. `plan["required"] == []`
-with an empty `load_bearing` means there is nothing left worth asking, which is a computed
-result rather than a judgement call.
+This is also the answer to the other half of seeing the whole board — knowing when to stop
+looking. `plan["required"] == []` with an empty `load_bearing` means there is nothing left worth
+asking, which is a computed result rather than a judgement call.
 
-## The zero-order expansion (零阶展开)
+## The zero-order expansion
 
 Every report carries `report.perturbation` — the answer as a labelled series rather than a
 single number, which is what makes the perturbation structure visible instead of implicit.
 
-| Order | 中文 | Meaning |
+| Order | Label | Meaning |
 |---|---|---|
-| `ORDER_ZERO` | 零阶 | The trunk. What the dominant terms alone give. |
-| `ORDER_FIRST` | 一阶修正 | Refines the trunk. **Cannot overturn it.** |
-| `ORDER_OVERTURN` | 翻盘 | Not a correction — a *different* trunk. |
-| `ORDER_DROPPED` | 舍去项 | Thrown away by 主导平衡 as having no causal control. |
-| `ORDER_HARD` | 硬约束 | No trunk exists. A veto, never a small quantity. |
+| `ORDER_ZERO` | zero-order | The trunk. What the dominant terms alone give. |
+| `ORDER_FIRST` | first-order correction | Refines the trunk. **Cannot overturn it.** |
+| `ORDER_OVERTURN` | overturn | Not a correction — a *different* trunk. |
+| `ORDER_DROPPED` | dropped | Thrown away by dominant balance as having no causal control. |
+| `ORDER_HARD` | hard constraint | No trunk exists. A veto, never a small quantity. |
 
 **The classification is structural, never a magnitude threshold.** A term is a *correction*
 when it refines the same calibrated model, and an *overturn* when it moves the problem to a
@@ -343,14 +343,14 @@ a pool of 50:
 
 | Order | Term | Value | Δ | Citation |
 |---|---|---|---|---|
-| 零阶 | asymptotic 1/e — the 37% rule | 18 | — | c01 §5 |
-| 一阶修正 | exact finite-*n* argmax | 19 | +6% | c01 §4.1 |
-| 翻盘 | recall allowed at 50% | 30 | +67% | c01 §7 |
-| 翻盘 | rejection risk at 50% | 12 | −33% | c01 §7 |
-| 硬约束 | payoff diverges | no rule exists | — | c01 §8 |
+| zero-order | asymptotic 1/e — the 37% rule | 18 | — | c01 §5 |
+| first-order correction | exact finite-*n* argmax | 19 | +6% | c01 §4.1 |
+| overturn | recall allowed at 50% | 30 | +67% | c01 §7 |
+| overturn | rejection risk at 50% | 12 | −33% | c01 §7 |
+| hard constraint | payoff diverges | no rule exists | — | c01 §8 |
 
 The +6% term is a correction; the −33% term is an overturn. Sorting by size would invert both.
-Recall and rejection are not 修正项 at all: each is calibrated for a different assumption set,
+Recall and rejection are not corrections at all: each is calibrated for a different assumption set,
 so each *is* a trunk. That is also why the corpus has no joint row for them — they move the
 boundary in opposite directions, and there is no series in which one is a small perturbation of
 the other.
@@ -367,7 +367,8 @@ Each engine's trunk is a real quantity from the corpus, not a label:
   \(\le \gamma\) per sweep (INV-4) is exactly why the series converges and later terms cannot
   overturn the trunk.
 
-This also gives 硬约束 its precise place. 「微扰级数不一定收敛」is not a metaphor here: when the
+This also gives the hard constraint its precise place. "The perturbation series need not
+converge" is not a metaphor here: when the
 expected payoff at the best stopping point diverges, there is no zero-order term to correct, and
 c01 §8 says so formally. The veto is the framework's own boundary, not an exception bolted on.
 

@@ -7,7 +7,7 @@ Two distinct jobs live here:
   * **Weight** — `overturn_test` / `elicitation_plan`: of the things that *could*
     be known, which are worth asking about.
 
-The second exists because 细节是无穷的 — details are infinite. Asking "what else
+The second exists because details are infinite. Asking "what else
 haven't I considered?" never terminates. The only terminating question is the
 overturn test: *is the presence or absence of this factor sufficient to overturn my
 current conclusion?* If not, it is a high-order small quantity and belongs outside
@@ -113,8 +113,8 @@ def overturn_test(
     field: str,
     probes: Optional[Sequence[dict[str, Any]]] = None,
 ) -> OverturnResult:
-    """翻盘检验. Is the presence or absence of this factor sufficient to overturn the
-    conclusion the contract currently yields?
+    """Overturn test. Is the presence or absence of this factor sufficient to overturn
+    the conclusion the contract currently yields?
 
     Not "what have I not considered" — that never terminates. This asks the single
     terminating question, and answers it by actually recomputing.

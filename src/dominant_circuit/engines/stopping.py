@@ -434,7 +434,7 @@ def _expansion_fixed_known(contract: InputContract, cal: Calibration,
     terms.append(PerturbationTerm(
         order=ORDER_HARD, label="payoff_diverges = True",
         value="no rule exists", citation="c01 §8",
-        note="硬约束: if expected reward at the best stopping point diverges, no "
+        note="Hard constraint: if expected reward at the best stopping point diverges, no "
              "zero-order answer exists to correct. Never a higher-order small "
              "quantity — switch to a bankroll-fraction framework (Kelly)",
     ))
@@ -559,7 +559,7 @@ def solve_stopping(contract: InputContract) -> OutputReport:
                 PerturbationTerm(
                     order=ORDER_HARD, label="ruin on failure",
                     value=f"q={q}", citation="c01 §11",
-                    note="硬约束: total ruin is not a higher-order small quantity. The "
+                    note="Hard constraint: total ruin is not a higher-order small quantity. The "
                          "ceiling exists precisely because the downside cannot be averaged "
                          "into the expectation",
                 ),

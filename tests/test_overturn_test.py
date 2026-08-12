@@ -1,4 +1,4 @@
-"""翻盘检验 — the overturn test as the operational definition of weight.
+"""The overturn test as the operational definition of weight.
 
 Weight is the magnitude of causal control a factor exerts over the outcome, given a
 concrete goal, a time scale, and defined objects of comparison. There is no standard
@@ -47,8 +47,9 @@ def test_weight_is_undefined_before_the_goal_is_stated():
 
 
 def test_the_three_prerequisites_are_never_screenable():
-    """给定目标、时间尺度、比较对象 are not factors to be weighed — they are what
-    makes weighing possible. They must never appear as droppable."""
+    """The stated goal, time scale, and comparison set are not factors to be
+    weighed — they are what makes weighing possible. They must never appear as
+    droppable."""
     contract = _stopping()
     screenable = set(screenable_fields(contract))
     for group, fields in WEIGHT_PREREQUISITES.items():
@@ -198,7 +199,7 @@ def test_design_md_weight_table_matches_the_engine():
 
     root = Path(__file__).resolve().parents[1]
     text = (root / "DESIGN.md").read_text(encoding="utf-8")
-    start = text.index("## Weight (权重) and the overturn test")
+    start = text.index("## Weight and the overturn test")
     section = text[start:text.index("\n## ", start + 10)]
 
     rows = re.findall(r"\|\s*n = (\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|", section)

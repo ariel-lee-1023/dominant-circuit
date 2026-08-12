@@ -17,7 +17,7 @@ EXPECTED_EXPORTS = {
     "AttributeRange", "IndependenceTest", "IndependenceAssumption",
     # output contract
     "OutputReport", "AuditResult", "InvariantResult", "SensitivityEntry",
-    # zero-order expansion (零阶展开)
+    # zero-order expansion
     "PerturbationTerm", "relative_shift",
     "ORDER_ZERO", "ORDER_FIRST", "ORDER_OVERTURN", "ORDER_HARD", "ORDER_DROPPED",
     # error taxonomy
@@ -27,7 +27,7 @@ EXPECTED_EXPORTS = {
     # pipeline
     "dispatch", "missing_fields", "next_question", "require_complete",
     "classify_job", "QUESTION_BANK", "verify_preconditions",
-    # weight screening — the overturn test (翻盘检验)
+    # weight screening — the overturn test
     "overturn_test", "OverturnResult", "elicitation_plan", "screenable_fields",
     "WEIGHT_PREREQUISITES",
     "run_validation_invariants", "check_range_fixed_weights", "INVARIANT_FIELDS",

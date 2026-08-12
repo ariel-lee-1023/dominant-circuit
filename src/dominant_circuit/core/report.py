@@ -38,20 +38,20 @@ class SensitivityEntry:
     fragility: str
 
 
-# Orders in the zero-order expansion (零阶展开). These are not severity labels;
-# they are structural claims about how a term relates to the trunk.
-ORDER_ZERO = "zero"          # 零阶道理 — the trunk itself
-ORDER_FIRST = "first"        # 一阶修正 — refines the trunk, cannot overturn it
-ORDER_OVERTURN = "overturn"  # 翻盘项 — a DIFFERENT trunk, not a correction
-ORDER_HARD = "hard"          # 硬约束 — no trunk exists; veto
-ORDER_DROPPED = "dropped"    # 舍去项 — thrown away by 主导平衡 as non-dominant
+# Orders in the zero-order expansion. These are not severity labels; they are
+# structural claims about how a term relates to the trunk.
+ORDER_ZERO = "zero"          # the trunk itself
+ORDER_FIRST = "first"        # refines the trunk, cannot overturn it
+ORDER_OVERTURN = "overturn"  # a DIFFERENT trunk, not a correction
+ORDER_HARD = "hard"          # no trunk exists; veto
+ORDER_DROPPED = "dropped"    # thrown away as non-dominant
 
 _ORDER_GLOSS = {
-    ORDER_ZERO: "零阶 · trunk",
-    ORDER_FIRST: "一阶修正 · refines, cannot overturn",
-    ORDER_OVERTURN: "翻盘 · different zero-order model",
-    ORDER_HARD: "硬约束 · no zero-order exists",
-    ORDER_DROPPED: "舍去项 · dropped as non-dominant",
+    ORDER_ZERO: "zero-order · trunk",
+    ORDER_FIRST: "first-order · refines, cannot overturn",
+    ORDER_OVERTURN: "overturn · different zero-order model",
+    ORDER_HARD: "hard constraint · no zero-order exists",
+    ORDER_DROPPED: "dropped · non-dominant",
 }
 
 
@@ -120,24 +120,24 @@ class OutputReport:
 
     @property
     def corrections(self) -> list[PerturbationTerm]:
-        """一阶修正. Refine the trunk; by construction cannot overturn it."""
+        """First-order correction. Refine the trunk; by construction cannot overturn it."""
         return [t for t in self.perturbation if t.order == ORDER_FIRST]
 
     @property
     def overturns(self) -> list[PerturbationTerm]:
-        """翻盘项. Not corrections — each is a different zero-order model. These are
-        what the flip test (翻盘检验) asks about: what could reverse the conclusion."""
+        """Overturn term. Not a correction — each is a different zero-order model. These are
+        what the flip test asks about: what could reverse the conclusion."""
         return [t for t in self.perturbation if t.order == ORDER_OVERTURN]
 
     @property
     def dropped(self) -> list[PerturbationTerm]:
-        """舍去项. Terms 主导平衡 threw away: no causal control over the outcome, so
-        they were removed before any preference was elicited."""
+        """Dropped term. Thrown away by the dominant-balance step: no causal control
+        over the outcome, so it was removed before any preference was elicited."""
         return [t for t in self.perturbation if t.order == ORDER_DROPPED]
 
     @property
     def hard_constraints(self) -> list[PerturbationTerm]:
-        """硬约束. Conditions under which no zero-order answer exists at all."""
+        """Hard constraint. Conditions under which no zero-order answer exists at all."""
         return [t for t in self.perturbation if t.order == ORDER_HARD]
 
     @property
@@ -224,7 +224,7 @@ class OutputReport:
             lines.append(f"- [{mark}] {r.invariant_id} {r.name}: {r.message}")
 
         if self.perturbation:
-            lines += ["", "## Zero-order expansion (零阶展开)", ""]
+            lines += ["", "## Zero-order expansion", ""]
             lines.append("| Order | Term | Value | Δ vs trunk | Citation |")
             lines.append("|---|---|---|---|---|")
             for t in self.perturbation:

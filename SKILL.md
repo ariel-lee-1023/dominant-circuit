@@ -122,8 +122,8 @@ while (q := next_question(contract)) is not None:
   (ordinal ranks or cardinal scores?), and the **hard constraints** (can you recall a
   passed-over option? can an accepted offer decline?).
 
-**先问权重，再问真假 — ask weight before truth.** Details are infinite; "what else haven't I
-considered?" never terminates. Only one question terminates, and it is the **overturn test**:
+**Ask weight before truth.** Details are infinite; "what else haven't I considered?" never
+terminates. Only one question terminates, and it is the **overturn test**:
 
 > Is the presence or absence of this factor sufficient to overturn my current conclusion?
 
@@ -141,7 +141,7 @@ overturn_test(contract, "recall_allowed").verdict   # the reasoning, per factor
 
 Two rules on using it:
 
-- **Weight has three prerequisites and they are never screenable.** 给定目标、时间尺度、比较对象 —
+- **Weight has three prerequisites and they are never screenable:**
   the goal, the time scale, the comparison set (`WEIGHT_PREREQUISITES`). A factor has no weight
   until there is an objective function to weigh it against, so `overturn_test` *raises*
   `ContractIncomplete` rather than inventing a baseline. Ask `plan["required"]` first; screening
@@ -149,7 +149,7 @@ Two rules on using it:
 - **There is no standard answer for weight; it depends entirely on the objective function.**
   The same factor genuinely goes both ways: for n=50, "exact computation or the famous 37%?"
   changes the answer (19 vs 18) and is load-bearing; for n=45 both give 17, so the question is
-  a 舍去项 and asking it wastes the user's time. Never carry a fixed list of "important
+  dropped and asking it wastes the user's time. Never carry a fixed list of "important
   factors" between conversations — screen against *this* goal.
 
 **A refusal counts as an overturn.** If setting a factor makes the problem uncalibrated, that
@@ -238,15 +238,15 @@ raw dict. Always show the formula name and `citation` next to the number, and st
 assumptions that make the action valid, because the answer is **not transferable** to a
 different assumption set.
 
-Report the answer as a **zero-order expansion** (零阶展开), not a bare number — this is what
+Report the answer as a **zero-order expansion**, not a bare number — this is what
 lets a user see which assumptions are load-bearing:
 
 ```python
-report.zero_order        # 零阶: the trunk
-report.corrections       # 一阶修正: refine it, cannot overturn it
-report.overturns         # 翻盘: a DIFFERENT trunk — this is the flip test's answer
-report.dropped           # 舍去项: thrown away by 主导平衡
-report.hard_constraints  # 硬约束: conditions under which no trunk exists
+report.zero_order        # zero-order: the trunk
+report.corrections       # first-order correction: refine it, cannot overturn it
+report.overturns         # overturn: a DIFFERENT trunk — this is the flip test's answer
+report.dropped           # dropped: thrown away by dominant balance
+report.hard_constraints  # hard constraint: conditions under which no trunk exists
 ```
 
 `corrections` vs `overturns` is decided structurally, not by size: a term is a correction when
