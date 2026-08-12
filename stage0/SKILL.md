@@ -112,6 +112,23 @@ claim is present — the DAG nodes and edges.
   Stage 0*. An added construct is a proposal the user may reject; an unmarked added construct is
   the AI's opinion wearing the user's name.
 - If constructs cannot yet be named, that is `ConstructProposal` (§7.2), not a stop.
+- **Evaluative constructs get a second provenance axis.** A stock or flow is a fact about the
+  system; a stated risk attitude or objective preference is a fact about the person, and those
+  come in three grades that must not be collapsed into one "stated by the user" bucket:
+  - **first-order** — what the user reports wanting right now ("I want to take the risk"). Record
+    it; it is data, not yet an input.
+  - **second-order desire** — what the user says they want to want ("I'd rather be the kind of
+    decision-maker who doesn't chase this"). Still not an input — an evaluation of a desire is not
+    a decision about which desire acts, and a construct can sit here indefinitely without ever
+    resolving.
+  - **second-order volition** — an explicit, forward-standing appointment: the user names which
+    desire governs *this class of decision*, in a form built to survive being contradicted by a
+    louder first-order desire at the moment of choice ("treat me as risk-neutral for calls like
+    this, even if I balk in the moment"). This is the only grade that may be treated as settled.
+  - Stage 0 never infers second-order volition from a first-order answer, no matter how confidently
+    stated, and never manufactures it on the user's behalf — that would be Stage 0 doing the
+    weighing that only the user is entitled to do. Absent an explicit volition-grade statement, the
+    construct stays open.
 
 ### 5.3 Identifiability verdict (Pearl only)
 Given the DAG and the observable set: is the target quantity identifiable? Apply the
@@ -155,9 +172,14 @@ over-reaching claim (§7.1). Never both, never neither.
 2. **Observation instruction** — given this model, where to look and what to measure next.
    **This is what the user actually came for, and it is the one field that may never be omitted.**
 3. **Commitments** — what adopting this starting point commits you to: which variables are
-   endogenous, which arrows are asserted to exist.
+   endogenous, which arrows are asserted to exist, and which evaluative construct (§5.2) has
+   actually reached second-order volition and may therefore be treated as settled.
 4. **Prohibitions** — what it forbids: which variable must not be conditioned on, which questions
-   cannot be asked under this boundary, which quantities are unidentifiable under this graph.
+   cannot be asked under this boundary, which quantities are unidentifiable under this graph, and
+   which evaluative construct has NOT cleared second-order volition and is therefore prohibited
+   from being written into a solver field no matter how firmly it was stated ("reported risk-prone
+   in the moment" stays a first-order fact until the user appoints it — it does not get promoted
+   by repetition or confidence).
 5. **Overturn conditions** — what observation would replace this starting point with another.
 6. **Rival models** — which other starting points are equally defensible, and what observation
    distinguishes them.
@@ -233,6 +255,17 @@ Every numeric field (`n`, `gamma`, `scores`, `search_cost`, `transition`, `rewar
 `None` and **named in the observation instruction** as something the host must elicit. Filling a
 numeric field here would smuggle an unelicited assumption past the very check this repository
 exists to enforce.
+
+`risk_attitude` and any part of `payoff` selection that is evaluative rather than structural are
+deliberately **not** in the table above, and Stage 0 never fills them. They are `InputContract`
+fields, but they are also exactly the evaluative constructs §5.2 governs: a host asking for them
+directly (as Stage 1's `QUESTION_BANK` does) receives a first-order answer, not a second-order
+volition, and must not write it into the contract as though the two were the same event. Stage 0
+cannot perform that check for the host after handoff — by §2 it never estimates or decides — so it
+discharges its share of the responsibility earlier: if the case in front of it surfaces a stated
+risk attitude or objective preference, §6 field 4 names that it has not cleared second-order
+volition, so the prohibition travels with the handoff instead of being silently dropped at the
+Stage 0 / Stage 1 boundary.
 
 Hand off only when all four classify. Otherwise emit §6 and the applicable §7 verdict, and say
 plainly that the case is not yet reduced to a solver input.

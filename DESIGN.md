@@ -287,6 +287,19 @@ The three prerequisites (`WEIGHT_PREREQUISITES`) are therefore not screenable:
 `overturn_test` raises `ContractIncomplete` before these are stated, rather than inventing a
 baseline. Without them no factor has a weight yet.
 
+**Stating `risk_attitude` is not the same event as settling it.** `QUESTION_BANK` asks for it
+as a fact ("Is the decision maker risk-averse, risk-neutral, or risk-prone?"), and a fact is all
+an answer in the moment can supply — a first-order report of the current inclination, not a
+standing appointment of which inclination governs this class of decision. Frankfurt's second-order
+volition is exactly the missing step between the two: not a stronger preference, but an explicit,
+forward-standing act of naming which desire acts, built to survive being contradicted by a louder
+desire at the moment of choice. `dominant-circuit` itself has no mechanism to tell the difference —
+Stage 1 takes the contract field as given, by design (`classify_job` reads fields, never prose). So
+the check has to happen before the field is written, which is Stage 0's job
+(`stage0/SKILL.md` §5.2, §6 field 4): an evaluative construct that has not cleared second-order
+volition is named as a prohibition, not silently promoted to a solver input because it was stated
+confidently or stated twice.
+
 **The test for weight is overturn capacity.** Do not ask "what other details have I not
 considered?" — details are infinite and the question never terminates. Ask the one question
 that does:
