@@ -49,6 +49,16 @@ The host AI owns the conversation at both ends; the library owns the physics in 
 `AuditFailure` carries `.invariant_ids` and `.fields`, so Stage 4 loops back to Stage 1 on the
 *specific* contradictory input rather than restarting the interrogation.
 
+### Stage 0, upstream of all five
+
+The five stages above assume the problem has already been reduced to job / horizon / information /
+payoff. Reducing it is a separate job with an inverted default: there, refusing to commit leaves the
+user worse off than they started, because **observation is impossible without a model to observe
+with**. That job lives in [stage0/SKILL.md](stage0/SKILL.md) — a prose skill for the host, distilled
+from Meadows, Pearl, and Page. It installs an explicit starting model, prints what that model commits
+to and forbids, and hands back only the four classifying contract fields. It emits no numbers, and it
+is not part of the installable package. Its drift guards are in `tests/test_stage0.py`.
+
 See [SKILL.md](SKILL.md) for the host protocol and a worked interaction transcript, and
 [DESIGN.md](DESIGN.md) for the interaction model in full — including why each refusal is a
 designed output rather than a failure. [AGENTS.md](AGENTS.md) indexes every governing document

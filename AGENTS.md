@@ -25,9 +25,18 @@ Read in this order. All are committed; a fresh clone is self-contained.
 | [README.md](README.md) | Front door: purpose, install, quick start. | **Current.** |
 | [SPEC.md](SPEC.md) | Implementation specification v1.0 — module layout (§3), data contracts (§4), the D-01…D-29 defect register, acceptance criteria (§15). | **Historical, partly superseded.** Authoritative for the numbered requirements other documents cite. Its §3 layout still holds; some test filenames in it were later reorganised. |
 | [docs/SPEC-2-PUNCHLIST.md](docs/SPEC-2-PUNCHLIST.md) | Punch list v2.0 — tasks T0–T9, implemented in PR #1. | **Historical.** Supersedes SPEC.md where they conflict. |
+| [stage0/SKILL.md](stage0/SKILL.md) | Stage 0 — the prose skill that reduces an unshaped situation to a starting model, upstream of Stage 1. Distilled from Meadows, Pearl, Page. Not part of the installable package. | **Current.** Authoritative on Stage 0 behaviour. |
 
 Where DESIGN.md and the SPEC documents disagree about *mechanics*, the SPEC documents win.
 Where a reader wants to know *why* a refusal is correct behaviour, DESIGN.md wins.
+
+**Stage 0 inverts the refusal default, and this is deliberate — do not "harmonize" it.** Stages 1–5
+refuse because a user who asked for a number and got a wrong one will act on it. Stage 0's user asked
+for a direction to look, and has no boundary and no named structure yet — that is *why* they came.
+Refusing there returns them to the unexamined model they arrived with, so Stage 0 defaults to
+committing an explicit starting model and printing what it commits to, forbids, and would be
+overturned by. Its surviving refusals reject a **claim the user asserted** (`NotIdentifiable`,
+`ConditioningOnCollider`), never the request for structure. See stage0/SKILL.md §3.
 
 **`solvers.py` does not exist and must not be reintroduced.** It was the pre-rewrite Stage 3
 module (baseline `a66504d`); SPEC.md logs defects D-12 and D-13 against it and closes them by
@@ -52,6 +61,12 @@ docs/
   SPEC-2-PUNCHLIST.md             # Punch list v2.0, tasks T0-T9 (historical, closed)
 main.py                           # Non-interactive demo of the three engines
 pyproject.toml
+stage0/
+  SKILL.md                        # Stage 0 router: model installation, upstream of Stage 1
+  references/
+    reference-meadows-thinking-in-systems.md   # nouns: stocks, flows, loops, boundary
+    reference-pearl-book-of-why.md             # licence: DAG, identifiability, mediator
+    reference-page-model-thinker.md            # shape: model class, result type, stability
 references/clusters/
   c01-optimal-stopping.md         # Engine A source of truth
   c02-multiple-objectives.md      # Engine B source of truth
@@ -82,6 +97,7 @@ tests/
   test_multiobjective.py
   test_product_intent.py          # the four claims the product exists to make good on
   test_sequential.py
+  test_stage0.py                  # Stage 0 drift guards (numbered anchors, verdict counts)
   test_stopping.py
 ```
 
