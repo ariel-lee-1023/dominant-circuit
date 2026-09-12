@@ -29,7 +29,7 @@ release owner must still review and sign the evidence package; none has been inv
 
 ## Deterministic evidence
 
-The final validation passed 256 tests with 91.04% coverage,
+Before main integration, validation passed 256 tests with 91.04% coverage,
 fatal-error lint, all three demos and skill-frontmatter validation.
 
 Run `python -m pytest -q`. State invariants are in `tests/test_investigation.py`;
@@ -78,3 +78,22 @@ missing evidence, disagreement and stale recommendations were handled correctly.
 Current live-host count is zero. Human review and engineering release signoff are pending.
 The release check is expected to fail until those records exist. The original backlog's
 P0 obligations and remaining gates are not waived by this follow-up.
+
+
+## Integration with main for PR #8
+
+Merged the main baseline `b0fdf0a8644799b987ae0564febb85f75ea67f58` into the
+implementation branch. The combined tree passes 269 tests at 91.08% coverage,
+fatal-error lint, all three demos and skill validation. Main's English-only output,
+source attribution and discovery of unshaped investigations are retained.
+
+The follow-up intentionally supersedes the earlier twelve-verdict taxonomy,
+mandatory book order, four-field-only handoff and standing-volition prerequisite.
+Its conceptual notes replace the old operational and unchecked formal-claim text;
+the original source summaries remain accessible in Git history. Source-link checks,
+the six rendered fields and evidence-provenance tests replace the old template
+assertions. The support queue is an explicit public example, so it is no longer
+represented as a blind acceptance probe; other held-out probe guards remain.
+
+Repository integration does not supply the pending live-host evidence, human domain
+review or package-release signoff. The release evidence gate still reports those gaps.

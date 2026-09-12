@@ -26,9 +26,9 @@
   },
   "release_status": "pending original and Stage 0 live-host evaluations, human review and engineering signoff",
   "verification": {
-    "tests_passed": 256,
+    "tests_passed": 269,
     "tests_failed": 0,
-    "coverage_percent": 91.04,
+    "coverage_percent": 91.08,
     "commands": [
       "python -m pytest -q",
       "python -m flake8 src tests examples scripts --select=E9,F63,F7,F82 --show-source --statistics",
@@ -67,5 +67,15 @@
     ],
     "notes": "Dependencies and metadata extend schema 2. Run examples with PYTHONPATH=src in the temporary validation checkout."
   },
-  "implementation_commit": "9a6a96b86d608984ee323d1cbb6691f27cac3e98"
+  "implementation_commit": "9a6a96b86d608984ee323d1cbb6691f27cac3e98",
+  "main_integration": {
+    "base_commit": "b0fdf0a8644799b987ae0564febb85f75ea67f58",
+    "pr": 8,
+    "tests_passed": 269,
+    "coverage_percent": 91.08,
+    "lint": "passed",
+    "demos": "passed",
+    "language": "upstream English-only output preserved",
+    "release_acceptance": "still pending live-host evaluations and human signoff"
+  }
 }

@@ -1,7 +1,7 @@
-"""The zero-order expansion (零阶展开) reported by every engine.
+"""The zero-order expansion reported by every engine.
 
-The load-bearing claim is that `first` (一阶修正) and `overturn` (翻盘) are
-distinguished **structurally** — by whether the term stays inside the same
+The load-bearing claim is that `first` (first-order correction) and `overturn`
+are distinguished **structurally** — by whether the term stays inside the same
 calibrated model — and never by how large the number moves. A 6% shift that stays
 in one model is a correction; a 33% shift that changes models is an overturn.
 Anything that reverses that is a bug, because it would let a big correction
@@ -122,7 +122,7 @@ def test_relative_shift_is_signed():
 
 
 def test_hard_constraint_is_never_a_correction():
-    """硬约束 must not be reported as a small quantity, in any engine."""
+    """A hard constraint must not be reported as a small quantity, in any engine."""
     for report in (_stopping(), _multiobjective(), _sequential()):
         for term in report.hard_constraints:
             assert term.order == ORDER_HARD
@@ -166,8 +166,8 @@ def test_multiobjective_trunk_is_the_additive_k0_term():
 
 
 def test_multiobjective_records_the_dominance_screen_as_a_dropped_term():
-    """主导平衡: alternatives with no causal control are thrown away, which is its
-    own act — neither the trunk nor a refinement of it."""
+    """Dominant balance: alternatives with no causal control are thrown away, which
+    is its own act — neither the trunk nor a refinement of it."""
     report = _multiobjective()
     screened = report.dropped
     assert screened, "dominance screening is not reported in the expansion"
@@ -195,15 +195,15 @@ def test_sequential_reports_convergence_as_a_bounded_series():
 
 # --- rendering ---------------------------------------------------------------------
 
-def test_markdown_renders_the_expansion_with_the_chinese_headings():
+def test_markdown_renders_the_expansion_with_the_gloss_headings():
     md = _stopping(n=50).to_markdown()
-    assert "## Zero-order expansion (零阶展开)" in md
-    assert "零阶 · trunk" in md
-    assert "一阶修正" in md
-    assert "翻盘" in md
-    assert "硬约束" in md
+    assert "## Zero-order expansion" in md
+    assert "zero-order · trunk" in md
+    assert "first-order · same model; action may change" in md
+    assert "overturn · different zero-order model" in md
+    assert "hard constraint · no zero-order exists" in md
     # trunk before Execute, so a reader meets the expansion before the verdict
-    assert md.index("零阶展开") < md.index("## Readiness")
+    assert md.index("Zero-order expansion") < md.index("## Readiness")
 
 
 def test_to_dict_carries_the_expansion():
@@ -213,9 +213,9 @@ def test_to_dict_carries_the_expansion():
     assert orders <= VALID_ORDERS
 
 
-def test_term_gloss_is_bilingual():
+def test_term_gloss_names_the_order():
     t = PerturbationTerm(order=ORDER_FIRST, label="x", value=1, citation="c01 §5")
-    assert "一阶修正" in t.gloss and "action may change" in t.gloss
+    assert "first-order" in t.gloss and "action may change" in t.gloss
 
 
 # --- documentation may not drift from the engine -----------------------------------

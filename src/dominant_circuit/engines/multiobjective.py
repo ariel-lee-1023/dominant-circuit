@@ -576,7 +576,7 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
             label=f"dominance screen removed {n_screened}",
             value=screened_out,
             citation="c02 §2.4",
-            note="主导平衡: these lose on every attribute, so no choice of weights "
+            note="Dominant balance: these lose on every attribute, so no choice of weights "
                  "revives them. Dropped before any preference was elicited",
         ))
     expansion.append(PerturbationTerm(
@@ -584,7 +584,7 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         label="any covered independence subset turns out unverified",
         value="REFUSED (IndependenceNotVerified)",
         citation="c02 §7.3",
-        note="翻盘: without covered independence neither form is licensed, so there is "
+        note="Overturn: without covered independence neither form is licensed, so there is "
              "no trunk to correct — not a smaller number",
     ))
 

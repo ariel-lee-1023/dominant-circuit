@@ -4,13 +4,36 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**A pure, non-interactive decision-mechanics library.**
-Host AI owns conversation. This package is the physics engine.
+**Think in models, then compute within their stated limits.**
+[Stage 0](stage0/SKILL.md) supports revisable investigation; the Python package is a
+pure, non-interactive library. The host owns conversation, the package validates
+records and computes within the supported model.
 
 MIT © 2026 Ariel Lee. [See LICENSE](LICENSE).
 This license covers the original text in this repository. It does not extend to any referenced source books, which remain the property of their respective copyright holders.
 
 ---
+
+## The reef is the god's work. The helm is yours.
+
+The world's mechanisms do not change because of our preferences. Learning which
+conditions matter is one part of a decision; deciding which goals to pursue is
+another. The reef and helm image motivates the repository's distinction between
+empirical accounts and the preferences used to compare actions.
+
+Frankfurt's distinction between a desire and reflection on that desire is available
+when a person wants it. A scoped preference can still govern one decision without a
+standing identity commitment. The host preserves who proposed a model, who reported
+evidence and whose goals remain unresolved. Neither numerical success nor authority
+can supply another participant's agreement.
+
+## The methodology
+
+Make a useful starting account explicit, expose consequential omissions, and select
+a feasible observation. Returned evidence can change the account or the boundary.
+Meadows, Pearl, Page and Frankfurt are optional resources for different questions;
+there is no mandatory book sequence or self-certified identification result.
+A sufficiently specified static comparison can go directly to the applicable solver.
 
 ## What this is for
 
@@ -34,12 +57,13 @@ That means the library is built to say *no* as readily as it says a number:
 
 An assumption the user never made is the failure this system exists to prevent.
 
-## The five stages, and who owns them
+## Investigation and the five solver stages
 
 The host AI owns the conversation at both ends; the library owns the physics in the middle.
 
 | Stage | Owner | What happens | Entry point |
 |---|---|---|---|
+| **0. Investigation** | **Host**, with library state validation | Propose an account, inspect omissions and revise after evidence returns. | [stage0/SKILL.md](stage0/SKILL.md), `Investigation` |
 | **1. Elicitation** | **Host** | Clarify the supported model and its consequential prerequisites; preserve scoped scenarios. | `next_question`, `missing_fields`, `classify_job` |
 | **2. Verification** | Library | Reject premises that break the mathematics before any equation loads. | `verify_preconditions`, `independence_questions`, `run_flip_test` |
 | **3. Computation** | Library | Route the validated contract to the one formula its assumption set selects. | `dispatch`, `CALIBRATIONS` |
@@ -154,6 +178,7 @@ This is the library working correctly. There is no cutoff to report.
 ## Layout
 
 ```
+stage0/                   # optional investigation skill and four conceptual resources
 src/dominant_circuit/
 ├── core/          # contract, errors, elicit, verify, audit, dispatch, report
 └── engines/
@@ -162,7 +187,7 @@ src/dominant_circuit/
     └── sequential.py     # Engine C (c03)
 references/clusters/      # authoritative corpus — never edited to fit the code
 tests/                    # golden numeric oracles + corpus/API drift guards
-DESIGN.md                 # the five-stage interaction model
+DESIGN.md                 # investigation and the five solver stages
 SPEC.md                   # implementation spec v1.0 (historical)
 docs/SPEC-2-PUNCHLIST.md  # punch list v2.0, T0-T9 — closed (historical)
 main.py                   # five non-interactive demos
@@ -220,3 +245,11 @@ A straightforward static comparison can still go directly to the existing solver
 See the [API and migration guide](docs/STAGE0.md), run
 `python examples/stage0_investigation.py`, or inspect the
 [follow-up implementation and release status](docs/STAGE0-RELEASE.md).
+
+
+The Stage 0 conceptual resources cover
+[systems and boundaries](stage0/references/reference-meadows-thinking-in-systems.md),
+[causal questions](stage0/references/reference-pearl-book-of-why.md),
+[model choice](stage0/references/reference-page-model-thinker.md), and
+[reflective preferences](stage0/references/reference-frankfurt-freedom-of-the-will.md).
+See [NOTICE.md](NOTICE.md) for source attribution. These notes are not formal verifiers.

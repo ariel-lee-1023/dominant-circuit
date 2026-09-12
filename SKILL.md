@@ -1,6 +1,6 @@
 ---
 name: dominant-circuit
-description: "Master decision-mechanics router for choosing when to stop a search, how to trade off multiple objectives under certainty or uncertainty, and how to select or time actions in sequential/uncertain environments. Use when the user asks when to stop looking or searching, how to decide among finitely many alternatives with competing objectives, how to weigh tradeoffs or set scaling constants/utility weights, how to update beliefs with new evidence (Bayes/POMDP), how to pick an action under a Markov Decision Process or Bellman framework, or invokes phrases like optimal stopping, secretary problem, 37% rule, satisficing threshold, multiattribute utility, preferential/utility independence, expected utility, risk aversion, MDP, POMDP, belief update, value iteration, Q-learning, or Monte Carlo tree search. Not for open-ended brainstorming or single-attribute certainty comparisons with no search, tradeoff, or sequential/uncertainty structure."
+description: "Master decision-mechanics router for choosing when to stop a search, how to trade off multiple objectives under certainty or uncertainty, and how to select or time actions in sequential/uncertain environments. Use when the user asks when to stop looking or searching, how to decide among finitely many alternatives with competing objectives, how to weigh tradeoffs or set scaling constants/utility weights, how to update beliefs with new evidence (Bayes/POMDP), how to pick an action under a Markov Decision Process or Bellman framework, or invokes phrases like optimal stopping, secretary problem, 37% rule, satisficing threshold, multiattribute utility, preferential/utility independence, expected utility, risk aversion, MDP, POMDP, belief update, value iteration, Q-learning, or Monte Carlo tree search. Also use for an uncertain decision framing or an unexplained change that needs a feasible observation and revisable working account through Stage 0. Not for unrelated brainstorming or simple factual lookups."
 ---
 
 # Dominant-Circuit
@@ -9,12 +9,12 @@ Master router over three zero-order decision-mechanics clusters. This file dispa
 
 ## When to use
 
-Use when a request has **decision structure**, not just a question:
+Use when a request needs a **decision structure or investigation**, not just a factual lookup:
 - A search/queue of options must be stopped at some point ("when do I stop looking/interviewing/dating/selling/renting").
 - Multiple competing objectives/attributes must be traded off into one ranking or score ("which alternative is best given cost, quality, risk...").
 - An action must be chosen now that affects a future state under known/unknown dynamics, or beliefs must be updated from observations ("what should I do next," "update my belief," "plan a sequence of moves").
 
-Not for single-criterion lookups, open-ended ideation, or anything with no explicit alternatives/objective/uncertainty structure.
+If the situation has no clear alternatives or model yet, use Stage 0 to propose a provisional account and useful observation. A single-criterion factual lookup does not need the solver.
 
 ## When the framing needs investigation
 
@@ -70,7 +70,7 @@ Ask only for rule-dependent prerequisites. A labelled scenario may support explo
 ## The five stages
 
 Help the user connect their situation to a supported model and inspect what the result
-depends on. **The host owns Stages 1 and 5** (interpretation and conversation); the
+depends on. **The host owns Stages 0, 1 and 5** (interpretation and conversation); the
 library owns Stages 2 through 4 (validation, computation and audit). Call the engine
 for numerical results and retain useful labelled scenarios when readiness is unresolved.
 

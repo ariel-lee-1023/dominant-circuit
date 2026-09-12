@@ -287,7 +287,7 @@ def solve_sequential(contract: InputContract) -> OutputReport:
             label="markov_verified = False",
             value="REFUSED (NonMarkovProcess)",
             citation="c03 §3",
-            note="硬约束: if the next state depends on deeper history the expansion is "
+            note="Hard constraint: if the next state depends on deeper history the expansion is "
                  "not defined at all. Augment the state space; do not discount the "
                  "violation as a small term",
         ),
