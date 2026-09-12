@@ -1,12 +1,14 @@
 # Stage 0 follow-up: implementation and release evidence
 
-The follow-up is implemented in the working tree; release acceptance remains pending.
+The implementation is committed as `9a6a96b86d608984ee323d1cbb6691f27cac3e98` on
+`codex/engineering-stage0-followup`; release acceptance remains pending.
 The reviewed worklist baseline is `b0fdf0a8644799b987ae0564febb85f75ea67f58`.
 The actual target HEAD at reconciliation was `ac9e2ccec4290c37e19009a6aa2e1eb89a1cf537`,
-with the original DC-00 through DC-13 remediation already uncommitted. That work passed
+with the original DC-00 through DC-13 remediation then uncommitted. That work passed
 210 tests before this follow-up. Stage 0 had been removed from the current HEAD, so
 this change restores its optional skill and source notes alongside a new shared-schema
-investigation module. No implementation commit or publication is claimed.
+investigation module. Both worklists are included in the implementation commit above. No package release
+or deployment is claimed.
 
 Implementation owner for S0-01 through S0-09: Codex (this task). Independent synthetic
 forward tester: `stage0_forward_test` (Kant). This agent reviewed one bounded three-turn

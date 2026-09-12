@@ -43,8 +43,8 @@
   },
   "stage0_followup": {
     "owner": "Codex",
-    "implementation_commit": null,
-    "implementation_status": "uncommitted working-tree implementation",
+    "implementation_commit": "9a6a96b86d608984ee323d1cbb6691f27cac3e98",
+    "implementation_status": "committed on codex/engineering-stage0-followup",
     "baseline_tests_passed": 210,
     "fixture_count": 11,
     "deterministic_fixture_runs": 11,
@@ -63,8 +63,9 @@
     "pending": [
       "Repeated live-host F01-F11 plus original six cases",
       "Named human review of feasibility, interpretation and burden",
-      "Engineering release signoff and implementation commit"
+      "Engineering release signoff"
     ],
     "notes": "Dependencies and metadata extend schema 2. Run examples with PYTHONPATH=src in the temporary validation checkout."
-  }
+  },
+  "implementation_commit": "9a6a96b86d608984ee323d1cbb6691f27cac3e98"
 }
