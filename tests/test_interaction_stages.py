@@ -39,6 +39,8 @@ def test_stage1_interrogation_terminates_and_locks_every_checkpoint():
         "payoff_diverges": False,
         "information": Information.ORDINAL,
         "n": 50,
+        "recall_allowed": False,
+        "rejection_prob": 0.0,
     }
     asked = []
     for _ in range(20):
@@ -74,7 +76,7 @@ def test_stage1_never_infers_an_unstated_field():
 # --- Stage 2: verification rejects impossible premises ----------------------------
 
 def test_stage2_rejects_diverging_payoff_premise():
-    contract = InputContract(
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=True,
@@ -177,7 +179,7 @@ def test_stage4_loop_back_fields_are_real_contract_fields():
 # --- Stage 5: report carries an action and a stop-analyzing verdict ---------------
 
 def _classical(n=50):
-    return InputContract(
+    return InputContract(rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=n,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         recall_allowed=False, payoff_diverges=False,
@@ -187,7 +189,7 @@ def _classical(n=50):
 def test_stage5_action_is_an_instruction_not_a_dict():
     report = dispatch(Job.STOPPING, _classical())
     assert report.action
-    assert str(report.decision) not in report.action
+    assert "Conditional model result" in report.action
     # names the actual computed cutoff
     assert "19" in report.action and "50" in report.action
 
@@ -209,7 +211,7 @@ def test_stage5_every_engine_emits_an_action():
     seq = dispatch(Job.SEQUENTIAL, InputContract(
         job=Job.SEQUENTIAL, horizon=Horizon.INFINITE_DISCOUNTED, gamma=0.9,
         markov_verified=True, states=["s0", "s1"], actions=["stay", "go"],
-        reward={("s0", "go"): 1.0, ("s1", "stay"): 0.0},
+        reward={("s0", "go"): 1.0, ("s1", "stay"): 0.0, ("s0", "stay"): 0.0, ("s1", "go"): 0.0},
         transition={("s0", "go"): {"s1": 1.0}, ("s0", "stay"): {"s0": 1.0},
                     ("s1", "go"): {"s1": 1.0}, ("s1", "stay"): {"s1": 1.0}},
     ))
@@ -221,8 +223,8 @@ def test_stage5_every_engine_emits_an_action():
 
 def test_stage5_tells_the_user_when_to_stop_analyzing():
     report = dispatch(Job.STOPPING, _classical())
-    assert report.analysis_is_complete is True
-    assert "EXECUTE" in report.execution_note
+    assert report.analysis_is_complete is False
+    assert report.readiness.state == "conditional"
     # and names the facts that would change the answer
     assert report.assumptions_to_confirm
     for entry in report.assumptions_to_confirm:
@@ -240,21 +242,21 @@ def test_stage5_withholds_permission_when_the_audit_failed():
         action="do the thing",
     )
     assert report.analysis_is_complete is False
-    assert "DO NOT EXECUTE" in report.execution_note
-    assert "INV-1" in report.execution_note
+    assert "No external action is authorized" in report.execution_note
+    assert not report.audit.passed
 
 
 def test_stage5_markdown_carries_the_execute_section():
     md = dispatch(Job.STOPPING, _classical()).to_markdown()
-    assert "## Execute" in md
-    assert "EXECUTE" in md
+    assert "## Readiness" in md
+    assert "Readiness: conditional" in md
     # the action is what a reader sees under Decision
-    assert md.index("## Decision") < md.index("Reject the first 18")
-    assert "## Audit" in md and md.index("## Audit") < md.index("## Execute")
+    assert md.index("## Decision") < md.index("Conditional model result")
+    assert "## Audit" in md and md.index("## Audit") < md.index("## Readiness")
 
 
 def test_stage5_to_dict_exposes_the_execution_verdict():
     d = dispatch(Job.STOPPING, _classical()).to_dict()
-    assert d["analysis_is_complete"] is True
-    assert "EXECUTE" in d["execution_note"]
+    assert d["analysis_is_complete"] is False
+    assert d["readiness"]["state"] == "conditional"
     assert d["action"]

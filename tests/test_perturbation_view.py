@@ -23,7 +23,7 @@ VALID_ORDERS = {ORDER_ZERO, ORDER_FIRST, ORDER_OVERTURN, ORDER_HARD, ORDER_DROPP
 
 
 def _stopping(n=50, **kw):
-    base = dict(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=n,
+    base = dict(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=n,
                 information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
                 payoff_diverges=False)
     base.update(kw)
@@ -182,15 +182,15 @@ def test_sequential_trunk_is_the_myopic_action():
     assert report.zero_order.value == "stay"          # myopic: 0.5 now beats 0.0
     assert report.zero_order.citation == "c03 §6"
 
-    bellman = [t for t in report.corrections if "full Bellman" in t.label]
+    bellman = [t for t in report.corrections if "returned Bellman" in t.label]
     assert bellman and bellman[0].value == "go"       # patience wins once discounted
     assert "myopic trunk is wrong here" in bellman[0].note
 
 
 def test_sequential_reports_convergence_as_a_bounded_series():
     report = _sequential()
-    conv = [t for t in report.corrections if "convergence" in t.label]
-    assert conv and "gamma" in conv[0].note.replace("<=", "").lower()
+    conv = [t for t in report.corrections if "converged" in t.label]
+    assert conv and "returned-value residual" in conv[0].note
 
 
 # --- rendering ---------------------------------------------------------------------
@@ -203,7 +203,7 @@ def test_markdown_renders_the_expansion_with_the_chinese_headings():
     assert "翻盘" in md
     assert "硬约束" in md
     # trunk before Execute, so a reader meets the expansion before the verdict
-    assert md.index("零阶展开") < md.index("## Execute")
+    assert md.index("零阶展开") < md.index("## Readiness")
 
 
 def test_to_dict_carries_the_expansion():
@@ -215,7 +215,7 @@ def test_to_dict_carries_the_expansion():
 
 def test_term_gloss_is_bilingual():
     t = PerturbationTerm(order=ORDER_FIRST, label="x", value=1, citation="c01 §5")
-    assert "一阶修正" in t.gloss and "overturn" in t.gloss
+    assert "一阶修正" in t.gloss and "action may change" in t.gloss
 
 
 # --- documentation may not drift from the engine -----------------------------------

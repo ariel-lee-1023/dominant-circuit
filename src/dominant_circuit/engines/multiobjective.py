@@ -244,12 +244,12 @@ def efficient_frontier(
     increasing = [a.monotonic_increasing for a in attributes]
     frontier = []
     for cand in alternatives:
-        vec = [float(cand.get(n, 0)) for n in names]
+        vec = [float(cand[n]) for n in names]
         dominated = False
         for other in alternatives:
             if other is cand:
                 continue
-            ovec = [float(other.get(n, 0)) for n in names]
+            ovec = [float(other[n]) for n in names]
             if dominates(ovec, vec, increasing):
                 dominated = True
                 break
@@ -296,7 +296,9 @@ def _normalize(raw: float, attr: AttributeRange) -> float:
     if abs(best - worst) < 1e-15:
         raise PreconditionViolation(f"Degenerate range for {attr.name}")
     u = (raw - worst) / (best - worst)
-    return max(0.0, min(1.0, u))
+    if not math.isfinite(u) or not 0 <= u <= 1:
+        raise PreconditionViolation(f"Observed value outside range for {attr.name}", field="alternatives")
+    return u
 
 
 def additive_value(
@@ -378,10 +380,38 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     if not attributes:
         raise PreconditionViolation("attributes required", field="attributes")
 
+    names = [a.name for a in attributes]
+    if len(set(names)) != len(names):
+        raise PreconditionViolation("Unique attribute names required", field="attributes")
+    for attr in attributes:
+        if not all(math.isfinite(v) for v in (attr.worst,attr.best)) or attr.worst == attr.best or (attr.best > attr.worst) != attr.monotonic_increasing:
+            raise PreconditionViolation("Attribute ranges must be finite and agree with preference direction", field="attributes")
+    weights = contract.scaling_constants or {}
+    if set(weights) != set(names) or any(not math.isfinite(w) or w < 0 or w > 1 for w in weights.values()) or not any(weights.values()):
+        raise PreconditionViolation("Complete finite nonnegative scaling constants required", field="scaling_constants")
+    feasible, feasibility, labels = [], {}, set()
+    for alt in contract.alternatives or []:
+        if not isinstance(alt,dict) or not isinstance(alt.get('name'),str) or alt['name'] in labels:
+            raise PreconditionViolation("Each alternative needs a unique string name",field="alternatives")
+        labels.add(alt['name'])
+        checks = {c.constraint_id:c.evaluate(alt) for c in contract.constraints}
+        status = False if False in checks.values() else None if None in checks.values() else True
+        feasibility[alt['name']] = dict(satisfied=status, constraints=checks, observations={c.attribute:alt.get(c.attribute) for c in contract.constraints})
+        if status is not True:
+            continue
+        for attr in attributes:
+            if alt.get(attr.name) is None:
+                raise PreconditionViolation(f"Missing observed attribute: {attr.name}",field="alternatives")
+            try:
+                _normalize(float(alt[attr.name]),attr)
+            except (TypeError,ValueError) as exc:
+                raise PreconditionViolation("Malformed alternative value",field="alternatives") from exc
+        feasible.append(alt)
+
     # Dominance screening runs BEFORE preference elicitation is consumed:
     # never elicit preferences over alternatives that cannot win (c02 §2.4, §7.2).
     frontier, screened_out, n_screened = dominance_screen(
-        contract.alternatives, attributes
+        feasible, attributes
     )
 
     all_attrs = frozenset(a.name for a in attributes)
@@ -438,7 +468,7 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
     best_score = -math.inf
 
     for alt in frontier:
-        levels = {attr.name: float(alt.get(attr.name, 0)) for attr in attributes}
+        levels = {attr.name: float(alt[attr.name]) for attr in attributes}
         label = alt.get("name", str(alt))
         if form == "additive":
             score = additive_value(levels, attributes, weights)
@@ -458,6 +488,21 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         "dominated_screened_out": screened_out,
     }
 
+    from ..core.robustness import comparison_summary, additive_robustness
+    all_scored = list(scored)
+    for alt in feasible:
+        if alt['name'] in {row['name'] for row in scored}:
+            continue
+        levels = {attr.name:float(alt[attr.name]) for attr in attributes}
+        score = additive_value(levels,attributes,weights) if form == 'additive' else multiplicative_utility(levels,attributes,weights,k)
+        all_scored.append(dict(name=alt['name'],utility=score,levels=levels))
+    decision.update(comparison_summary(all_scored, attributes, weights))
+    decision['feasibility'] = feasibility
+    decision['feasibility_status'] = 'unknown' if any(v['satisfied'] is None for v in feasibility.values()) else 'feasible' if feasible else 'empty'
+    decision['robustness'] = dict(outcome='untested', execution_status='unsupported', coverage='none',
+        limitation='Supply a sourced admissible weight region for additive sensitivity')
+    if contract.weight_region is not None and form == 'additive' and scored:
+        decision['robustness'] = additive_robustness(all_scored,attributes,contract.weight_region,best)
     registry = assumptions_registry or []
     assumptions = {
         "form": form,
@@ -484,12 +529,12 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
 
     if best is None:
         action = (
-            f"No alternatives were supplied, so there is nothing to rank. The "
+            f"No known-feasible alternatives remain. Inspect the feasibility record for violated or unresolved constraints. The "
             f"{form} form is the valid one for your elicited structure "
             f"(Σk_i={total:.4g}); supply alternatives to score them."
         )
     else:
-        action = f"Choose {best} (utility {best_score:.4f} under the {form} form)."
+        action = f"Computed leading alternative: {best} (utility {best_score:.4f} under the {form} form)."
         if n_screened:
             action += (
                 f" {n_screened} of {len(list(contract.alternatives or []))} alternatives "
@@ -553,7 +598,7 @@ def solve_multiobjective(contract: InputContract) -> OutputReport:
         numeric={
             "k": k,
             "sum_k_i": total,
-            "best_utility": best_score if best is not None else float("nan"),
+            "best_utility": best_score if best is not None else None,
             "n_alternatives": float(len(list(contract.alternatives or []))),
             "n_dominated_screened_out": float(n_screened),
             "n_on_efficient_frontier": float(len(frontier)),

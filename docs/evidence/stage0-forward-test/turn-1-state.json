@@ -1,0 +1,970 @@
+{
+  "$type": "Investigation",
+  "fields": {
+    "investigation_id": "support-queue",
+    "records": {
+      "$sequence": "tuple",
+      "items": [
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "goal",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "purpose",
+                "value": {
+                  "$type": "DecisionDescription",
+                  "fields": {
+                    "decision_id": "support-queue",
+                    "question": "Where should we look to understand a reported support slowdown after hiring three people?",
+                    "revision": 1,
+                    "problem_types": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "options": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "actions": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "information_types": {
+                      "$map": []
+                    },
+                    "objectives": {
+                      "$sequence": "list",
+                      "items": [
+                        "Understand the reported slowdown and choose a feasible next observation"
+                      ]
+                    },
+                    "temporal_structure": {
+                      "$map": []
+                    },
+                    "uncertainties": {
+                      "$sequence": "list",
+                      "items": [
+                        "Slower could mean first reply, handling, closure, or durable resolution",
+                        "Before/after timing does not establish a hiring effect"
+                      ]
+                    },
+                    "constraints": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "unresolved_interpretations": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "inputs": {
+                      "$map": []
+                    },
+                    "translations": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "schema_version": 2
+                  }
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:1",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "DecisionDescription",
+              "fields": {
+                "decision_id": "support-queue",
+                "question": "Where should we look to understand a reported support slowdown after hiring three people?",
+                "revision": 1,
+                "problem_types": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "options": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "actions": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "information_types": {
+                  "$map": []
+                },
+                "objectives": {
+                  "$sequence": "list",
+                  "items": [
+                    "Understand the reported slowdown and choose a feasible next observation"
+                  ]
+                },
+                "temporal_structure": {
+                  "$map": []
+                },
+                "uncertainties": {
+                  "$sequence": "list",
+                  "items": [
+                    "Slower could mean first reply, handling, closure, or durable resolution",
+                    "Before/after timing does not establish a hiring effect"
+                  ]
+                },
+                "constraints": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "unresolved_interpretations": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "inputs": {
+                  "$map": []
+                },
+                "translations": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "position",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "user",
+                "value": {
+                  "$type": "ParticipantPosition",
+                  "fields": {
+                    "participant": "user",
+                    "goal": "Understand why support got slower",
+                    "agreement": "adopted",
+                    "proposed_account": null,
+                    "affected": null,
+                    "can_access": null,
+                    "can_authorize": null,
+                    "role": "support participant; exact role unknown"
+                  }
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:1",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ParticipantPosition",
+              "fields": {
+                "participant": "user",
+                "goal": "Understand why support got slower",
+                "agreement": "adopted",
+                "proposed_account": null,
+                "affected": null,
+                "can_access": null,
+                "can_authorize": null,
+                "role": "support participant; exact role unknown"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "capacity",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "Capacity and coordination",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "hiring",
+                        "training time",
+                        "handoffs",
+                        "time until a useful response"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "support staffing",
+                            "training",
+                            "handoffs"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "new demand",
+                            "unresolved product defects"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "definition of slower",
+                            "case mix",
+                            "repeat contacts"
+                          ]
+                        },
+                        "omission_check": "A staffing-only account could miss changes in demand or count closures as resolutions.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "user-reported hiring and slowdown"
+                          ]
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "Compare whether delayed episodes were first requests or repeats",
+                        "outside_access": "unknown"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "Training or coordination may temporarily consume experienced staff time"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unassessed",
+                    "assessment_scope": "",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-capacity",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "Capacity and coordination",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "hiring",
+                    "training time",
+                    "handoffs",
+                    "time until a useful response"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "support staffing",
+                        "training",
+                        "handoffs"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "new demand",
+                        "unresolved product defects"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "definition of slower",
+                        "case mix",
+                        "repeat contacts"
+                      ]
+                    },
+                    "omission_check": "A staffing-only account could miss changes in demand or count closures as resolutions.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "user-reported hiring and slowdown"
+                      ]
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "Compare whether delayed episodes were first requests or repeats",
+                    "outside_access": "unknown"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Training or coordination may temporarily consume experienced staff time"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unassessed",
+                "assessment_scope": "",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "demand",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "Demand and case mix",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "new requests",
+                        "repeat requests",
+                        "case complexity"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "incoming support work",
+                            "case complexity"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "product repair process"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "repeat-contact causes",
+                            "volume change"
+                          ]
+                        },
+                        "omission_check": "Contacts and underlying problems may not be the same unit.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "Look for a repeated underlying issue in an available episode",
+                        "outside_access": "unknown"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "More requests, repeated requests, or harder cases may offset extra staff"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unassessed",
+                    "assessment_scope": "",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-demand",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "Demand and case mix",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "new requests",
+                    "repeat requests",
+                    "case complexity"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "incoming support work",
+                        "case complexity"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "product repair process"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "repeat-contact causes",
+                        "volume change"
+                      ]
+                    },
+                    "omission_check": "Contacts and underlying problems may not be the same unit.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "Look for a repeated underlying issue in an available episode",
+                    "outside_access": "unknown"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "More requests, repeated requests, or harder cases may offset extra staff"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unassessed",
+                "assessment_scope": "",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "relationship",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "capacity-demand",
+                "value": {
+                  "$type": "AccountRelationship",
+                  "fields": {
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@1"
+                      ]
+                    },
+                    "relationship": "complementary",
+                    "explanation": "Capacity pressure and demand changes can coexist; neither is established by timing alone"
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-relationship",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "AccountRelationship",
+              "fields": {
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "relationship": "complementary",
+                "explanation": "Capacity pressure and demand changes can coexist; neither is established by timing alone"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "account:capacity@1",
+                "account:demand@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "analysis",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "boundary-check",
+                "value": {
+                  "$type": "AnalyticalResult",
+                  "fields": {
+                    "target": "Meaning of the support slowdown",
+                    "method": "Qualitative comparison of capacity and demand boundaries",
+                    "applicability": "relevant",
+                    "result": "Separate processing constraints from incoming work and clarify the outcome being counted",
+                    "analysis_type": "structural",
+                    "reason": "The user describes changing work over time, so a limited systems boundary is useful",
+                    "status": "qualitative",
+                    "model_spec": null,
+                    "observable_set": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "limitations": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "No rates, formal dynamic model, intervention estimate, or causal identification available"
+                      ]
+                    },
+                    "assumptions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "external_certificate_ref": null
+                  }
+                },
+                "origin": "derived",
+                "evidence_ref": "synthetic:host:turn-1-analysis",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "goal:purpose@1",
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "AnalyticalResult",
+              "fields": {
+                "target": "Meaning of the support slowdown",
+                "method": "Qualitative comparison of capacity and demand boundaries",
+                "applicability": "relevant",
+                "result": "Separate processing constraints from incoming work and clarify the outcome being counted",
+                "analysis_type": "structural",
+                "reason": "The user describes changing work over time, so a limited systems boundary is useful",
+                "status": "qualitative",
+                "model_spec": null,
+                "observable_set": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "limitations": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "No rates, formal dynamic model, intervention estimate, or causal identification available"
+                  ]
+                },
+                "assumptions": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "external_certificate_ref": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "goal:purpose@1",
+                "account:capacity@1",
+                "account:demand@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "plan",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "ticket-comparison",
+                "value": {
+                  "$type": "ObservationPlan",
+                  "fields": {
+                    "question": "Compare delayed first-time requests with repeated issues around the hiring period",
+                    "kind": "exploratory",
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@1"
+                      ]
+                    },
+                    "assumptions": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "Comparable meanings of slower before and after hiring"
+                      ]
+                    },
+                    "source": "Ticket histories only if already accessible within the user's role",
+                    "method": "For a small existing sample, distinguish first response, closure and durable resolution; note handoffs and repeat reasons",
+                    "possible_findings": {
+                      "$sequence": "tuple",
+                      "items": [
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "coordination",
+                            "description": "Delays occur around training or handoffs",
+                            "implication": "Capacity/coordination deserves closer observation; demand remains possible"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "repeats",
+                            "description": "The same underlying issue returns",
+                            "implication": "Expand the boundary to recurrence causes; do not infer how prevalent it is"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "both",
+                            "description": "Both patterns appear",
+                            "implication": "Keep complementary mechanisms; relative contributions remain unknown"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "inconclusive",
+                            "description": "No accessible comparable episodes or no clear pattern",
+                            "implication": "Use one voluntarily recalled episode to clarify the unit; pause any inaccessible comparison"
+                          }
+                        }
+                      ]
+                    },
+                    "access": "unknown",
+                    "owner": null,
+                    "effort": "A few already accessible episodes",
+                    "delay": null,
+                    "collection_effects": "Retrospective reading should not change workflow; selection may favor memorable cases",
+                    "omission_challenge": "Look beyond closures and handling time to whether the underlying issue returned",
+                    "effort_assessment": "manageable",
+                    "authorization_event": null,
+                    "authorizer": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-plan",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "goal:purpose@1",
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ObservationPlan",
+              "fields": {
+                "question": "Compare delayed first-time requests with repeated issues around the hiring period",
+                "kind": "exploratory",
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "assumptions": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Comparable meanings of slower before and after hiring"
+                  ]
+                },
+                "source": "Ticket histories only if already accessible within the user's role",
+                "method": "For a small existing sample, distinguish first response, closure and durable resolution; note handoffs and repeat reasons",
+                "possible_findings": {
+                  "$sequence": "tuple",
+                  "items": [
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "coordination",
+                        "description": "Delays occur around training or handoffs",
+                        "implication": "Capacity/coordination deserves closer observation; demand remains possible"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "repeats",
+                        "description": "The same underlying issue returns",
+                        "implication": "Expand the boundary to recurrence causes; do not infer how prevalent it is"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "both",
+                        "description": "Both patterns appear",
+                        "implication": "Keep complementary mechanisms; relative contributions remain unknown"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "inconclusive",
+                        "description": "No accessible comparable episodes or no clear pattern",
+                        "implication": "Use one voluntarily recalled episode to clarify the unit; pause any inaccessible comparison"
+                      }
+                    }
+                  ]
+                },
+                "access": "unknown",
+                "owner": null,
+                "effort": "A few already accessible episodes",
+                "delay": null,
+                "collection_effects": "Retrospective reading should not change workflow; selection may favor memorable cases",
+                "omission_challenge": "Look beyond closures and handling time to whether the underlying issue returned",
+                "effort_assessment": "manageable",
+                "authorization_event": null,
+                "authorizer": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "goal:purpose@1",
+                "account:capacity@1",
+                "account:demand@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "workflow",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "7",
+                "value": {
+                  "$map": [
+                    [
+                      "state",
+                      "closed_for_current_purpose"
+                    ],
+                    [
+                      "reason",
+                      "A bounded comparison is identified, with access unresolved and a recollection fallback"
+                    ]
+                  ]
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:host:turn-1-stop",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "state",
+                  "closed_for_current_purpose"
+                ],
+                [
+                  "reason",
+                  "A bounded comparison is identified, with access unresolved and a recollection fallback"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        }
+      ]
+    },
+    "revisions": {
+      "$sequence": "tuple",
+      "items": []
+    },
+    "current_model_ref": "account:demand@1",
+    "current_goal_ref": "goal:purpose@1",
+    "workflow": "closed_for_current_purpose",
+    "next_step": "Compare delayed first-time requests with repeated issues around the hiring period",
+    "unresolved_questions": {
+      "$sequence": "tuple",
+      "items": []
+    },
+    "pause_reason": null,
+    "reopening_trigger": "New evidence, changed goal, access or boundary conditions",
+    "pending_reviews": {
+      "$sequence": "tuple",
+      "items": []
+    },
+    "stale_refs": {
+      "$sequence": "tuple",
+      "items": []
+    },
+    "selected_plan_ref": "plan:ticket-comparison@1",
+    "scenario_id": null,
+    "schema_version": 2
+  }
+}

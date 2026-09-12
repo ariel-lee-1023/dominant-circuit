@@ -14,10 +14,10 @@ This license covers the original text in this repository. It does not extend to 
 
 ## What this is for
 
-When a person brings a decision to an AI paired with this library, they are not chatting.
-They are plugging a problem into a centrifuge. The design purpose is to **strip the vibes off
-a dilemma and show the constants underneath** — and to refuse, loudly, when the problem as
-stated has no mathematical answer.
+The library helps a host connect a concrete decision to a supported mathematical model,
+traceable inputs and an inspectable result. Numerical completion, empirical support,
+preference adoption, feasibility and readiness are separate questions. Explicit scenarios
+remain useful when a recommendation is not ready.
 
 That means the library is built to say *no* as readily as it says a number:
 
@@ -40,11 +40,11 @@ The host AI owns the conversation at both ends; the library owns the physics in 
 
 | Stage | Owner | What happens | Entry point |
 |---|---|---|---|
-| **1. Elicitation** | **Host** | Refuse to compute until the boundary conditions are locked. Horizon, information type, recall/rejection. | `next_question`, `missing_fields`, `classify_job` |
+| **1. Elicitation** | **Host** | Clarify the supported model and its consequential prerequisites; preserve scoped scenarios. | `next_question`, `missing_fields`, `classify_job` |
 | **2. Verification** | Library | Reject premises that break the mathematics before any equation loads. | `verify_preconditions`, `independence_questions`, `run_flip_test` |
 | **3. Computation** | Library | Route the validated contract to the one formula its assumption set selects. | `dispatch`, `CALIBRATIONS` |
 | **4. Auditing** | Library | Prove the work before the human sees it. Failure raises; it is never buried in a returned report. | `run_validation_invariants`, `AuditFailure` |
-| **5. Reporting** | **Host** | Deliver the action, the formula, the assumptions that make it valid — and say when to stop analyzing. | `OutputReport.action`, `.execution_note` |
+| **5. Reporting** | **Host** | Report the computation, assumptions, bounded sensitivity and readiness conditions. | `OutputReport.action`, `.execution_note` |
 
 `AuditFailure` carries `.invariant_ids` and `.fields`, so Stage 4 loops back to Stage 1 on the
 *specific* contradictory input rather than restarting the interrogation.
@@ -77,12 +77,14 @@ report = dispatch(Job.STOPPING, InputContract(
     n=100,
     information=Information.ORDINAL,
     payoff=Payoff.BEST_OR_NOTHING,
-    payoff_diverges=False,   # must be explicit; never defaulted
+    recall_allowed=False,
+    rejection_prob=0.0,
+    payoff_diverges=False,   # explicit synthetic assumptions
     exact_finite_n=True,
 ))
 print(report.numeric["r_star"])   # 38, not 37 — the exact argmax, not the asymptotic limit
-print(report.action)              # the decision as an instruction you can carry out
-print(report.execution_note)      # whether you may stop analyzing and act
+print(report.action)              # the scoped model result
+print(report.execution_note)      # readiness, limitations and separate execution authority
 
 # Engine B — additive MAUT. Independence must be COVERED, not merely asserted:
 # every proper nonempty subset against its complement (c02 §7.3).
@@ -99,6 +101,7 @@ contract = InputContract(
         {"name": "B", "salary": 60, "commute": 15},
     ],
 )
+# Synthetic demonstration. Real hosts record actual responses and evidence events.
 # independence_questions() tells the host exactly what to ask.
 for subset, complement, question in independence_questions(contract):
     ...  # put `question` to the user
@@ -137,6 +140,7 @@ try:
     dispatch(Job.STOPPING, InputContract(
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=10,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
+        recall_allowed=False, rejection_prob=0.0,
         payoff_diverges=True,          # triple-or-nothing with full re-wagering
     ))
 except NoOptimalStoppingRuleExists as e:
@@ -170,7 +174,8 @@ main.py                   # five non-interactive demos
 pytest
 ```
 
-170 tests, 93% coverage, with an 80% floor enforced in `pyproject.toml`. Every push and pull
+The suite retains an 80% coverage floor in `pyproject.toml`. Release-candidate results
+and remaining review gates are recorded in [docs/REMEDIATION.md](docs/REMEDIATION.md). Every push and pull
 request to `main` runs lint plus the full suite — the badge above is that workflow.
 
 The suite includes guards that exist because of specific past failures:
@@ -188,3 +193,30 @@ to make good on. See **Change discipline** in [AGENTS.md](AGENTS.md).
 Host AI (via [SKILL.md](SKILL.md)) must search the corpus before answering; matching content
 is authoritative. If the corpus does not cover the elicited assumption set, the correct
 answer is to say so — never to supply a constant from memory.
+
+## Schema 2 and reflective decisions
+
+Version 0.5 introduces typed descriptions, provenance, constraints, explicit numerical
+termination and readiness. Legacy inputs remain unresolved until evidence is recorded.
+See [migration and release evidence](docs/REMEDIATION.md) and the executable
+[exploration and revision example](examples/reflective_decision.py).
+
+Supported engines remain deliberately bounded: calibrated stopping rules, static
+multiattribute comparisons, infinite discounted finite MDPs and static Bayesian
+conditioning. Mixed models, causal inference, finite-horizon planning, dynamic filtering
+and POMDP planning have no implemented composition semantics. Additive weight analysis
+certifies a box intersected with the normalized simplex; other relationships report
+unsupported coverage. No sampled result is a whole-domain certificate.
+
+
+## Revisable investigation before solver use
+
+[Stage 0](stage0/SKILL.md) proposes a working account, exposes consequential omissions,
+and helps select a feasible next observation. Returned evidence can change the boundary,
+mechanism or measurement and invalidate dependent solver handoffs. Goals and participant
+disagreements stay attributed; hypothetical findings stay separate from obtained evidence.
+A straightforward static comparison can still go directly to the existing solver.
+
+See the [API and migration guide](docs/STAGE0.md), run
+`python examples/stage0_investigation.py`, or inspect the
+[follow-up implementation and release status](docs/STAGE0-RELEASE.md).

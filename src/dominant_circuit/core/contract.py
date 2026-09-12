@@ -172,6 +172,17 @@ class InputContract:
     # Divergence flag — MUST be explicitly elicited, never defaulted. Closes D-08.
     payoff_diverges: Optional[bool] = None
 
+    schema_version: int = 2
+    decision_id: str = "legacy"
+    revision: int = 1
+    provenance: dict[str, Any] = field(default_factory=dict)
+    constraints: list[Any] = field(default_factory=list)
+    terminal_states: list[Any] = field(default_factory=list)
+    weight_region: Any = None
+    uncertainty_treatment: Any = None
+    investigation_id: Optional[str] = None
+    investigation_handoff_ref: Optional[str] = None
+
     def __post_init__(self) -> None:
         # Migrate the deprecated IndependenceTest list onto the corpus structure.
         # `[]` is elicited data ("asked, nothing verified") and must survive as `[]`,

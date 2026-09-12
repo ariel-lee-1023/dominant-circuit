@@ -22,6 +22,8 @@ def demo_elicitation_loop() -> None:
         "payoff_diverges": False,
         "information": Information.ORDINAL,
         "n": 50,
+        "recall_allowed": False,
+        "rejection_prob": 0.0,
     }
     contract = InputContract(job=Job.STOPPING)
     while (question := next_question(contract)) is not None:
@@ -87,7 +89,7 @@ def demo_classical_secretary(n: int = 100) -> None:
 
 
 def demo_cost_of_search() -> None:
-    contract = InputContract(
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING,
         horizon=Horizon.UNBOUNDED_STREAM,
         payoff=Payoff.COST_OF_SEARCH,
@@ -101,7 +103,7 @@ def demo_cost_of_search() -> None:
 
 
 def demo_diverging_blocked() -> None:
-    contract = InputContract(
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING,
         horizon=Horizon.FIXED_KNOWN,
         n=10,

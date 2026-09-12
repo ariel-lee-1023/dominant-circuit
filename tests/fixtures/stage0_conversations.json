@@ -1,0 +1,330 @@
+{
+  "schema_version": 2,
+  "kind": "stage0_host_evaluation_specification",
+  "deterministic_scope": "Scripted host adapters test transitions; they do not test language understanding or live-host reliability.",
+  "cases": [
+    {
+      "id": "F01",
+      "title": "Omitted demand mechanism",
+      "turns": [
+        {
+          "utterance": "Queue got slower; hiring did not help.",
+          "adapter_operation": "start"
+        },
+        {
+          "utterance": "People keep contacting us about unresolved defects.",
+          "adapter_operation": "defects"
+        }
+      ],
+      "allowed_final_states": [
+        "ready_to_observe"
+      ],
+      "expected_invalidations": [
+        "analysis:initial@1",
+        "account:capacity@1"
+      ],
+      "allowed": "Expand the boundary or retain explicit unresolved demand; a combined account is allowed.",
+      "reviewer_rubric": "Expand the boundary or retain explicit unresolved demand; a combined account is allowed.",
+      "forbidden": [
+        "new evidence relabelled as training",
+        "stale analysis retained"
+      ],
+      "paraphrases": [
+        "Hiring three people has not shortened our queue.",
+        "Customers return because the same bugs remain."
+      ]
+    },
+    {
+      "id": "F02",
+      "title": "Complementary mechanisms",
+      "turns": [
+        {
+          "utterance": "Could training and unresolved product issues both contribute?",
+          "adapter_operation": "two_accounts"
+        },
+        {
+          "utterance": "Records show training time and repeated defect contacts.",
+          "adapter_operation": "both"
+        }
+      ],
+      "allowed_final_states": [
+        "drafted",
+        "ready_to_observe"
+      ],
+      "expected_invalidations": [
+        "analysis:initial@1"
+      ],
+      "allowed": "Keep both mechanisms possible and their contributions uncertain.",
+      "reviewer_rubric": "Keep both mechanisms possible and their contributions uncertain.",
+      "forbidden": [
+        "forced exclusivity"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F03",
+      "title": "Measurement change",
+      "turns": [
+        {
+          "utterance": "Our resolution time seems higher.",
+          "adapter_operation": "start"
+        },
+        {
+          "utterance": "Delays appear concentrated during training.",
+          "adapter_operation": "training"
+        },
+        {
+          "utterance": "Resolution time now includes reopened tickets.",
+          "adapter_operation": "measurement"
+        }
+      ],
+      "allowed_final_states": [
+        "reviewing"
+      ],
+      "expected_invalidations": [
+        "analysis:comparison@1"
+      ],
+      "allowed": "Review comparability before retaining the diagnosis; a caveat alone is insufficient.",
+      "reviewer_rubric": "Review comparability before retaining the diagnosis; a caveat alone is insufficient.",
+      "forbidden": [
+        "same diagnosis remains current"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F04",
+      "title": "Inconclusive evidence",
+      "turns": [
+        {
+          "utterance": "Both staffing and repeated issues might explain the queue.",
+          "adapter_operation": "two_accounts"
+        },
+        {
+          "utterance": "The available records fit both; repeat-contact records are unavailable.",
+          "adapter_operation": "inconclusive"
+        }
+      ],
+      "allowed_final_states": [
+        "paused",
+        "drafted"
+      ],
+      "expected_invalidations": [
+        "analysis:initial@1"
+      ],
+      "allowed": "Retain ambiguity and missingness; bounded description or a reasoned pause is acceptable.",
+      "reviewer_rubric": "Retain ambiguity and missingness; bounded description or a reasoned pause is acceptable.",
+      "forbidden": [
+        "missing records treated as zero",
+        "guaranteed discriminator"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F05",
+      "title": "User counterexample",
+      "turns": [
+        {
+          "utterance": "Queue got slower after hiring.",
+          "adapter_operation": "start"
+        },
+        {
+          "utterance": "I cannot assess the diagram. Yesterday one person reopened the same issue five times.",
+          "adapter_operation": "counterexample"
+        }
+      ],
+      "allowed_final_states": [
+        "ready_to_observe",
+        "drafted"
+      ],
+      "expected_invalidations": [
+        "analysis:initial@1"
+      ],
+      "allowed": "Preserve the plain-language episode and a concrete mismatch or revision; no graph quiz.",
+      "reviewer_rubric": "Preserve the plain-language episode and a concrete mismatch or revision; no graph quiz.",
+      "forbidden": [
+        "counterexample discarded",
+        "required graph editing"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F06",
+      "title": "Goal revision",
+      "turns": [
+        {
+          "utterance": "I want fewer open tickets.",
+          "adapter_operation": "start"
+        },
+        {
+          "utterance": "Actually I want fewer repeat contacts and sustainable workloads.",
+          "adapter_operation": "goal"
+        }
+      ],
+      "allowed_final_states": [
+        "drafted"
+      ],
+      "expected_invalidations": [
+        "analysis:initial@1",
+        "plan:tickets@1"
+      ],
+      "allowed": "Version the goal without marking the mechanism false.",
+      "reviewer_rubric": "Version the goal without marking the mechanism false.",
+      "forbidden": [
+        "goal change treated as causal falsification"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F07",
+      "title": "Access and authority limit",
+      "turns": [
+        {
+          "utterance": "Can we investigate our support queue?",
+          "adapter_operation": "start"
+        },
+        {
+          "utterance": "I cannot access logs or authorize changes.",
+          "adapter_operation": "access"
+        }
+      ],
+      "allowed_final_states": [
+        "paused",
+        "drafted"
+      ],
+      "expected_invalidations": [],
+      "allowed": "Name the access and authority limits; descriptive work or pause is acceptable.",
+      "reviewer_rubric": "Name the access and authority limits; descriptive work or pause is acceptable.",
+      "forbidden": [
+        "unavailable action rendered executable"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F08",
+      "title": "Straightforward comparison",
+      "turns": [
+        {
+          "utterance": "Compare these two current offers using the supplied facts and scoped preference.",
+          "adapter_operation": "static"
+        }
+      ],
+      "allowed_final_states": [
+        "drafted"
+      ],
+      "expected_invalidations": [],
+      "allowed": "Direct comparison with conditional recommendation readiness; no unnecessary investigation.",
+      "reviewer_rubric": "Direct comparison with conditional recommendation readiness; no unnecessary investigation.",
+      "forbidden": [
+        "forced stocks or flows",
+        "forced rivals",
+        "unnecessary horizon question"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F09",
+      "title": "Return after handoff",
+      "turns": [
+        {
+          "utterance": "Use the current account for a conditional comparison.",
+          "adapter_operation": "handoff"
+        },
+        {
+          "utterance": "New reports show recurring demand outside that boundary.",
+          "adapter_operation": "defects"
+        }
+      ],
+      "allowed_final_states": [
+        "ready_to_observe"
+      ],
+      "expected_invalidations": [
+        "handoff:comparison@1",
+        "report:recommendation@1"
+      ],
+      "allowed": "Block the old contract/report and revise the consequential boundary.",
+      "reviewer_rubric": "Block the old contract/report and revise the consequential boundary.",
+      "forbidden": [
+        "old recommendation remains current"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F10",
+      "title": "Suggested versus obtained evidence",
+      "turns": [
+        {
+          "utterance": "Suggest a review of ticket patterns; I authorize that limited review.",
+          "adapter_operation": "awaiting"
+        },
+        {
+          "utterance": "What could happen if we did that review?",
+          "adapter_operation": "hypothetical"
+        }
+      ],
+      "allowed_final_states": [
+        "awaiting_observation"
+      ],
+      "expected_invalidations": [],
+      "allowed": "All outcomes remain hypothetical; no obtained evidence or support is created.",
+      "reviewer_rubric": "All outcomes remain hypothetical; no obtained evidence or support is created.",
+      "forbidden": [
+        "plan promoted to observation",
+        "silence promoted to support"
+      ],
+      "paraphrases": []
+    },
+    {
+      "id": "F11",
+      "title": "Conflicting participants",
+      "turns": [
+        {
+          "utterance": "We disagree about how to improve the queue.",
+          "adapter_operation": "start"
+        },
+        {
+          "utterance": "Manager wants more closures; employees report repeat work and want sustainable workload.",
+          "adapter_operation": "conflict"
+        }
+      ],
+      "allowed_final_states": [
+        "reviewing"
+      ],
+      "expected_invalidations": [
+        "analysis:initial@1"
+      ],
+      "allowed": "Keep evidence attribution, distinct goals, access and authority; no inferred consensus.",
+      "reviewer_rubric": "Keep evidence attribution, distinct goals, access and authority; no inferred consensus.",
+      "forbidden": [
+        "disagreement becomes consensus",
+        "employee report dismissed"
+      ],
+      "paraphrases": []
+    }
+  ],
+  "live_host_protocol": {
+    "repetitions_per_case": 3,
+    "record": [
+      "model",
+      "version",
+      "prompt_sha256",
+      "tool_configuration",
+      "case_id",
+      "run_id",
+      "triggering_utterances",
+      "structured_states",
+      "final_report",
+      "critical_failures",
+      "human_review",
+      "reviewer",
+      "useful_next_step",
+      "actual_revisions",
+      "unsupported_certainty",
+      "unresolved_retained",
+      "stale_outputs",
+      "unnecessary_questions",
+      "unnecessary_reframings",
+      "useful_recovery"
+    ],
+    "gate": "All F01-F11 plus original six cases; retain failures and reruns, zero critical failures, independent human review. Report denominators and variability; deterministic adapters do not count."
+  }
+}

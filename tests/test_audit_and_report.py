@@ -115,7 +115,7 @@ def test_inv7_overdetermination():
 def test_inv1_emitted_only_when_a_calibration_is_supplied():
     """run_validation_invariants does not know which rule was dispatched, so it
     must not invent an INV-1 result."""
-    contract = InputContract(
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False,
@@ -172,7 +172,7 @@ def test_audit_result_properties():
     assert audit.passed is False
     assert audit.failures == [failing]
     assert AuditResult(results=[passing]).passed is True
-    assert AuditResult().passed is True          # vacuous
+    assert AuditResult().passed is False         # no completed checks
 
 
 # --- OutputReport rendering -------------------------------------------------------
@@ -222,19 +222,19 @@ def test_to_markdown_renders_latex_with_single_backslashes():
 
 def test_every_dispatched_report_renders_single_backslash_latex():
     contracts = [
-        InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
+        InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
                       information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
                       payoff_diverges=False),
-        InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
+        InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
                       information=Information.CARDINAL, payoff=Payoff.BEST_OR_NOTHING,
                       payoff_diverges=False),
-        InputContract(job=Job.STOPPING, horizon=Horizon.UNBOUNDED_STREAM,
+        InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.UNBOUNDED_STREAM,
                       information=Information.CARDINAL, payoff=Payoff.COST_OF_SEARCH,
                       search_cost=0.02, payoff_diverges=False),
-        InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_UNKNOWN_UNIFORM,
+        InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_UNKNOWN_UNIFORM,
                       n_max=100, information=Information.ORDINAL,
                       payoff=Payoff.BEST_OR_NOTHING, payoff_diverges=False),
-        InputContract(job=Job.STOPPING, horizon=Horizon.OPEN_ENDED_STOCHASTIC,
+        InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.OPEN_ENDED_STOCHASTIC,
                       stop_prob_per_step=0.01, information=Information.ORDINAL,
                       payoff=Payoff.BEST_OR_NOTHING, payoff_diverges=False),
     ]

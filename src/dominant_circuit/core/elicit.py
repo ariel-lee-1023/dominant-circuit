@@ -7,16 +7,13 @@ Two distinct jobs live here:
   * **Weight** — `overturn_test` / `elicitation_plan`: of the things that *could*
     be known, which are worth asking about.
 
-The second exists because 细节是无穷的 — details are infinite. Asking "what else
-haven't I considered?" never terminates. The only terminating question is the
-overturn test: *is the presence or absence of this factor sufficient to overturn my
-current conclusion?* If not, it is a high-order small quantity and belongs outside
-the dominant equation.
+Screening records bounded action comparisons. Untested factors remain unresolved;
+a finite probe set never justifies automatically discarding a factor.
 """
 
 from __future__ import annotations
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, replace, fields
 from typing import Any, Optional, Sequence
 
 from .contract import InputContract, Job, Horizon, Information, Payoff
@@ -38,7 +35,7 @@ QUESTION_BANK = {
     "ruin_success_prob": "What is the per-trial probability q that a trial succeeds rather than wiping out everything accumulated?",
     "ruin_mean_gain": "What is the average gain m per successful trial?",
     "gamma": "What discount factor γ ∈ [0,1) should be used?",
-    "markov_verified": "Have you confirmed that the next state depends only on the current state and action (Markov property)?",
+    "markov_verified": "What evidence and scope support treating the next state as depending only on the current state and action?",
     "independence_assumptions": "Has mutual (or pairwise) utility/preferential independence been verified, and against which attribute subsets?",
     "attributes": "What are the attributes and their explicit [worst, best] ranges?",
     "scaling_constants": "What are the scaling constants k_i, each attached to its assessed range?",
@@ -94,89 +91,82 @@ _REFUSED = object()
 
 @dataclass
 class OverturnResult:
-    """The answer to the only question that terminates: could this factor flip it?"""
     field: str
     overturns: bool
     baseline_decision: Any
-    outcomes: list[tuple[dict[str, Any], Any]]
+    outcomes: list
     verdict: str
+    outcome: str = "untested"
+    probes: list = None
+    comparison_scope: str = "engine_action"
+    schema_version: int = 2
 
     @property
     def is_small_quantity(self) -> bool:
-        """True when the factor cannot overturn the conclusion — a high-order term.
-        Throw it out of the dominant equation; do not spend elicitation on it."""
-        return not self.overturns
+        """Deprecated: finite probes never prove a factor irrelevant."""
+        return False
 
 
-def overturn_test(
-    contract: InputContract,
-    field: str,
-    probes: Optional[Sequence[dict[str, Any]]] = None,
-) -> OverturnResult:
-    """翻盘检验. Is the presence or absence of this factor sufficient to overturn the
-    conclusion the contract currently yields?
+def decision_projection(report, job):
+    d = report.decision
+    if job == Job.MULTIOBJECTIVE:
+        return sorted(d.get("tie_set", [d.get("best_alternative")]))
+    if job == Job.SEQUENTIAL:
+        return d.get("policy") if "policy" in d else None
+    if isinstance(d, dict):
+        return {k:v for k,v in d.items() if k not in {"n", "history_len"}}
+    return d
 
-    Not "what have I not considered" — that never terminates. This asks the single
-    terminating question, and answers it by actually recomputing.
 
-    A refusal counts as an overturn: if setting the factor makes the problem
-    uncomputable or uncalibrated, the factor is emphatically load-bearing.
+def model_projection(report, job):
+    if job == Job.MULTIOBJECTIVE:
+        return report.decision.get('form')
+    keys = ('horizon','information','payoff','recall_allowed','recall_accept_prob','rejection_prob') if job == Job.STOPPING else ('gamma','n_states','n_actions')
+    return {k:report.assumptions.get(k) for k in keys}
 
-    Requires a contract that already yields a conclusion; raises `ContractIncomplete`
-    otherwise, because a factor has no weight until there is a goal to weigh it against.
-    """
-    from .dispatch import dispatch          # deferred: dispatch imports engines
 
-    job = contract.job
-    if job is None:
-        raise ContractIncomplete(
-            "The overturn test needs a conclusion to test against, and that needs a job.",
-            remedy=QUESTION_BANK["job"], field="job",
-        )
-    still_missing = missing_fields(contract)
-    if still_missing:
-        raise ContractIncomplete(
-            "The overturn test needs a current conclusion to test against; the "
-            f"contract is still missing {still_missing}. Weight is undefined until "
-            "the goal, time scale and comparison set are stated.",
-            remedy=QUESTION_BANK.get(still_missing[0], f"Elicit '{still_missing[0]}'."),
-            field=still_missing[0],
-        )
-
-    baseline = dispatch(job, replace(contract)).decision
-
+def overturn_test(contract, field, probes=None) -> OverturnResult:
+    from .dispatch import dispatch
+    from .errors import UnclassifiedVariant, PreconditionViolation
+    from .evidence import scenario_branch
+    valid_fields = {f.name for f in fields(contract)}
+    if field not in valid_fields:
+        raise ValueError(f"Unknown contract field: {field}")
+    require_complete(contract)
+    baseline = dispatch(contract.job, replace(contract))
     trials = list(probes) if probes is not None else _OVERTURN_PROBES.get(field, [])
-    if not trials:
-        return OverturnResult(
-            field=field, overturns=False, baseline_decision=baseline, outcomes=[],
-            verdict=(f"No probe defined for {field!r}; no overturn demonstrated. "
-                     "Supply `probes` to test it explicitly rather than assuming."),
-        )
-
-    outcomes: list[tuple[dict[str, Any], Any]] = []
-    overturns = False
+    outcomes, records = [], []
     for probe in trials:
+        if not set(probe) <= valid_fields:
+            raise ValueError("Probe contains unknown contract field")
         try:
-            result = dispatch(job, replace(contract, **probe)).decision
-        except DominantCircuitError:
-            result = _REFUSED
-        outcomes.append((probe, "REFUSED" if result is _REFUSED else result))
-        if result is _REFUSED or result != baseline:
-            overturns = True
-
-    if overturns:
-        verdict = (
-            f"{field!r} has overturn capacity: at least one calibrated alternative "
-            "changes the conclusion (or voids it). It is load-bearing — elicit it "
-            "properly and state it in the assumptions."
-        )
-    else:
-        verdict = (
-            f"{field!r} cannot overturn the conclusion under the probes tested, so it "
-            "is a high-order small quantity for THIS goal. Throw it out of the "
-            "dominant equation; do not spend the user's attention on it."
-        )
-    return OverturnResult(field, overturns, baseline, outcomes, verdict)
+            result = dispatch(contract.job, scenario_branch(contract, probe, "screening"))
+            before = decision_projection(baseline, contract.job)
+            after = decision_projection(result, contract.job)
+            record = dict(execution_status="completed",
+                model_changed=model_projection(result, contract.job) != model_projection(baseline, contract.job),
+                action_changed=None if before is None or after is None else before != after,
+                feasibility_changed=result.decision.get("feasibility") != baseline.decision.get("feasibility")
+                    if isinstance(result.decision, dict) and isinstance(baseline.decision, dict) else None)
+            outcomes.append((probe, result.decision))
+        except DominantCircuitError as exc:
+            status = "unsupported" if isinstance(exc, UnclassifiedVariant) else "invalid" if isinstance(exc, (PreconditionViolation, ContractIncomplete)) else "failed"
+            record = dict(execution_status=status, model_changed=None, action_changed=None,
+                          feasibility_changed=None, limitation=str(exc))
+            outcomes.append((probe, "REFUSED"))
+        except (ValueError, TypeError, ArithmeticError, RuntimeError) as exc:
+            record = dict(execution_status='invalid' if isinstance(exc,(ValueError,TypeError)) else 'failed',
+                model_changed=None,action_changed=None,feasibility_changed=None,limitation=str(exc))
+            outcomes.append((probe,'REFUSED'))
+        records.append(dict(perturbation=probe, baseline_revision=contract.revision,
+            origin='model_proposal',acceptance='scenario_only',method='explicit_redispatch',
+            dependencies=[v.input_id for v in contract.provenance.values() if hasattr(v,'input_id')], **record))
+    changed = any(r["action_changed"] is True or r["feasibility_changed"] is True for r in records)
+    completed = records and all(r["execution_status"] == "completed" and r["action_changed"] is not None for r in records)
+    outcome = "changes_decision" if changed else "stable_within_tested_bounds" if completed else "untested"
+    return OverturnResult(field, changed, baseline.decision, outcomes,
+        f"{field}: {outcome}. Coverage is limited to the listed probes; no discard instruction follows.",
+        outcome, records, "full_policy" if contract.job == Job.SEQUENTIAL else "engine_action")
 
 
 def screenable_fields(contract: InputContract) -> list[str]:
@@ -195,17 +185,11 @@ def screenable_fields(contract: InputContract) -> list[str]:
 
 
 def elicitation_plan(contract: InputContract) -> dict[str, Any]:
-    """What to ask next, and what to stop asking about.
+    """Return prerequisites and screening coverage, without a universal stopping rule.
 
-    Returns three lists:
-      `required`     — must be answered before anything computes. Not screenable:
-                       these ARE the goal, time scale and comparison set, and weight
-                       is undefined without them.
-      `load_bearing` — passed the overturn test. Worth the user's attention.
-      `droppable`    — failed it. High-order small quantities for this goal; the
-                       host should NOT ask about these.
-
-    Once `required` is empty, the plan is the honest answer to "am I done asking?"
+    Completed action-changing probes are load-bearing. Completed unchanged probes
+    are stable only within their tested bounds. Other coverage remains untested.
+    The deprecated droppable list is always empty.
     """
     required = missing_fields(contract)
     if required:
@@ -218,20 +202,15 @@ def elicitation_plan(contract: InputContract) -> dict[str, Any]:
                      "cannot begin without a conclusion to test against."),
         }
 
-    load_bearing: list[str] = []
-    droppable: list[str] = []
-    for field_name in screenable_fields(contract):
-        if overturn_test(contract, field_name).overturns:
-            load_bearing.append(field_name)
-        else:
-            droppable.append(field_name)
-
+    results = {name: overturn_test(contract, name) for name in screenable_fields(contract)}
     return {
         "required": [],
-        "load_bearing": load_bearing,
-        "droppable": droppable,
-        "note": ("Contract complete. Ask only about `load_bearing`; `droppable` "
-                 "factors cannot change the conclusion for this goal."),
+        "load_bearing": [name for name,r in results.items() if r.outcome == "changes_decision"],
+        "stable_within_tested_bounds": [name for name,r in results.items() if r.outcome == "stable_within_tested_bounds"],
+        "untested": [name for name,r in results.items() if r.outcome == "untested"],
+        "droppable": [],
+        "coverage": results,
+        "note": "Finite screening does not establish irrelevance outside tested bounds.",
     }
 
 
@@ -326,6 +305,16 @@ def missing_fields(contract: InputContract) -> list[str]:
                 missing.append("ruin_success_prob")
             if contract.ruin_mean_gain is None:
                 missing.append("ruin_mean_gain")
+        if contract.payoff in (Payoff.BEST_OR_NOTHING, Payoff.DURATION):
+            if contract.recall_allowed is None:
+                missing.append("recall_allowed")
+            if contract.rejection_prob is None:
+                missing.append("rejection_prob")
+        if contract.payoff == Payoff.COST_OF_SEARCH:
+            if contract.recall_allowed is None:
+                missing.append("recall_allowed")
+            if contract.information is None:
+                missing.append("information")
         if contract.recall_allowed is True and contract.recall_accept_prob is None:
             missing.append("recall_accept_prob")
 
@@ -341,6 +330,8 @@ def missing_fields(contract: InputContract) -> list[str]:
             missing.append("scaling_constants")
 
     elif contract.job == Job.SEQUENTIAL:
+        if contract.prior_belief is not None:
+            return [name for name in ('observation_model','observations') if getattr(contract,name) is None]
         if contract.horizon is None:
             missing.append("horizon")
         if contract.gamma is None:

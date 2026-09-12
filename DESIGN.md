@@ -9,19 +9,16 @@ document wins.
 
 ## Purpose
 
-When a human sits down with this AI, they are not chatting with a friend. They are plugging
-their problem into a mathematical centrifuge. The interface is designed to strip away the
-user's cognitive biases and force them to look at the raw physical constants of their decision.
-
-The corollary, and the thing most easily lost in maintenance: **the refusals are the product.**
-An AI that always returns a number is worthless here, because most vaguely-posed decision
-questions do not have one. Every `raise` in this library is a designed output, not an error
-path.
+The product connects a user's situation to a supported decision model, valid computation,
+traceable assumptions and an inspectable readiness assessment. Useful exploration can
+continue under explicitly scoped assumptions. Refusal is appropriate when the requested
+model is unsupported, but blanket refusal is not a measure of decision quality.
 
 ## Stage ownership
 
 | Stage | Owner | Code |
 |---|---|---|
+| 0. Revisable investigation, when needed | **Host AI**, deterministic state validation | `core/investigation.py` |
 | 1. Elicitation | **Host AI** | `core/elicit.py` |
 | 2. Verification | Library | `core/verify.py`, `engines/multiobjective.py` |
 | 3. Computation | Library | `core/dispatch.py` → `engines/` |
@@ -34,10 +31,57 @@ computes in prose instead of calling the library has defeated the entire design.
 
 ---
 
+## Stage 0: a revisable investigation
+
+[Stage 0](stage0/SKILL.md) supports uncertain framing before, and when needed after,
+a solver handoff. Its [shared-schema API](docs/STAGE0.md) extends `DecisionDescription`
+and `ConsequentialInput`. It does not introduce a second solver or perform dialogue.
+
+The host proposes a useful account even if the user has no model ready. Explicitness
+helps people challenge an account, but correction also requires feasible evidence,
+retained counterexamples, a return cycle and willingness to revise consequential
+boundaries. An explicit wrong account is not automatically cheap or self-correcting.
+
+A boundary identifies included, external and unknown factors, the observations it
+makes visible and a consequential omission. In a support queue, training can reduce
+capacity while unresolved defects create repeat demand. These may be complementary,
+competing or unresolved mechanisms; no account wins merely because it came first.
+The host records accessible possible findings, their implications and an inconclusive
+case before interpreting returned evidence. A plan is separate from actual collection.
+
+Workflow and model assessment are separate. Being ready to observe does not establish
+a mechanism, a solver-ready contract or permission to intervene. Actual reports retain
+source events, context, missingness and selection limits. Review compares returned
+findings with the earlier plan, records the reasons for changes, and keeps old
+interpretations available. Boundary, mechanism and measurement changes invalidate
+relevant downstream analyses and handoffs. A changed goal versions the goal; it does
+not count as causal falsification. Unmodelled episodes and participant disagreement
+remain available without requiring diagram editing or blanket agreement.
+
+Meadows, Pearl, Page and Frankfurt remain optional intellectual resources. Select
+analysis from the question and its dependencies. Static comparisons need no dynamics.
+A named framework cannot certify identification or stability: formal work needs its
+specified target/model, applicable method, observables where relevant and verifiable
+analysis. This library implements no such verifier; external claims remain unverified.
+
+A useful next observation can finish a turn without a number. Pause for inaccessible
+evidence, disproportionate effort or user deferral, preserving a reopening trigger.
+Keep the six output fields (starting model, observation instruction, commitments,
+prohibitions/limits, overturn conditions, rival models), while keeping detailed history
+behind them. A model limit is an unanswered question that may warrant a revision,
+not a prohibition on the user's inquiry. Contract handoff binds current goal/model
+revisions and engine prerequisites, with reasons to return to Stage 0. Readiness for
+a recommendation remains the existing separate assessment.
+
+[The support-queue example](examples/stage0_investigation.py) exercises the return cycle
+and contrasts it with direct offers. The [follow-up evidence record](docs/STAGE0-RELEASE.md)
+separates deterministic checks, synthetic review, live-host trials and human signoff.
+
 ## Stage 1 — Elicitation (the Socratic interrogation)
 
-Humans are naturally vague; they want to talk about "feelings" and "vibes." The AI's first job
-is to **refuse to compute until the boundary conditions are locked in.**
+The host clarifies the objective and consequential unknowns. It can preserve unresolved
+interpretations or compute explicitly labelled scenarios without presenting them as ready
+recommendations.
 
 - **Mechanism.** The AI acts as a strict investigator. If the human says "I want the best job,"
   the AI halts and demands parameters.
@@ -61,8 +105,9 @@ Before a single equation is loaded, the AI must ensure the user isn't trying to 
 of physics.
 
 - **Mechanism.** The AI runs the parameters against hard mathematical constraints.
-- **Checkpoints.** If the user wants an additive utility formula, the AI forces them through
-  the flip test to prove their variables are actually independent. If the user is analyzing a
+- **Checkpoints.** If the user wants an additive utility formula, the host records scoped
+  independence evidence and checks the appropriate utility form. A flip test alone
+  does not prove empirical independence. If the user is analyzing a
   game with diverging expected payoffs (a double-or-nothing bet that goes on forever), the AI
   rejects the premise entirely.
 - **Goal.** To prevent "cargo cult" computing, where the math looks right but the underlying
@@ -85,8 +130,8 @@ Once the boundary conditions are set, the conversation stops and the physics eng
 
 - **Mechanism.** The Python backend routes the validated inputs to the correct zero-order
   formula.
-- **Checkpoints.** It drops the negligible terms and focuses solely on the dominant causal
-  variables. It might apply the Look-Then-Leap threshold (\(r \approx n/e\)) for stopping
+- **Checkpoints.** It checks the selected model and computes within its stated capability
+  boundary. Untested factors are never silently declared negligible. It might apply the Look-Then-Leap threshold (\(r \approx n/e\)) for stopping
   problems, or run Bellman backups
   \(U^{*}(s) = \max_a\left(R(s,a) + \gamma\sum_{s'}T(s'|s,a)U^{*}(s')\right)\)
   for sequential planning.
@@ -140,35 +185,16 @@ except AuditFailure as e:
 INV-1…INV-6 are enforced. **INV-7 (overdetermination) is conditional and non-blocking** — a
 passing report does not prove the elicitation was overdetermined. See `AGENTS.md`.
 
-## Stage 5 — Reporting (the zero-order truth)
+## Stage 5: reporting and decision readiness
 
-The AI delivers the unvarnished conclusion to the human.
+A report separates the computed result, numerical evidence, assumption support,
+sensitivity and recommendation readiness. All output formats use the same structured
+readiness state. A passing arithmetic audit cannot establish that further deliberation
+has no value. `analysis_is_complete` is a deprecated scoped-readiness alias.
 
-- **Mechanism.** A clean, formatted output that separates the signal from the noise.
-- **Checkpoints.** The AI explicitly lists the exact mathematical formula used, the recommended
-  action, and — crucially — the physical assumptions that make this action valid. It also tells
-  the user when they are allowed to stop analyzing and start executing.
-- **Goal.** To give the user a mathematically optimal conclusion that they can actually trust
-  and act upon.
-
-**Entry points.** `report.to_markdown()` renders all six Output Contract fields plus an
-`## Execute` section. Report `report.action` as the recommendation — the decision as an
-instruction, not the raw dict. Always show `formula_name` and `citation` beside the number, and
-state the assumptions, because **the answer is not transferable to a different assumption set.**
-
-Then answer the question the user actually has — *may I stop thinking about this?*
-
-```python
-report.analysis_is_complete    # no further computation can improve this
-report.assumptions_to_confirm  # facts to check; wrong ones change the decision
-report.execution_note          # the above, in a sentence you can say out loud
-```
-
-`analysis_is_complete` means the remaining risk is **factual, not analytical**: more
-deliberation cannot help, only checking the world can. Telling a user they may stop analyzing
-is part of the deliverable, not a courtesy.
-
----
+The host reports conditions of use and reopening triggers, and helps the user decide
+whether further observations justify their cost. Execution requires the user's separate
+authority. See [docs/REMEDIATION.md](docs/REMEDIATION.md) for schema and migration details.
 
 ## Weight (权重) and the overturn test
 
@@ -202,35 +228,19 @@ that does:
 
 > Is the presence or absence of this factor sufficient to overturn my current conclusion?
 
-If it is not sufficient, it is a high-order perturbation — a small quantity — so throw it out of
-the dominant equation immediately.
+A finite probe set only describes its tested bounds. No valid probe yields `untested`.
+Unsupported or failed probes are coverage limitations. `elicitation_plan` keeps
+`droppable` empty and separates `load_bearing`, `stable_within_tested_bounds` and
+`untested`. A model change and an action change are separate observations.
 
-```python
-plan = elicitation_plan(contract)
-plan["required"]      # no conclusion exists yet; ask these
-plan["load_bearing"]  # passed the overturn test
-plan["droppable"]     # failed it — do not ask
-```
-
-`overturn_test` answers by *recomputing*, not by heuristic: it re-dispatches the contract under
-each corpus-calibrated alternative and compares decisions. A refusal counts as an overturn — if
-setting a factor makes the problem uncalibrated, the factor is emphatically load-bearing.
-
-This is why the library can screen honestly instead of guessing. The same factor goes both ways:
-
-| Pool size | exact | asymptotic | Overturn? | Verdict |
+| Pool size | exact | asymptotic | Action changed? | Verdict |
 |---|---|---|---|---|
-| n = 50 | 19 | 18 | **yes** | load-bearing — worth a question |
-| n = 45 | 17 | 17 | no | 舍去项 — throw it out |
-| n = 102 | 38 | 38 | no | 舍去项 — throw it out |
+| n = 50 | 19 | 18 | yes | changes_decision |
+| n = 45 | 17 | 17 | no | stable within these two computations |
+| n = 102 | 38 | 38 | no | stable within these two computations |
 
-"Should I use the exact computation or the famous 37% rule?" is a real question at n=50 and a
-waste of the user's attention at n=45. No fixed list of "important factors" survives between
-conversations; each must be screened against the goal actually stated.
-
-This is also the answer to 大局观的另一半 — knowing when to stop looking. `plan["required"] == []`
-with an empty `load_bearing` means there is nothing left worth asking, which is a computed
-result rather than a judgement call.
+This table compares the exact and asymptotic cutoff for the specified classical model.
+It proves nothing about recall, rejection or factors without completed probes.
 
 ## The zero-order expansion (零阶展开)
 
@@ -240,9 +250,9 @@ single number, which is what makes the perturbation structure visible instead of
 | Order | 中文 | Meaning |
 |---|---|---|
 | `ORDER_ZERO` | 零阶 | The trunk. What the dominant terms alone give. |
-| `ORDER_FIRST` | 一阶修正 | Refines the trunk. **Cannot overturn it.** |
+| `ORDER_FIRST` | 一阶修正 | Same model; may change the selected action. |
 | `ORDER_OVERTURN` | 翻盘 | Not a correction — a *different* trunk. |
-| `ORDER_DROPPED` | 舍去项 | Thrown away by 主导平衡 as having no causal control. |
+| `ORDER_DROPPED` | 舍去项 | Alternatives removed by dominance under the stated monotonicity assumptions. |
 | `ORDER_HARD` | 硬约束 | No trunk exists. A veto, never a small quantity. |
 
 **The classification is structural, never a magnitude threshold.** A term is a *correction*
@@ -273,8 +283,8 @@ Each engine's trunk is a real quantity from the corpus, not a label:
   interaction term is the correction.
 - **Engine C** — the myopic action at \(\gamma = 0\). The Bellman equation is itself a series in
   \(\gamma\); the discounted future terms are the corrections, and residuals shrinking by
-  \(\le \gamma\) per sweep (INV-4) is exactly why the series converges and later terms cannot
-  overturn the trunk.
+  \(\le \gamma\) per sweep (INV-4) is a contraction diagnostic. Completion requires the residual
+  criterion, and future rewards can change the preferred action.
 
 This also gives 硬约束 its precise place. 「微扰级数不一定收敛」is not a metaphor here: when the
 expected payoff at the best stopping point diverges, there is no zero-order term to correct, and
