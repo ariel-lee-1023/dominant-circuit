@@ -39,7 +39,7 @@ def test_exact_finite_n_table():
 def test_exact_beats_asymptotic_at_n100():
     assert optimal_cutoff(100)[0] == 38
     assert asymptotic_cutoff(100)[0] == 37
-    contract = InputContract(
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False, exact_finite_n=True,
@@ -85,7 +85,7 @@ def test_parking_corrected():
 
 
 def test_diverging_blocks():
-    c = InputContract(
+    c = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=10,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=True,
@@ -96,7 +96,7 @@ def test_diverging_blocks():
 
 
 def test_unelicited_divergence_not_assumed_false():
-    c = InputContract(
+    c = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=10,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=None,
@@ -107,7 +107,7 @@ def test_unelicited_divergence_not_assumed_false():
 
 
 def _contract_with(**overrides):
-    base = dict(
+    base = dict(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False,
@@ -186,7 +186,7 @@ def test_inv1_fails_on_mismatched_calibration():
     """Hand a rule its calibration record and a contract that contradicts it."""
     # The 0.61 recall constant, handed a contract that elicited no recall at all.
     cal = CALIBRATIONS["recall_61"]
-    contract = InputContract(
+    contract = InputContract(rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False, recall_allowed=False,
@@ -202,7 +202,7 @@ def test_inv1_fails_on_mismatched_calibration():
 
 
 def test_inv1_passes_on_matching_calibration():
-    contract = InputContract(
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False,
@@ -221,7 +221,7 @@ def test_inv1_none_field_is_not_pinned():
 
 def test_inv1_exact_path_reuses_no_constant():
     """constant=None (the exact finite-n path) always passes the constant check."""
-    contract = InputContract(
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False, exact_finite_n=True,
@@ -247,7 +247,7 @@ def test_inv5_is_not_hardcoded_true():
 
 
 def test_report_has_six_fields():
-    c = InputContract(
+    c = InputContract(recall_allowed=False, rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False, exact_finite_n=True,

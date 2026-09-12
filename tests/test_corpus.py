@@ -342,7 +342,7 @@ def test_worked_interaction_numbers_match_the_engine():
     start = text.index("## Worked interaction")
     section = text[start:text.index("\n## ", start + 10)]
 
-    contract = InputContract(
+    contract = InputContract(rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         recall_allowed=False, payoff_diverges=False,

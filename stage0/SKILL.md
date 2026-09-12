@@ -1,333 +1,134 @@
 ---
-name: stage0-structure-first
-description: "Stage 0 for dominant-circuit, distilled from 4 sources: Meadows Thinking in Systems, Pearl & Mackenzie The Book of Why, Page The Model Thinker, and Frankfurt's Freedom of the Will and the Concept of a Person (for grading stated preferences, not for structural modeling). Given an unshaped situation, installs an explicit starting model — names its stocks/flows/loops, its DAG and what that DAG makes identifiable, and its equilibrium/cycle/randomness/complexity class — and emits six required fields: starting model, observation instruction, commitments, prohibitions, overturn conditions, rival models. Then either hands off the four classifying InputContract fields to dominant-circuit or refuses a specific over-reaching claim. Never outputs a decision, a number, or prose insight. Use before any decision solver runs, whenever a case has not yet been reduced to job/horizon/information/payoff."
+name: dominant-circuit-stage0
+description: Propose and revise a working account of a decision problem through feasible observations, returned evidence, and user correction. Use for uncertain framing or investigation before a dominant-circuit solver handoff. Clearly specified static comparisons can bypass investigation.
 ---
 
-# Stage 0 — Structure First
-
-**Books**: 4 | **Depth**: reference | **Citation anchors**: `§N` (top-level), `§N.M` (framework blocks)
-
-Cite as `meadows §2.4`, `pearl §2.6`, `page §2.3`, `frankfurt §2.3` — every numbered heading in the
-four reference files is a stable anchor. Do not cite by heading text; text gets rewritten, numbers
-do not. Three of the four (Meadows, Pearl, Page) run in the fixed structural order `§4` describes;
-Frankfurt does not join that pipeline — see `§4`'s note and `§5.2`.
-
----
-
-## 1. Why this stage exists
-
-**There is always a model before there can be observation.** Without one, a person does not know
-where to look, and data does not volunteer what causes what.
-
-This is not a methodological sentiment. Each of the three books states it as a hard constraint:
-
-- **Pearl** — "no causes in, no causes out." A causal model is separate from, and *prior to*, any
-  data. Probability lives on rung 1 of the Ladder of Causation and no quantity of data climbs to
-  rung 2 (`pearl §2.1`).
-- **Meadows** — the system boundary is a **modeling choice**, not a fact discovered in the world:
-  "the world is a continuum. Where to draw a boundary depends on the purpose of the discussion"
-  (`meadows §2.4`).
-- **Page** — the model class decides what counts as a variable and what shape the answer can take;
-  committing to a class commits you to a result type (`page §2.3`).
-
-Therefore prejudgment is unavoidable. The only real choice is **deliberate prejudgment or
-unexamined prejudgment.** Stage 0's job:
-
-> Install a deliberate starting model so the user knows where to look — and put what that model
-> commits to, what it forbids, and what would overturn it, on the table where it can be audited.
-
-## 2. What this is, and what it is not
-
-This is **not** a decision solver. `dominant-circuit` is the solver; it is good, but it assumes
-job / horizon / information / payoff are already filled in, after which the answer is close to
-unique. Stage 0 is everything **before** that.
-
-A correct Stage 0 output is **the six fields of §6** — never an answer, never a ranked list of
-options, never an essay. If it reads like commentary, it has failed.
-
-Stage 0 also does not estimate. No effect sizes, no probabilities, no point estimates, no prices,
-no retention numbers. Identifiability judgments and structural classification, and there it stops.
-
-## 3. Default posture: commit a model, do not refuse
-
-`dominant-circuit` runs on "refusal is the product," and it is right to: a user asking for a number
-who receives a wrong number will act on it.
-
-**That default is inverted here, and inverting it is the single easiest way to ruin this stage.**
-A user arrives at Stage 0 *because* they have no boundary and no named structure. Answering
-"boundary undeclared, cannot proceed" refuses to perform the one job this stage has.
-
-| | `dominant-circuit` | Stage 0 |
-|---|---|---|
-| What the user wants | a number | a direction to look |
-| Cost of a wrong output | acted on as if true — harmful | low: it is explicit, so observation corrects it |
-| Cost of no output | low: user finds another route | **high: user keeps looking with an unexamined model** |
-| Therefore default to | **refusing** | **committing to a model** |
-
-A wrong model written down explicitly is *useful* — it is falsifiable and reality will correct it.
-No model is *useless* — without one you cannot even tell which data to collect.
-
-The refusals that survive here (§7.1) refuse a **claim the user asserted**, not the request for
-help. `NotIdentifiable` rejects "this quantity is computable from that graph"; the graph is still
-delivered, together with what would make the quantity identifiable.
-
-## 4. Which book for which job (fixed order, not parallel)
-
-Three organs of one judgment, applied in this order, because each stage's output is the next
-stage's required input: **what can be seen → what can be claimed → what shape the answer can take.**
-
-| Order | Book (→ file) | Question it answers | What it hands on |
-|---|---|---|---|
-| 1 | Meadows, *Thinking in Systems* → [references/reference-meadows-thinking-in-systems.md](references/reference-meadows-thinking-in-systems.md) | Where is the boundary? What accumulates vs. flows? Where are the loops, what polarity, how long the delays? | Nouns: stocks, flows, loops + polarity, delays, boundary |
-| 2 | Pearl & Mackenzie, *The Book of Why* → [references/reference-pearl-book-of-why.md](references/reference-pearl-book-of-why.md) | Which arrow am I licensed to claim? Where does an intervention land? Is the target quantity identifiable? | Licence: DAG, mediator/confounder/collider, identifiability verdict |
-| 3 | Page, *The Model Thinker* → [references/reference-page-model-thinker.md](references/reference-page-model-thinker.md) | Which model class is this? Equilibrium, cycle, randomness or complexity? Stable? | Shape: model class, result-type verdict, stability verdict, rival classes |
-
-Pearl is the **only** source here with a mathematically hard definition of "mediator"
-(chain / fork / collider, back-door, do-calculus). When a case turns on that classification, Pearl
-is the sole authority — do not substitute intuition from the other two books.
-
-A fourth source, Frankfurt's *Freedom of the Will and the Concept of a Person* →
-[references/reference-frankfurt-freedom-of-the-will.md](references/reference-frankfurt-freedom-of-the-will.md),
-is cited elsewhere in this document (`§5.2`, `§6`, `§9`) but is **not a fourth row in this table**.
-The table above answers "what can be seen → what can be claimed → what shape the answer can take"
-about the *system* the user is describing, run in that fixed order for every case. Frankfurt answers
-a different question — what grade a stated preference about the *person's objective* has reached —
-and is consulted only when such a construct appears, not as a required pipeline stage.
-
-## 5. The six capabilities, in fixed order
-
-### 5.1 Domain triage (three questions, read-only)
-Answer only from what the user has **already stated**; never infer from wording or tone.
-
-1. Is the ask "which option do I pick" (decision) or "where would changing something change the
-   outcome" (intervention)? → **decision vs. intervention**
-2. Does any quantity accumulate over time — a level that persists between observations?
-   → **dynamics vs. static**
-3. Can the actor act on the system, or only observe it? → **rung 2 vs. rung 1** (`pearl §2.1`)
-
-**Precedence rule.** These three questions never terminate in a refusal. If nothing has a boundary
-and nothing accumulates and the ask is for commentary rather than structure, that is
-`NotAStructuredProblem` — a *routing* verdict (this is a static one-shot decision, or it is not a
-structural question at all), not a door closing. `NotAStructuredProblem` is checked **before**
-`BoundaryFork`, and only one of the two ever fires.
-
-### 5.2 Construct proposal (Meadows primary, Pearl secondary)
-Name the stocks / flows / loops with polarity, and — wherever an intervention or a "what if we do X"
-claim is present — the DAG nodes and edges.
-
-- Every named stock carries a **unit**, and that unit must equal some flow's unit × time
-  (`meadows §2.1`). This dimensional check is the only free mechanical self-audit available at this
-  layer; run it before accepting any construct. If it fails, the construct is misnamed — not the check.
-- **Provenance is mandatory.** Mark every construct as either *stated by the user* or *added by
-  Stage 0*. An added construct is a proposal the user may reject; an unmarked added construct is
-  the AI's opinion wearing the user's name.
-- If constructs cannot yet be named, that is `ConstructProposal` (§7.2), not a stop.
-- **Evaluative constructs get a second provenance axis (Frankfurt).** A stock or flow is a fact
-  about the system; a stated risk attitude or objective preference is a fact about the person, and
-  those come in three grades that must not be collapsed into one "stated by the user" bucket
-  (`frankfurt §2.1`–`§2.3`):
-  - **first-order** (`frankfurt §2.1`) — what the user reports wanting right now ("I want to take
-    the risk"). Record it; it is data, not yet an input. Confidence or repetition does not change
-    its grade — a first-order desire stated with total conviction is still first-order
-    (`frankfurt §2.4`).
-  - **second-order desire** (`frankfurt §2.2`) — what the user says they want to want ("I'd rather
-    be the kind of decision-maker who doesn't chase this"). Still not an input — an evaluation of a
-    desire is not a decision about which desire acts, and a construct can sit here indefinitely
-    without ever resolving.
-  - **second-order volition** (`frankfurt §2.3`) — an explicit, forward-standing appointment: the
-    user names which desire governs *this class of decision*, in a form built to survive being
-    contradicted by a louder first-order desire at the moment of choice ("treat me as risk-neutral
-    for calls like this, even if I balk in the moment") — the same structure that lets Frankfurt's
-    unwilling addict disown the desire that moves him (`frankfurt §2.5`). This is the only grade
-    that may be treated as settled.
-  - Stage 0 never infers second-order volition from a first-order answer, no matter how confidently
-    stated, and never manufactures it on the user's behalf — that would be Stage 0 doing the
-    weighing that only the user is entitled to do (`frankfurt §2.6`). Absent an explicit
-    volition-grade statement, the construct stays open, exactly as an ungraded second-order desire
-    may stay open indefinitely (`frankfurt §2.2`).
-  - Grading a construct's order is a structural classification, not a quality or sincerity check;
-    a capriciously formed second-order volition still counts as one (`frankfurt §2.8`).
-
-### 5.3 Identifiability verdict (Pearl only)
-Given the DAG and the observable set: is the target quantity identifiable? Apply the
-confounder / mediator / collider test (`pearl §2.3`, `§2.4`) and the back-door / front-door criteria
-(`pearl §2.5`, `§2.6`). If not identifiable, name **the specific thing that would fix it** — an
-instrument, a front-door mediator, an added measurement, an RCT — never "insufficient data."
-
-The DAG is **supplied by the user**. This stage can never verify that it is true, only what is
-identifiable under it. So `assumption_provenance` is printed, always, not optionally.
-
-### 5.4 Result-shape and stability verdict (Page only)
-Classify long-run behaviour as **equilibrium / cycle / randomness / complexity** (`page §2.3`).
-
-To assert equilibrium, either construct a Lyapunov function — bounded below, and strictly
-decreasing by at least some A > 0 at every non-equilibrium step (`page §2.4`) — or verify all four
-Markov conditions: finite states, fixed transition rule, ergodicity, non-cyclic (`page §2.5`).
-
-Failing to construct a Lyapunov function is **not** proof of non-equilibrium (Collatz: converges in
-every tested case, no Lyapunov function ever proven). Report **unresolved**, not "no equilibrium,"
-unless the four Markov conditions have also been checked and fail.
-
-If a quantity's distribution is power-law with tail exponent a ≤ 2, its mean does not converge
-(`page §2.6`) — any downstream claim resting on "the average" is unsupported until the tail is checked.
-
-### 5.5 Rival models (Page)
-Before emitting, ask whether more than one structurally distinct model class is independently
-plausible. If so, list them side by side **with the observation that would discriminate between
-them**. Multi-model plurality is a legitimate terminal verdict, not a failure to try harder
-(Lo's 21-model crisis analysis, Allison's three-model Cuban Missile Crisis — `page §2.2`).
-
-Plurality is never an excuse to hand back nothing: rivals plus a discriminating observation *is* a
-direction to look, and is frequently the most valuable output this stage produces.
-
-### 5.6 Emit the six fields, then hand off or refuse
-Emit §6 in full. Then either hand off the four classifying fields (§9) or refuse a specific
-over-reaching claim (§7.1). Never both, never neither.
-
-## 6. Output contract — six fields, all required
-
-1. **Starting model** — variables, boundary, arrows, or stocks/flows/loops. Concrete enough to draw.
-2. **Observation instruction** — given this model, where to look and what to measure next.
-   **This is what the user actually came for, and it is the one field that may never be omitted.**
-3. **Commitments** — what adopting this starting point commits you to: which variables are
-   endogenous, which arrows are asserted to exist, and which evaluative construct (§5.2) has
-   actually reached second-order volition (`frankfurt §2.3`) and may therefore be treated as
-   settled.
-4. **Prohibitions** — what it forbids: which variable must not be conditioned on, which questions
-   cannot be asked under this boundary, which quantities are unidentifiable under this graph, and
-   which evaluative construct has NOT cleared second-order volition and is therefore prohibited
-   from being written into a solver field no matter how firmly it was stated ("reported risk-prone
-   in the moment" stays a first-order fact until the user appoints it — it does not get promoted
-   by repetition or confidence, `frankfurt §2.4`).
-5. **Overturn conditions** — what observation would replace this starting point with another.
-6. **Rival models** — which other starting points are equally defensible, and what observation
-   distinguishes them.
-
-Fields 3 and 4 are the whole technical content of "deliberate prejudgment": **the cost of the
-prejudgment must be settleable.**
-
-## 7. Verdict taxonomy
-
-Twelve verdicts in three classes. The class determines the posture, and the classes were previously
-conflated — six of these are genuine refusals, three are forks that must never terminate the stage,
-and three are findings that terminate only with a stated measurement that would resolve them.
-
-### 7.1 True refusals (6) — refusing a claim the user asserted
-
-| Verdict | Grounded in | Fires when |
-|---|---|---|
-| **CausalClaimFromObservationalOnly** | `pearl §2.1` | A rung-2/3 claim is asserted on rung-1 evidence only. |
-| **ConditioningOnCollider** | `pearl §2.3`, `§2.9` | The case conditions on — or implicitly selects on — a common effect of two variables: self-selection, survivorship, M-bias. |
-| **NotIdentifiable** | `pearl §2.7` | Under the user's own graph and observable set, repeated do-calculus cannot eliminate every do(·) term. Deliver the graph anyway; name what restores identifiability. |
-| **UnobservedConfounder** | `pearl §2.5`, `§2.6` | A common cause of treatment and outcome is unobserved, no valid back-door set exists, and no mediator satisfies the front-door shielding condition. |
-| **DimensionalMismatch** | `meadows §2.1` | A named "stock" fails unit = flow-unit × time. |
-| **UnstableFixedPoint** | `page §2.4` | A fixed point exists but is not attracting — distinct from no equilibrium; something was found, it is just not where the system rests. |
-
-### 7.2 Forks (3) — never terminal; these are the stage doing its job
-
-| Verdict | Grounded in | Emit instead |
-|---|---|---|
-| **BoundaryFork** | `meadows §2.4` | 2–3 candidate boundaries, each with what it makes exogenous and therefore what it forbids you to ask. |
-| **ConstructProposal** | `meadows §2.1`, `§2.2` | Candidate stocks / flows / loops as a marked proposal — user-stated vs. Stage-0-added flagged separately. |
-| **RivalModels** | `page §2.2` | Competing model classes with their conflicting conclusions, plus the observation that discriminates. |
-
-### 7.3 Conditional findings (3) — terminal only with a resolving measurement attached
-
-| Verdict | Grounded in | Fires when |
-|---|---|---|
-| **LoopDominanceUndetermined** | `meadows §2.2` | Opposite-polarity loops present, current dominance not determinable from stated information. Never guess a lever direction — leverage intuition is famously wrong-signed (`meadows §2.5`). |
-| **NoEquilibriumExists** | `page §2.4`, `§2.6` | No fixed point, no simple cycle, Lyapunov and Markov tests both fail — or the tail is power-law with undefined mean. Report this rather than manufacturing a settled number. |
-| **NotAStructuredProblem** | `meadows §2.4` | No boundary, nothing accumulating, and the ask is commentary. A routing verdict: static one-shot decision, or out of scope. Checked before `BoundaryFork` (§5.1). |
-
-Each §7.3 verdict must state what measurement would settle it. "Undetermined" without that is
-indistinguishable from not having looked.
-
-## 8. Mapping onto dominant-circuit's report structure
-
-No new report model is needed. The existing five-part structure carries over intact, with the
-zero-order term changing from *a number* to *a model*:
-
-| Report part | In Stage 0 |
-|---|---|
-| `zero_order` | **the starting model** — the load-bearing trunk |
-| `corrections` | factors that refine it without replacing it |
-| `overturns` | **rival models** — a different trunk, not a bigger or smaller one |
-| `dropped` | details the user raised that cannot change where to look |
-| `hard_constraints` | the §7.1 refusals |
-| `analysis_is_complete` | "stop reasoning, start observing" — the model is installed; remaining risk is factual, not analytical |
-
-The overturn test carries over with sharper meaning here: **a factor that cannot change where to
-look does not deserve the user's attention.**
-
-## 9. Handoff — what Stage 0 fills in, and what it must not
-
-Stage 0 emits **no numbers**, so it fills only the four classifying fields of `InputContract`:
-
-| Field | Filled from |
-|---|---|
-| `job` | §5.1 question 1 + §5.4 result shape |
-| `horizon` | §5.1 question 2 (accumulation present → not a one-shot) |
-| `information` | §5.1 question 3 (observe-only vs. act) |
-| `payoff` | §5.4 result-shape verdict |
-
-Every numeric field (`n`, `gamma`, `scores`, `search_cost`, `transition`, `reward`, …) is left
-`None` and **named in the observation instruction** as something the host must elicit. Filling a
-numeric field here would smuggle an unelicited assumption past the very check this repository
-exists to enforce.
-
-`risk_attitude` and any part of `payoff` selection that is evaluative rather than structural are
-deliberately **not** in the table above, and Stage 0 never fills them. They are `InputContract`
-fields, but they are also exactly the evaluative constructs §5.2 governs: a host asking for them
-directly (as Stage 1's `QUESTION_BANK` does) receives a first-order answer (`frankfurt §2.1`), not a
-second-order volition (`frankfurt §2.3`), and must not write it into the contract as though the two
-were the same event. Stage 0 cannot perform that check for the host after handoff — by §2 it never
-estimates or decides — so it discharges its share of the responsibility earlier: if the case in
-front of it surfaces a stated risk attitude or objective preference, §6 field 4 names that it has
-not cleared second-order volition, so the prohibition travels with the handoff instead of being
-silently dropped at the Stage 0 / Stage 1 boundary.
-
-Hand off only when all four classify. Otherwise emit §6 and the applicable §7 verdict, and say
-plainly that the case is not yet reduced to a solver input.
-
-## 10. Cross-book topic index
-
-Terms appearing in two or more books.
-
-- **Boundary / scope of object** → meadows `§2.4`, page `§2.2` (granularity is a scope choice)
-- **Delay / lag / temporal structure** → meadows `§2.3`, page `§2.5`, `§2.7`
-- **Feedback loop (reinforcing / balancing)** → meadows `§2.2`, page `§2.7`
-- **Graph / structure representation** → pearl `§2.3`, meadows `§2.2`, page `§2.3`
-- **History matters / does not matter** → meadows `§2.3`, page `§2.5`, `§2.7`
-- **Identifiability / can this be known at all** → pearl `§2.7`, page `§2.4`
-- **Intervention (do vs. observe)** → pearl `§2.2`, meadows `§2.5`
-- **Mediator** → pearl `§2.4`, `§2.10` — **single source and sole authority**; neither other book has a rigorous mediator test
-- **Multiple / conflicting explanations** → page `§2.2`, meadows `§2.6`
-- **Stability / equilibrium** → page `§2.4`, `§2.5`, meadows `§2.2`
-
-## 11. Scope, limits, provenance
-
-Structural judgment about the system, from three sources; grading of evaluative claims about the
-person, from a fourth (`§4`'s note, `§5.2`).
-
-- **Pearl** supports identifiability and mediator / confounder / collider judgment but explicitly
-  **not** numeric effect-size estimation (see the NOTICE in its reference file). A request for a
-  point estimate or standard error routes to *Causality* (2009) or *Causal Inference in Statistics:
-  A Primer* — never answered from here.
-- **Page** supports model-class and result-type judgment, not the mechanics of any one of the
-  book's ~30 individual models. Routing to a specific model's derivation is out of scope.
-- **Meadows** leverage points at the rules / self-organization / goals / paradigms end are **not
-  computable**; they are reported as hard constraints, not ranked. Only parameters, buffers,
-  physical structure and delays admit sensitivity ranking, and even then Stage 0 names the
-  structure and never the direction to push (`meadows §2.5`).
-- **Frankfurt** supports grading a stated preference's order (first-order / second-order desire /
-  second-order volition) and nothing else — not the paper's argument for the freedom-of-the-will
-  thesis, its treatment of moral responsibility, or its reply to Chisholm (`frankfurt §1`). It
-  never supplies a stock, an arrow, or a model class, and it is never a substitute for §5.1–§5.5's
-  structural judgment about the system — only a check on claims about the person's objective.
-- **This stage never selects the model for the user, and never appoints a second-order volition on
-  the user's behalf either** (`frankfurt §2.6`). It may propose, order, and price the alternatives.
-  It may not silently pick one. The user owns the goal, and owns the starting point.
-- For a topic none of the four sources addresses, say so rather than inventing a verdict.
-- **Depth note.** These reference files were distilled at `reference` depth: dense on decision
-  criteria, without worked end-to-end examples. Anything presented as a worked example downstream
-  is constructed, not quoted, and must be labelled as such.
+# Stage 0: a revisable investigation
+
+Offer a useful starting account when the user has not supplied one. Explain it through
+concrete episodes, a small boundary comparison or a proposed observation. Explicitness
+makes an account easier to question; it does not make an incorrect account cheap or
+self-correcting. Correction requires accessible evidence, a return cycle, retained
+counterexamples and a willingness to change the boundary or mechanism.
+
+Use the existing `DecisionDescription` and `ConsequentialInput` records with
+`Investigation` in `dominant_circuit.core.investigation`. The library validates state and
+dependencies without conducting conversation or collecting evidence. Keep the returned
+investigation as the current state after each operation. Detailed history is available
+for inspection; it is not a questionnaire the user must complete.
+
+Read [the investigation API and limits](../docs/STAGE0.md) when implementing an adapter.
+Run [the support-queue and simple-comparison example](../examples/stage0_investigation.py)
+for an executable evidence-return cycle.
+
+## Choose only the analyses the question needs
+
+A static comparison with adequate facts and scoped preferences can go directly to the
+appropriate solver. Do not invent stocks, flows, equilibrium labels or rival theories.
+For an uncertain mechanism, propose a concrete boundary and record what it includes,
+treats as external, and cannot represent. One compact omission statement may suffice.
+
+These resources are available methods, not a mandatory Meadows → Pearl → Page sequence:
+
+- [Meadows: systems and boundaries](references/reference-meadows-thinking-in-systems.md)
+  can help describe stocks, flows, feedback and omissions when dynamics matter.
+- [Pearl: causal questions](references/reference-pearl-book-of-why.md) can help clarify
+  intervention targets, graphs and observables when an intervention effect is the question.
+- [Page: models and dynamic behavior](references/reference-page-model-thinker.md) can
+  help compare model classes and identify an appropriate dynamic analysis.
+- [Frankfurt: reflective preferences](references/reference-frankfurt-freedom-of-the-will.md)
+  is optional when the user wants to discuss standing commitments. It is not a prerequisite
+  for a decision-specific preference or useful assistance.
+
+Record applicability as relevant, inapplicable or unresolved, with a reason. Naming a
+framework is not an analytical result. Identification needs a target, graph/model and
+observable set; formal stability needs a specified dynamic model and a suitable method.
+This library verifies neither. Qualitative discussion remains useful; external claims
+are recorded as `external_unverified`, with their source and limitations.
+
+## Make an observation plan feasible
+
+Distinguish competing explanations, complementary mechanisms, alternative boundaries
+and relationships still unresolved. Capacity limits and recurring product defects may
+coexist. Do not force a winner among explanations without evidence of exclusivity.
+
+Before calling an observation discriminating, name the accounts or assumptions it
+addresses and meaningful possible findings with their implications. Always include an
+inconclusive outcome and a useful next step. Exploratory and descriptive observations
+are legitimate, but do not license a claim of falsification.
+
+Record the available source, access, collection owner if known, effort/delay if known,
+and effects collection might have on the activity. Prefer manageable, useful steps;
+do not fabricate probabilities or information-value scores. Where consequential,
+look outside the favored account's usual measurements. If that evidence is inaccessible,
+say so and offer an available descriptive step or a reasoned pause.
+
+A plan is a suggestion. `ready_to_observe` is readiness for an investigation step, not
+readiness to execute a recommendation. Record an attributed authorization event before
+marking collection as awaiting observation. The library does not grant authority to
+contact people, inspect restricted records, change workflows or run interventions.
+
+## Require evidence to return
+
+A user asking what might happen has not reported a result. Keep possible findings in the
+plan. Add an `Observation` only for an actual report, measurement or source event, with
+context, missingness, selection limitations and the original episode reference when useful.
+Preserve episodes that the current account cannot explain; users need not edit a graph.
+
+On return, compare the finding with the earlier plan and anticipated implications.
+Record what is supported within limits, weakened, unchanged or not assessed. Missing
+observations are not negative findings. Absence of contradiction is not confirmation.
+Inconclusive evidence may leave the account unresolved and still yield a useful next step.
+
+Classify a change as an input, mechanism, boundary or goal revision, measurement
+correction, or unresolved evidence. Several classifications can apply. Review a changed
+measurement definition before retaining the earlier causal story. A changed goal does
+not falsify a causal model, and empirical evidence does not silently change preferences.
+Use explicit account and goal revisions, retaining their predecessors and trigger events.
+
+Offer natural correction paths: a counterexample, omitted factor, disputed interpretation,
+a different goal, or uncertainty. Preserve participant attribution and disagreement.
+A manager's preferred account does not erase a frontline report. Unknown access, ownership
+and authority remain unknown. Never infer consensus across participants or ask repeatedly
+for blanket agreement when scoped adoption is already clear.
+
+## Finish a useful turn, pause or hand off
+
+Finish the turn once a justified, feasible next observation or bounded comparison is
+identified. Do not keep reframing without new evidence or a consequential unresolved
+distinction. After review, explain what changed, why, what remains unresolved, and next.
+Pause when access is unavailable, effort is disproportionate or the user chooses to defer;
+record the reason and a reopening trigger without claiming the matter is settled.
+
+Use an investigation handoff for solver work that depends on the account. It carries the
+exact goal/model revisions, provenance, prerequisite checks and return conditions. Use
+`dispatch(..., investigation=current_state)` on its bound contract and retain reports via
+`record_report`/`get_report`. Pending evidence and changed dependencies invalidate old
+handoffs and recommendations. On reopening, use the latest persisted investigation and
+revalidate; do not reuse a detached old snapshot as the current decision state.
+
+## Preserve the six user-facing fields
+
+Use `investigation.render_fields()` or `to_markdown()` as the current view. For a short
+next-step request, lead with the concrete action and condense each field to a clause or
+sentence, retaining consequential evidence and access limits. Do not repeat unchanged
+boundaries or formal-analysis boilerplate at length. Full state stays inspectable behind
+the six fields. None of these fields is proof that an account is true.
+
+1. **Starting model:** the proposed account, boundary, mechanisms and scoped assessment;
+   for a simple comparison, the already stated decision may suffice.
+2. **Observation instruction:** the useful next observation, source and access limits,
+   or an explicit pause or direct-comparison route. Do not render unavailable collection
+   as an executable instruction.
+3. **Commitments:** working assumptions, scoped adoption and attributed participant goals.
+   Keep contested goals visible; no conceptual quiz or identity commitment is required.
+4. **Prohibitions/limits:** questions the model cannot answer, unresolved measurements,
+   unsupported formal claims and practical access limits. A model's inability to answer
+   a question does not mean the user is forbidden to ask it; consider changing the boundary.
+5. **Overturn conditions:** possible findings and their anticipated implications, including
+   inconclusive outcomes and reasons to reopen.
+6. **Rival models:** competing, complementary, alternative-boundary or unresolved accounts
+   when useful. An additional account is not required merely to fill a quota.
+
+Old six-field outputs are historical snapshots with unknown investigation history. Use
+`migrate_stage0_snapshot`; never infer that their suggested observations were obtained.

@@ -1,0 +1,3323 @@
+{
+  "$type": "Investigation",
+  "fields": {
+    "investigation_id": "support-queue",
+    "records": {
+      "$sequence": "tuple",
+      "items": [
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "goal",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "purpose",
+                "value": {
+                  "$type": "DecisionDescription",
+                  "fields": {
+                    "decision_id": "support-queue",
+                    "question": "Where should we look to understand a reported support slowdown after hiring three people?",
+                    "revision": 1,
+                    "problem_types": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "options": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "actions": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "information_types": {
+                      "$map": []
+                    },
+                    "objectives": {
+                      "$sequence": "list",
+                      "items": [
+                        "Understand the reported slowdown and choose a feasible next observation"
+                      ]
+                    },
+                    "temporal_structure": {
+                      "$map": []
+                    },
+                    "uncertainties": {
+                      "$sequence": "list",
+                      "items": [
+                        "Slower could mean first reply, handling, closure, or durable resolution",
+                        "Before/after timing does not establish a hiring effect"
+                      ]
+                    },
+                    "constraints": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "unresolved_interpretations": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "inputs": {
+                      "$map": []
+                    },
+                    "translations": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "schema_version": 2
+                  }
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:1",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "DecisionDescription",
+              "fields": {
+                "decision_id": "support-queue",
+                "question": "Where should we look to understand a reported support slowdown after hiring three people?",
+                "revision": 1,
+                "problem_types": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "options": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "actions": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "information_types": {
+                  "$map": []
+                },
+                "objectives": {
+                  "$sequence": "list",
+                  "items": [
+                    "Understand the reported slowdown and choose a feasible next observation"
+                  ]
+                },
+                "temporal_structure": {
+                  "$map": []
+                },
+                "uncertainties": {
+                  "$sequence": "list",
+                  "items": [
+                    "Slower could mean first reply, handling, closure, or durable resolution",
+                    "Before/after timing does not establish a hiring effect"
+                  ]
+                },
+                "constraints": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "unresolved_interpretations": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "inputs": {
+                  "$map": []
+                },
+                "translations": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "position",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "user",
+                "value": {
+                  "$type": "ParticipantPosition",
+                  "fields": {
+                    "participant": "user",
+                    "goal": "Understand why support got slower",
+                    "agreement": "adopted",
+                    "proposed_account": null,
+                    "affected": null,
+                    "can_access": null,
+                    "can_authorize": null,
+                    "role": "support participant; exact role unknown"
+                  }
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:1",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ParticipantPosition",
+              "fields": {
+                "participant": "user",
+                "goal": "Understand why support got slower",
+                "agreement": "adopted",
+                "proposed_account": null,
+                "affected": null,
+                "can_access": null,
+                "can_authorize": null,
+                "role": "support participant; exact role unknown"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "capacity",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "Capacity and coordination",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "hiring",
+                        "training time",
+                        "handoffs",
+                        "time until a useful response"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "support staffing",
+                            "training",
+                            "handoffs"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "new demand",
+                            "unresolved product defects"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "definition of slower",
+                            "case mix",
+                            "repeat contacts"
+                          ]
+                        },
+                        "omission_check": "A staffing-only account could miss changes in demand or count closures as resolutions.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "user-reported hiring and slowdown"
+                          ]
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "Compare whether delayed episodes were first requests or repeats",
+                        "outside_access": "unknown"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "Training or coordination may temporarily consume experienced staff time"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unassessed",
+                    "assessment_scope": "",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-capacity",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "Capacity and coordination",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "hiring",
+                    "training time",
+                    "handoffs",
+                    "time until a useful response"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "support staffing",
+                        "training",
+                        "handoffs"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "new demand",
+                        "unresolved product defects"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "definition of slower",
+                        "case mix",
+                        "repeat contacts"
+                      ]
+                    },
+                    "omission_check": "A staffing-only account could miss changes in demand or count closures as resolutions.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "user-reported hiring and slowdown"
+                      ]
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "Compare whether delayed episodes were first requests or repeats",
+                    "outside_access": "unknown"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Training or coordination may temporarily consume experienced staff time"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unassessed",
+                "assessment_scope": "",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "demand",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "Demand and case mix",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "new requests",
+                        "repeat requests",
+                        "case complexity"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "incoming support work",
+                            "case complexity"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "product repair process"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "repeat-contact causes",
+                            "volume change"
+                          ]
+                        },
+                        "omission_check": "Contacts and underlying problems may not be the same unit.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "Look for a repeated underlying issue in an available episode",
+                        "outside_access": "unknown"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "More requests, repeated requests, or harder cases may offset extra staff"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unassessed",
+                    "assessment_scope": "",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-demand",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "Demand and case mix",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "new requests",
+                    "repeat requests",
+                    "case complexity"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "incoming support work",
+                        "case complexity"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "product repair process"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "repeat-contact causes",
+                        "volume change"
+                      ]
+                    },
+                    "omission_check": "Contacts and underlying problems may not be the same unit.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "Look for a repeated underlying issue in an available episode",
+                    "outside_access": "unknown"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "More requests, repeated requests, or harder cases may offset extra staff"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unassessed",
+                "assessment_scope": "",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "relationship",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "capacity-demand",
+                "value": {
+                  "$type": "AccountRelationship",
+                  "fields": {
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@1"
+                      ]
+                    },
+                    "relationship": "complementary",
+                    "explanation": "Capacity pressure and demand changes can coexist; neither is established by timing alone"
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-relationship",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "AccountRelationship",
+              "fields": {
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "relationship": "complementary",
+                "explanation": "Capacity pressure and demand changes can coexist; neither is established by timing alone"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "account:capacity@1",
+                "account:demand@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "analysis",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "boundary-check",
+                "value": {
+                  "$type": "AnalyticalResult",
+                  "fields": {
+                    "target": "Meaning of the support slowdown",
+                    "method": "Qualitative comparison of capacity and demand boundaries",
+                    "applicability": "relevant",
+                    "result": "Separate processing constraints from incoming work and clarify the outcome being counted",
+                    "analysis_type": "structural",
+                    "reason": "The user describes changing work over time, so a limited systems boundary is useful",
+                    "status": "qualitative",
+                    "model_spec": null,
+                    "observable_set": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "limitations": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "No rates, formal dynamic model, intervention estimate, or causal identification available"
+                      ]
+                    },
+                    "assumptions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "external_certificate_ref": null
+                  }
+                },
+                "origin": "derived",
+                "evidence_ref": "synthetic:host:turn-1-analysis",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "goal:purpose@1",
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "AnalyticalResult",
+              "fields": {
+                "target": "Meaning of the support slowdown",
+                "method": "Qualitative comparison of capacity and demand boundaries",
+                "applicability": "relevant",
+                "result": "Separate processing constraints from incoming work and clarify the outcome being counted",
+                "analysis_type": "structural",
+                "reason": "The user describes changing work over time, so a limited systems boundary is useful",
+                "status": "qualitative",
+                "model_spec": null,
+                "observable_set": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "limitations": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "No rates, formal dynamic model, intervention estimate, or causal identification available"
+                  ]
+                },
+                "assumptions": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "external_certificate_ref": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "goal:purpose@1",
+                "account:capacity@1",
+                "account:demand@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "plan",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "ticket-comparison",
+                "value": {
+                  "$type": "ObservationPlan",
+                  "fields": {
+                    "question": "Compare delayed first-time requests with repeated issues around the hiring period",
+                    "kind": "exploratory",
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@1"
+                      ]
+                    },
+                    "assumptions": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "Comparable meanings of slower before and after hiring"
+                      ]
+                    },
+                    "source": "Ticket histories only if already accessible within the user's role",
+                    "method": "For a small existing sample, distinguish first response, closure and durable resolution; note handoffs and repeat reasons",
+                    "possible_findings": {
+                      "$sequence": "tuple",
+                      "items": [
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "coordination",
+                            "description": "Delays occur around training or handoffs",
+                            "implication": "Capacity/coordination deserves closer observation; demand remains possible"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "repeats",
+                            "description": "The same underlying issue returns",
+                            "implication": "Expand the boundary to recurrence causes; do not infer how prevalent it is"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "both",
+                            "description": "Both patterns appear",
+                            "implication": "Keep complementary mechanisms; relative contributions remain unknown"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "inconclusive",
+                            "description": "No accessible comparable episodes or no clear pattern",
+                            "implication": "Use one voluntarily recalled episode to clarify the unit; pause any inaccessible comparison"
+                          }
+                        }
+                      ]
+                    },
+                    "access": "unknown",
+                    "owner": null,
+                    "effort": "A few already accessible episodes",
+                    "delay": null,
+                    "collection_effects": "Retrospective reading should not change workflow; selection may favor memorable cases",
+                    "omission_challenge": "Look beyond closures and handling time to whether the underlying issue returned",
+                    "effort_assessment": "manageable",
+                    "authorization_event": null,
+                    "authorizer": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-1-plan",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "goal:purpose@1",
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ObservationPlan",
+              "fields": {
+                "question": "Compare delayed first-time requests with repeated issues around the hiring period",
+                "kind": "exploratory",
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@1"
+                  ]
+                },
+                "assumptions": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Comparable meanings of slower before and after hiring"
+                  ]
+                },
+                "source": "Ticket histories only if already accessible within the user's role",
+                "method": "For a small existing sample, distinguish first response, closure and durable resolution; note handoffs and repeat reasons",
+                "possible_findings": {
+                  "$sequence": "tuple",
+                  "items": [
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "coordination",
+                        "description": "Delays occur around training or handoffs",
+                        "implication": "Capacity/coordination deserves closer observation; demand remains possible"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "repeats",
+                        "description": "The same underlying issue returns",
+                        "implication": "Expand the boundary to recurrence causes; do not infer how prevalent it is"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "both",
+                        "description": "Both patterns appear",
+                        "implication": "Keep complementary mechanisms; relative contributions remain unknown"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "inconclusive",
+                        "description": "No accessible comparable episodes or no clear pattern",
+                        "implication": "Use one voluntarily recalled episode to clarify the unit; pause any inaccessible comparison"
+                      }
+                    }
+                  ]
+                },
+                "access": "unknown",
+                "owner": null,
+                "effort": "A few already accessible episodes",
+                "delay": null,
+                "collection_effects": "Retrospective reading should not change workflow; selection may favor memorable cases",
+                "omission_challenge": "Look beyond closures and handling time to whether the underlying issue returned",
+                "effort_assessment": "manageable",
+                "authorization_event": null,
+                "authorizer": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "goal:purpose@1",
+                "account:capacity@1",
+                "account:demand@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "workflow",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "7",
+                "value": {
+                  "$map": [
+                    [
+                      "state",
+                      "closed_for_current_purpose"
+                    ],
+                    [
+                      "reason",
+                      "A bounded comparison is identified, with access unresolved and a recollection fallback"
+                    ]
+                  ]
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:host:turn-1-stop",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "state",
+                  "closed_for_current_purpose"
+                ],
+                [
+                  "reason",
+                  "A bounded comparison is identified, with access unresolved and a recollection fallback"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "workflow",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "8",
+                "value": {
+                  "$map": [
+                    [
+                      "state",
+                      "reopened"
+                    ]
+                  ]
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:2",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "state",
+                  "reopened"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "obs",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "colleagues",
+                "value": "User reports two colleagues say people repeatedly contact support about bugs that never get fixed",
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:colleagues",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "Observation",
+              "fields": {
+                "finding": {
+                  "$type": "ConsequentialInput",
+                  "fields": {
+                    "input_id": "colleagues",
+                    "value": "User reports two colleagues say people repeatedly contact support about bugs that never get fixed",
+                    "origin": "user_report",
+                    "evidence_ref": "synthetic:user-turn:colleagues",
+                    "acceptance": "unresolved",
+                    "scope": "support-queue",
+                    "revision": 1,
+                    "uncertainty": null,
+                    "dependencies": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "adoption_event": null,
+                    "timestamp": null,
+                    "alternatives": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "schema_version": 2
+                  }
+                },
+                "context": "Unplanned secondhand report; colleagues, time period, and underlying episodes are unspecified",
+                "missingness": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Ticket-level logs are unavailable to the user",
+                    "No counts, denominator, timestamps, or independently verified repair status"
+                  ]
+                },
+                "selection_limits": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Two consulted colleagues are a selected source",
+                    "The same underlying experience may be shared by both colleagues"
+                  ]
+                },
+                "raw_episode_ref": "synthetic:episode:colleagues",
+                "plan_ref": null,
+                "reported_by": "user relaying two colleagues",
+                "obtained": true
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "demand",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "Demand and case mix",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "new requests",
+                        "repeat requests",
+                        "case complexity"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "incoming support work",
+                            "case complexity"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "product repair process"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "repeat-contact causes",
+                            "volume change"
+                          ]
+                        },
+                        "omission_check": "Contacts and underlying problems may not be the same unit.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "Look for a repeated underlying issue in an available episode",
+                        "outside_access": "unknown"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "More requests, repeated requests, or harder cases may offset extra staff"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unresolved",
+                    "assessment_scope": "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "obs:colleagues@1"
+                      ]
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "derived",
+                "evidence_ref": "synthetic:host:turn-2-review",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 2,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "obs:colleagues@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "Demand and case mix",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "new requests",
+                    "repeat requests",
+                    "case complexity"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "incoming support work",
+                        "case complexity"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "product repair process"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "repeat-contact causes",
+                        "volume change"
+                      ]
+                    },
+                    "omission_check": "Contacts and underlying problems may not be the same unit.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "Look for a repeated underlying issue in an available episode",
+                    "outside_access": "unknown"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "More requests, repeated requests, or harder cases may offset extra staff"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unresolved",
+                "assessment_scope": "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "obs:colleagues@1"
+                  ]
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "obs:colleagues@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "review",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "colleagues",
+                "value": {
+                  "$map": [
+                    [
+                      "observation_ref",
+                      "obs:colleagues@1"
+                    ],
+                    [
+                      "plan_ref",
+                      null
+                    ],
+                    [
+                      "finding_id",
+                      "inconclusive"
+                    ],
+                    [
+                      "anticipated_implication",
+                      "Retain the episode and clarify a possible mismatch"
+                    ],
+                    [
+                      "assessments",
+                      {
+                        "$map": [
+                          [
+                            "capacity",
+                            "unchanged"
+                          ],
+                          [
+                            "demand",
+                            "unresolved"
+                          ]
+                        ]
+                      }
+                    ],
+                    [
+                      "reason",
+                      "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison"
+                    ]
+                  ]
+                },
+                "origin": "derived",
+                "evidence_ref": "synthetic:host:turn-2-review",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "obs:colleagues@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "observation_ref",
+                  "obs:colleagues@1"
+                ],
+                [
+                  "plan_ref",
+                  null
+                ],
+                [
+                  "finding_id",
+                  "inconclusive"
+                ],
+                [
+                  "anticipated_implication",
+                  "Retain the episode and clarify a possible mismatch"
+                ],
+                [
+                  "assessments",
+                  {
+                    "$map": [
+                      [
+                        "capacity",
+                        "unchanged"
+                      ],
+                      [
+                        "demand",
+                        "unresolved"
+                      ]
+                    ]
+                  }
+                ],
+                [
+                  "reason",
+                  "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "obs:colleagues@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "position",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "user",
+                "value": {
+                  "$type": "ParticipantPosition",
+                  "fields": {
+                    "participant": "user",
+                    "goal": "Understand why support got slower",
+                    "agreement": "adopted",
+                    "proposed_account": null,
+                    "affected": null,
+                    "can_access": false,
+                    "can_authorize": null,
+                    "role": "Cannot access ticket-level logs; other access unknown"
+                  }
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:2-access",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 2,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ParticipantPosition",
+              "fields": {
+                "participant": "user",
+                "goal": "Understand why support got slower",
+                "agreement": "adopted",
+                "proposed_account": null,
+                "affected": null,
+                "can_access": false,
+                "can_authorize": null,
+                "role": "Cannot access ticket-level logs; other access unknown"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "position",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "manager",
+                "value": {
+                  "$type": "ParticipantPosition",
+                  "fields": {
+                    "participant": "manager (as reported by user)",
+                    "goal": "Focus only on closing more tickets",
+                    "agreement": "unresolved",
+                    "proposed_account": null,
+                    "affected": null,
+                    "can_access": null,
+                    "can_authorize": null,
+                    "role": "Manager; authority scope unknown"
+                  }
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:2-manager-goal",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ParticipantPosition",
+              "fields": {
+                "participant": "manager (as reported by user)",
+                "goal": "Focus only on closing more tickets",
+                "agreement": "unresolved",
+                "proposed_account": null,
+                "affected": null,
+                "can_access": null,
+                "can_authorize": null,
+                "role": "Manager; authority scope unknown"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "plan",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "ticket-comparison",
+                "value": {
+                  "$type": "ObservationPlan",
+                  "fields": {
+                    "question": "Compare delayed first-time requests with repeated issues around the hiring period",
+                    "kind": "exploratory",
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@2"
+                      ]
+                    },
+                    "assumptions": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "Comparable meanings of slower before and after hiring"
+                      ]
+                    },
+                    "source": "Ticket histories only if already accessible within the user's role",
+                    "method": "For a small existing sample, distinguish first response, closure and durable resolution; note handoffs and repeat reasons",
+                    "possible_findings": {
+                      "$sequence": "tuple",
+                      "items": [
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "coordination",
+                            "description": "Delays occur around training or handoffs",
+                            "implication": "Capacity/coordination deserves closer observation; demand remains possible"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "repeats",
+                            "description": "The same underlying issue returns",
+                            "implication": "Expand the boundary to recurrence causes; do not infer how prevalent it is"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "both",
+                            "description": "Both patterns appear",
+                            "implication": "Keep complementary mechanisms; relative contributions remain unknown"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "inconclusive",
+                            "description": "No accessible comparable episodes or no clear pattern",
+                            "implication": "Use one voluntarily recalled episode to clarify the unit; pause any inaccessible comparison"
+                          }
+                        }
+                      ]
+                    },
+                    "access": "unavailable",
+                    "owner": null,
+                    "effort": "A few already accessible episodes",
+                    "delay": null,
+                    "collection_effects": "Retrospective reading should not change workflow; selection may favor memorable cases",
+                    "omission_challenge": "Look beyond closures and handling time to whether the underlying issue returned",
+                    "effort_assessment": "manageable",
+                    "authorization_event": null,
+                    "authorizer": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:user-turn:2-no-log-access",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 2,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "goal:purpose@1",
+                    "account:capacity@1",
+                    "account:demand@2"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ObservationPlan",
+              "fields": {
+                "question": "Compare delayed first-time requests with repeated issues around the hiring period",
+                "kind": "exploratory",
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@2"
+                  ]
+                },
+                "assumptions": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Comparable meanings of slower before and after hiring"
+                  ]
+                },
+                "source": "Ticket histories only if already accessible within the user's role",
+                "method": "For a small existing sample, distinguish first response, closure and durable resolution; note handoffs and repeat reasons",
+                "possible_findings": {
+                  "$sequence": "tuple",
+                  "items": [
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "coordination",
+                        "description": "Delays occur around training or handoffs",
+                        "implication": "Capacity/coordination deserves closer observation; demand remains possible"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "repeats",
+                        "description": "The same underlying issue returns",
+                        "implication": "Expand the boundary to recurrence causes; do not infer how prevalent it is"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "both",
+                        "description": "Both patterns appear",
+                        "implication": "Keep complementary mechanisms; relative contributions remain unknown"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "inconclusive",
+                        "description": "No accessible comparable episodes or no clear pattern",
+                        "implication": "Use one voluntarily recalled episode to clarify the unit; pause any inaccessible comparison"
+                      }
+                    }
+                  ]
+                },
+                "access": "unavailable",
+                "owner": null,
+                "effort": "A few already accessible episodes",
+                "delay": null,
+                "collection_effects": "Retrospective reading should not change workflow; selection may favor memorable cases",
+                "omission_challenge": "Look beyond closures and handling time to whether the underlying issue returned",
+                "effort_assessment": "manageable",
+                "authorization_event": null,
+                "authorizer": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "goal:purpose@1",
+                "account:capacity@1",
+                "account:demand@2"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "demand",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "Recurring unresolved issues",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "new requests",
+                        "repeat requests",
+                        "case complexity"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "support contacts",
+                            "underlying product issues",
+                            "reported persistence of bugs"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "product repair ownership and priorities"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "actual repair status",
+                            "recurrence prevalence",
+                            "time consumed by returns"
+                          ]
+                        },
+                        "omission_check": "Colleague reports may concentrate on frustrating cases; user-level recurrence and queue-wide rates remain distinct.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "secondhand report from two colleagues"
+                          ]
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "An existing recalled episode can show what the person needed after a closure",
+                        "outside_access": "available"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "An unresolved issue may bring the same person back for further support work"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unassessed",
+                    "assessment_scope": "",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "obs:colleagues@1"
+                      ]
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "obs:colleagues@1",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 3,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "obs:colleagues@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "Recurring unresolved issues",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "new requests",
+                    "repeat requests",
+                    "case complexity"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "support contacts",
+                        "underlying product issues",
+                        "reported persistence of bugs"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "product repair ownership and priorities"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "actual repair status",
+                        "recurrence prevalence",
+                        "time consumed by returns"
+                      ]
+                    },
+                    "omission_check": "Colleague reports may concentrate on frustrating cases; user-level recurrence and queue-wide rates remain distinct.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "secondhand report from two colleagues"
+                      ]
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "An existing recalled episode can show what the person needed after a closure",
+                    "outside_access": "available"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "An unresolved issue may bring the same person back for further support work"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unassessed",
+                "assessment_scope": "",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "obs:colleagues@1"
+                  ]
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "obs:colleagues@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "relationship",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "capacity-demand",
+                "value": {
+                  "$type": "AccountRelationship",
+                  "fields": {
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@3"
+                      ]
+                    },
+                    "relationship": "complementary",
+                    "explanation": "Repeat work may coexist with training and handoff costs; the reports do not settle either contribution"
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-2-relationship",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 2,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@3"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "AccountRelationship",
+              "fields": {
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@3"
+                  ]
+                },
+                "relationship": "complementary",
+                "explanation": "Repeat work may coexist with training and handoff costs; the reports do not settle either contribution"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "account:capacity@1",
+                "account:demand@3"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "plan",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "recalled-episode",
+                "value": {
+                  "$type": "ObservationPlan",
+                  "fields": {
+                    "question": "Describe one already remembered repeat-contact episode and distinguish the contact from the underlying issue",
+                    "kind": "descriptive",
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@3"
+                      ]
+                    },
+                    "assumptions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "source": "User's voluntary recollection, without consulting records or contacting anyone",
+                    "method": "Write a short sequence: request, response or closure, and reason for returning; mark unknown details",
+                    "possible_findings": {
+                      "$sequence": "tuple",
+                      "items": [
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "return",
+                            "description": "A person returns about the same underlying issue",
+                            "implication": "Preserve the episode; separate contact/reopen events from distinct problems before interpreting closure totals"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "new-issue",
+                            "description": "The return concerns a genuinely different issue",
+                            "implication": "Do not count this episode as recurrence of one unresolved issue"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "inconclusive",
+                            "description": "The reason or sequence cannot be recalled",
+                            "implication": "Keep the cause unresolved and pause until an accessible concrete episode is offered"
+                          }
+                        }
+                      ]
+                    },
+                    "access": "available",
+                    "owner": "user if they choose to describe a memory",
+                    "effort": "One short recollection",
+                    "delay": "Now if recalled",
+                    "collection_effects": "Recall may omit steps and favor unusual cases; no workflow change",
+                    "omission_challenge": "Include what remained unresolved rather than only whether a ticket was closed",
+                    "effort_assessment": "manageable",
+                    "authorization_event": null,
+                    "authorizer": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-2-plan",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "goal:purpose@1",
+                    "account:capacity@1",
+                    "account:demand@3"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ObservationPlan",
+              "fields": {
+                "question": "Describe one already remembered repeat-contact episode and distinguish the contact from the underlying issue",
+                "kind": "descriptive",
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@3"
+                  ]
+                },
+                "assumptions": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "source": "User's voluntary recollection, without consulting records or contacting anyone",
+                "method": "Write a short sequence: request, response or closure, and reason for returning; mark unknown details",
+                "possible_findings": {
+                  "$sequence": "tuple",
+                  "items": [
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "return",
+                        "description": "A person returns about the same underlying issue",
+                        "implication": "Preserve the episode; separate contact/reopen events from distinct problems before interpreting closure totals"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "new-issue",
+                        "description": "The return concerns a genuinely different issue",
+                        "implication": "Do not count this episode as recurrence of one unresolved issue"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "inconclusive",
+                        "description": "The reason or sequence cannot be recalled",
+                        "implication": "Keep the cause unresolved and pause until an accessible concrete episode is offered"
+                      }
+                    }
+                  ]
+                },
+                "access": "available",
+                "owner": "user if they choose to describe a memory",
+                "effort": "One short recollection",
+                "delay": "Now if recalled",
+                "collection_effects": "Recall may omit steps and favor unusual cases; no workflow change",
+                "omission_challenge": "Include what remained unresolved rather than only whether a ticket was closed",
+                "effort_assessment": "manageable",
+                "authorization_event": null,
+                "authorizer": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "goal:purpose@1",
+                "account:capacity@1",
+                "account:demand@3"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "workflow",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "18",
+                "value": {
+                  "$map": [
+                    [
+                      "state",
+                      "closed_for_current_purpose"
+                    ],
+                    [
+                      "reason",
+                      "An accessible descriptive next step avoids relying on unavailable logs"
+                    ]
+                  ]
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:host:turn-2-stop",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "state",
+                  "closed_for_current_purpose"
+                ],
+                [
+                  "reason",
+                  "An accessible descriptive next step avoids relying on unavailable logs"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "workflow",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "19",
+                "value": {
+                  "$map": [
+                    [
+                      "state",
+                      "reopened"
+                    ]
+                  ]
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:3",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "state",
+                  "reopened"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "correction",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "diagram-fit",
+                "value": {
+                  "$map": [
+                    [
+                      "kind",
+                      "disputed_interpretation"
+                    ],
+                    [
+                      "text",
+                      "I am not sure your diagram fits. Yesterday one person reopened the same issue five times."
+                    ],
+                    [
+                      "participant",
+                      "user"
+                    ]
+                  ]
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:3-fit",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "kind",
+                  "disputed_interpretation"
+                ],
+                [
+                  "text",
+                  "I am not sure your diagram fits. Yesterday one person reopened the same issue five times."
+                ],
+                [
+                  "participant",
+                  "user"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "obs",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "five-reopens",
+                "value": "Yesterday one person reopened the same issue five times",
+                "origin": "user_report",
+                "evidence_ref": "synthetic:user-turn:five-reopens",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "Observation",
+              "fields": {
+                "finding": {
+                  "$type": "ConsequentialInput",
+                  "fields": {
+                    "input_id": "five-reopens",
+                    "value": "Yesterday one person reopened the same issue five times",
+                    "origin": "user_report",
+                    "evidence_ref": "synthetic:user-turn:five-reopens",
+                    "acceptance": "unresolved",
+                    "scope": "support-queue",
+                    "revision": 1,
+                    "uncertainty": null,
+                    "dependencies": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "adoption_event": null,
+                    "timestamp": null,
+                    "alternatives": {
+                      "$sequence": "list",
+                      "items": []
+                    },
+                    "schema_version": 2
+                  }
+                },
+                "context": "One user-reported episode from yesterday in the synthetic scenario; who reopened and why are unspecified",
+                "missingness": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "Who the person is and whether they are a customer or staff member are unspecified",
+                    "The five reopen reasons, repair status, time spent, and queue-wide frequency are unknown"
+                  ]
+                },
+                "selection_limits": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "A single memorable episode cannot establish queue-wide prevalence or hiring effects"
+                  ]
+                },
+                "raw_episode_ref": "synthetic:episode:five-reopens",
+                "plan_ref": "plan:recalled-episode@1",
+                "reported_by": "user",
+                "obtained": true
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "demand",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "Recurring unresolved issues",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "new requests",
+                        "repeat requests",
+                        "case complexity"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "support contacts",
+                            "underlying product issues",
+                            "reported persistence of bugs"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "product repair ownership and priorities"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "actual repair status",
+                            "recurrence prevalence",
+                            "time consumed by returns"
+                          ]
+                        },
+                        "omission_check": "Colleague reports may concentrate on frustrating cases; user-level recurrence and queue-wide rates remain distinct.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "secondhand report from two colleagues"
+                          ]
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "An existing recalled episode can show what the person needed after a closure",
+                        "outside_access": "available"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "An unresolved issue may bring the same person back for further support work"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unresolved",
+                    "assessment_scope": "The episode fits the descriptive return outcome and separates five reopening events from one reported issue; it does not establish that the bug remained unfixed or explain the queue slowdown",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "obs:colleagues@1",
+                        "obs:five-reopens@1"
+                      ]
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "derived",
+                "evidence_ref": "synthetic:host:turn-3-review",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 4,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "obs:five-reopens@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "Recurring unresolved issues",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "new requests",
+                    "repeat requests",
+                    "case complexity"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "support contacts",
+                        "underlying product issues",
+                        "reported persistence of bugs"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "product repair ownership and priorities"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "actual repair status",
+                        "recurrence prevalence",
+                        "time consumed by returns"
+                      ]
+                    },
+                    "omission_check": "Colleague reports may concentrate on frustrating cases; user-level recurrence and queue-wide rates remain distinct.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "secondhand report from two colleagues"
+                      ]
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "An existing recalled episode can show what the person needed after a closure",
+                    "outside_access": "available"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "An unresolved issue may bring the same person back for further support work"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unresolved",
+                "assessment_scope": "The episode fits the descriptive return outcome and separates five reopening events from one reported issue; it does not establish that the bug remained unfixed or explain the queue slowdown",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "obs:colleagues@1",
+                    "obs:five-reopens@1"
+                  ]
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "obs:five-reopens@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "review",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "five-reopens",
+                "value": {
+                  "$map": [
+                    [
+                      "observation_ref",
+                      "obs:five-reopens@1"
+                    ],
+                    [
+                      "plan_ref",
+                      "plan:recalled-episode@1"
+                    ],
+                    [
+                      "finding_id",
+                      "return"
+                    ],
+                    [
+                      "anticipated_implication",
+                      "Preserve the episode; separate contact/reopen events from distinct problems before interpreting closure totals"
+                    ],
+                    [
+                      "assessments",
+                      {
+                        "$map": [
+                          [
+                            "capacity",
+                            "not_assessed"
+                          ],
+                          [
+                            "demand",
+                            "unresolved"
+                          ]
+                        ]
+                      }
+                    ],
+                    [
+                      "reason",
+                      "The episode fits the descriptive return outcome and separates five reopening events from one reported issue; it does not establish that the bug remained unfixed or explain the queue slowdown"
+                    ]
+                  ]
+                },
+                "origin": "derived",
+                "evidence_ref": "synthetic:host:turn-3-review",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "obs:five-reopens@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "observation_ref",
+                  "obs:five-reopens@1"
+                ],
+                [
+                  "plan_ref",
+                  "plan:recalled-episode@1"
+                ],
+                [
+                  "finding_id",
+                  "return"
+                ],
+                [
+                  "anticipated_implication",
+                  "Preserve the episode; separate contact/reopen events from distinct problems before interpreting closure totals"
+                ],
+                [
+                  "assessments",
+                  {
+                    "$map": [
+                      [
+                        "capacity",
+                        "not_assessed"
+                      ],
+                      [
+                        "demand",
+                        "unresolved"
+                      ]
+                    ]
+                  }
+                ],
+                [
+                  "reason",
+                  "The episode fits the descriptive return outcome and separates five reopening events from one reported issue; it does not establish that the bug remained unfixed or explain the queue slowdown"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "obs:five-reopens@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "correction_review",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "diagram-fit",
+                "value": {
+                  "$map": [
+                    [
+                      "correction_ref",
+                      "correction:diagram-fit@1"
+                    ],
+                    [
+                      "reason",
+                      "Use the concrete sequence instead of requiring the user to adopt a diagram. Five reopenings are not five distinct issues; their cause remains unknown."
+                    ]
+                  ]
+                },
+                "origin": "derived",
+                "evidence_ref": "synthetic:host:turn-3-ack",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "correction:diagram-fit@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "correction_ref",
+                  "correction:diagram-fit@1"
+                ],
+                [
+                  "reason",
+                  "Use the concrete sequence instead of requiring the user to adopt a diagram. Five reopenings are not five distinct issues; their cause remains unknown."
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "correction:diagram-fit@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "account",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "demand",
+                "value": {
+                  "$type": "WorkingAccount",
+                  "fields": {
+                    "name": "One issue, potentially repeated support work",
+                    "variables": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "distinct underlying issues",
+                        "reopening events",
+                        "reason for reopening",
+                        "unresolved need"
+                      ]
+                    },
+                    "boundary": {
+                      "$type": "Boundary",
+                      "fields": {
+                        "included": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "underlying issue",
+                            "reopening events",
+                            "support responses"
+                          ]
+                        },
+                        "external": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "product repair process"
+                          ]
+                        },
+                        "unknown_or_omitted": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "reopen reasons",
+                            "identity or role of reopener",
+                            "whether closure counted as resolution",
+                            "representativeness"
+                          ]
+                        },
+                        "omission_check": "One issue can generate several events, and an event does not establish a new issue or a confirmed unresolved defect.",
+                        "visible_observations": {
+                          "$sequence": "tuple",
+                          "items": [
+                            "one person reportedly reopened the same issue five times yesterday"
+                          ]
+                        },
+                        "possible_interventions": {
+                          "$sequence": "tuple",
+                          "items": []
+                        },
+                        "outside_observation": "Recall what changed, or remained unmet, between reopening events",
+                        "outside_access": "available"
+                      }
+                    },
+                    "mechanisms": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "A still-unmet need may produce repeated events; administrative reopening or another cause remains possible"
+                      ]
+                    },
+                    "proposed_by": "host",
+                    "assessment": "unassessed",
+                    "assessment_scope": "",
+                    "evidence_refs": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "obs:colleagues@1",
+                        "obs:five-reopens@1"
+                      ]
+                    },
+                    "working_use_event": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "correction:diagram-fit@1",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 5,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "correction:diagram-fit@1"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "WorkingAccount",
+              "fields": {
+                "name": "One issue, potentially repeated support work",
+                "variables": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "distinct underlying issues",
+                    "reopening events",
+                    "reason for reopening",
+                    "unresolved need"
+                  ]
+                },
+                "boundary": {
+                  "$type": "Boundary",
+                  "fields": {
+                    "included": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "underlying issue",
+                        "reopening events",
+                        "support responses"
+                      ]
+                    },
+                    "external": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "product repair process"
+                      ]
+                    },
+                    "unknown_or_omitted": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "reopen reasons",
+                        "identity or role of reopener",
+                        "whether closure counted as resolution",
+                        "representativeness"
+                      ]
+                    },
+                    "omission_check": "One issue can generate several events, and an event does not establish a new issue or a confirmed unresolved defect.",
+                    "visible_observations": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "one person reportedly reopened the same issue five times yesterday"
+                      ]
+                    },
+                    "possible_interventions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "outside_observation": "Recall what changed, or remained unmet, between reopening events",
+                    "outside_access": "available"
+                  }
+                },
+                "mechanisms": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "A still-unmet need may produce repeated events; administrative reopening or another cause remains possible"
+                  ]
+                },
+                "proposed_by": "host",
+                "assessment": "unassessed",
+                "assessment_scope": "",
+                "evidence_refs": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "obs:colleagues@1",
+                    "obs:five-reopens@1"
+                  ]
+                },
+                "working_use_event": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "correction:diagram-fit@1"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "relationship",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "capacity-demand",
+                "value": {
+                  "$type": "AccountRelationship",
+                  "fields": {
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@5"
+                      ]
+                    },
+                    "relationship": "unresolved",
+                    "explanation": "Repeated events and capacity costs may coexist, but the single episode does not tell us why events occurred or how much work they created"
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-3-relationship",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 3,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@5"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "AccountRelationship",
+              "fields": {
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@5"
+                  ]
+                },
+                "relationship": "unresolved",
+                "explanation": "Repeated events and capacity costs may coexist, but the single episode does not tell us why events occurred or how much work they created"
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "account:capacity@1",
+                "account:demand@5"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "plan",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "episode-sequence",
+                "value": {
+                  "$type": "ObservationPlan",
+                  "fields": {
+                    "question": "Write the remembered sequence for yesterday\u2019s one issue, keeping unknown reopen reasons explicit",
+                    "kind": "descriptive",
+                    "accounts": {
+                      "$sequence": "tuple",
+                      "items": [
+                        "account:capacity@1",
+                        "account:demand@5"
+                      ]
+                    },
+                    "assumptions": {
+                      "$sequence": "tuple",
+                      "items": []
+                    },
+                    "source": "User's voluntary recollection, without consulting records or contacting anyone",
+                    "method": "Create one row per remembered reopening: what preceded it and what remained unmet. Keep one underlying issue distinct from five reported events; leave unknown rows blank",
+                    "possible_findings": {
+                      "$sequence": "tuple",
+                      "items": [
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "unmet",
+                            "description": "The same need remained unmet across reopenings",
+                            "implication": "Keep unresolved-need recurrence plausible for this episode; broader impact stays unknown"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "administrative",
+                            "description": "Reopens were administrative or the underlying need changed",
+                            "implication": "Revise the episode explanation; do not infer persistent defects from reopen counts"
+                          }
+                        },
+                        {
+                          "$type": "PossibleFinding",
+                          "fields": {
+                            "finding_id": "inconclusive",
+                            "description": "Reasons cannot be recalled",
+                            "implication": "Stop here and retain the episode; reopen the investigation if an accessible explanation becomes available"
+                          }
+                        }
+                      ]
+                    },
+                    "access": "available",
+                    "owner": "user if they choose to describe a memory",
+                    "effort": "A two-minute private note from memory",
+                    "delay": "Now if recalled",
+                    "collection_effects": "Memory can be incomplete; this is a suggestion for reflection, not an instruction to collect restricted records or change workflow",
+                    "omission_challenge": "Include what remained unresolved rather than only whether a ticket was closed",
+                    "effort_assessment": "manageable",
+                    "authorization_event": null,
+                    "authorizer": null
+                  }
+                },
+                "origin": "model_proposal",
+                "evidence_ref": "synthetic:host:turn-3-next",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": [
+                    "goal:purpose@1",
+                    "account:capacity@1",
+                    "account:demand@5"
+                  ]
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$type": "ObservationPlan",
+              "fields": {
+                "question": "Write the remembered sequence for yesterday\u2019s one issue, keeping unknown reopen reasons explicit",
+                "kind": "descriptive",
+                "accounts": {
+                  "$sequence": "tuple",
+                  "items": [
+                    "account:capacity@1",
+                    "account:demand@5"
+                  ]
+                },
+                "assumptions": {
+                  "$sequence": "tuple",
+                  "items": []
+                },
+                "source": "User's voluntary recollection, without consulting records or contacting anyone",
+                "method": "Create one row per remembered reopening: what preceded it and what remained unmet. Keep one underlying issue distinct from five reported events; leave unknown rows blank",
+                "possible_findings": {
+                  "$sequence": "tuple",
+                  "items": [
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "unmet",
+                        "description": "The same need remained unmet across reopenings",
+                        "implication": "Keep unresolved-need recurrence plausible for this episode; broader impact stays unknown"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "administrative",
+                        "description": "Reopens were administrative or the underlying need changed",
+                        "implication": "Revise the episode explanation; do not infer persistent defects from reopen counts"
+                      }
+                    },
+                    {
+                      "$type": "PossibleFinding",
+                      "fields": {
+                        "finding_id": "inconclusive",
+                        "description": "Reasons cannot be recalled",
+                        "implication": "Stop here and retain the episode; reopen the investigation if an accessible explanation becomes available"
+                      }
+                    }
+                  ]
+                },
+                "access": "available",
+                "owner": "user if they choose to describe a memory",
+                "effort": "A two-minute private note from memory",
+                "delay": "Now if recalled",
+                "collection_effects": "Memory can be incomplete; this is a suggestion for reflection, not an instruction to collect restricted records or change workflow",
+                "omission_challenge": "Include what remained unresolved rather than only whether a ticket was closed",
+                "effort_assessment": "manageable",
+                "authorization_event": null,
+                "authorizer": null
+              }
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": [
+                "goal:purpose@1",
+                "account:capacity@1",
+                "account:demand@5"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRecord",
+          "fields": {
+            "kind": "workflow",
+            "provenance": {
+              "$type": "ConsequentialInput",
+              "fields": {
+                "input_id": "28",
+                "value": {
+                  "$map": [
+                    [
+                      "state",
+                      "closed_for_current_purpose"
+                    ],
+                    [
+                      "reason",
+                      "One concrete next step is enough; do not require a further framing exercise"
+                    ]
+                  ]
+                },
+                "origin": "user_report",
+                "evidence_ref": "synthetic:host:turn-3-stop",
+                "acceptance": "unresolved",
+                "scope": "support-queue",
+                "revision": 1,
+                "uncertainty": null,
+                "dependencies": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "adoption_event": null,
+                "timestamp": null,
+                "alternatives": {
+                  "$sequence": "list",
+                  "items": []
+                },
+                "schema_version": 2
+              }
+            },
+            "payload": {
+              "$map": [
+                [
+                  "state",
+                  "closed_for_current_purpose"
+                ],
+                [
+                  "reason",
+                  "One concrete next step is enough; do not require a further framing exercise"
+                ]
+              ]
+            },
+            "dependencies": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        }
+      ]
+    },
+    "revisions": {
+      "$sequence": "tuple",
+      "items": [
+        {
+          "$type": "InvestigationRevision",
+          "fields": {
+            "previous_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@1"
+              ]
+            },
+            "new_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@2"
+              ]
+            },
+            "trigger_ref": "obs:colleagues@1",
+            "change_types": {
+              "$sequence": "tuple",
+              "items": [
+                "unresolved_evidence"
+              ]
+            },
+            "reason": "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison",
+            "invalidated_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@1",
+                "plan:ticket-comparison@1",
+                "relationship:capacity-demand@1"
+              ]
+            },
+            "unresolved_alternatives": {
+              "$sequence": "tuple",
+              "items": []
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRevision",
+          "fields": {
+            "previous_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@2"
+              ]
+            },
+            "new_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@3"
+              ]
+            },
+            "trigger_ref": "obs:colleagues@1",
+            "change_types": {
+              "$sequence": "tuple",
+              "items": [
+                "boundary_revision",
+                "mechanism_revision"
+              ]
+            },
+            "reason": "Include product issue persistence as a possible source of repeat work, retaining the limited secondhand evidence",
+            "invalidated_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@2",
+                "plan:ticket-comparison@2"
+              ]
+            },
+            "unresolved_alternatives": {
+              "$sequence": "tuple",
+              "items": [
+                "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison"
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRevision",
+          "fields": {
+            "previous_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@3"
+              ]
+            },
+            "new_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@4"
+              ]
+            },
+            "trigger_ref": "obs:five-reopens@1",
+            "change_types": {
+              "$sequence": "tuple",
+              "items": [
+                "unresolved_evidence"
+              ]
+            },
+            "reason": "The episode fits the descriptive return outcome and separates five reopening events from one reported issue; it does not establish that the bug remained unfixed or explain the queue slowdown",
+            "invalidated_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@3",
+                "plan:recalled-episode@1",
+                "relationship:capacity-demand@2"
+              ]
+            },
+            "unresolved_alternatives": {
+              "$sequence": "tuple",
+              "items": [
+                "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison",
+                "I am not sure your diagram fits. Yesterday one person reopened the same issue five times."
+              ]
+            }
+          }
+        },
+        {
+          "$type": "InvestigationRevision",
+          "fields": {
+            "previous_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@4"
+              ]
+            },
+            "new_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@5"
+              ]
+            },
+            "trigger_ref": "correction:diagram-fit@1",
+            "change_types": {
+              "$sequence": "tuple",
+              "items": [
+                "boundary_revision",
+                "unresolved_evidence"
+              ]
+            },
+            "reason": "Make event versus issue explicit in response to the user's mismatch, without silently changing historical metrics",
+            "invalidated_refs": {
+              "$sequence": "tuple",
+              "items": [
+                "account:demand@4"
+              ]
+            },
+            "unresolved_alternatives": {
+              "$sequence": "tuple",
+              "items": [
+                "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison",
+                "I am not sure your diagram fits. Yesterday one person reopened the same issue five times."
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "current_model_ref": "account:demand@5",
+    "current_goal_ref": "goal:purpose@1",
+    "workflow": "closed_for_current_purpose",
+    "next_step": "Write the remembered sequence for yesterday\u2019s one issue, keeping unknown reopen reasons explicit",
+    "unresolved_questions": {
+      "$sequence": "tuple",
+      "items": [
+        "The report makes unresolved-bug recurrence worth representing, but neither its prevalence nor its contribution to the slowdown is established; this was not the planned ticket comparison",
+        "I am not sure your diagram fits. Yesterday one person reopened the same issue five times."
+      ]
+    },
+    "pause_reason": null,
+    "reopening_trigger": "New evidence, changed goal, access or boundary conditions",
+    "pending_reviews": {
+      "$sequence": "tuple",
+      "items": []
+    },
+    "stale_refs": {
+      "$sequence": "tuple",
+      "items": [
+        "account:demand@1",
+        "account:demand@2",
+        "account:demand@3",
+        "account:demand@4",
+        "analysis:boundary-check@1",
+        "plan:recalled-episode@1",
+        "plan:ticket-comparison@1",
+        "plan:ticket-comparison@2",
+        "position:user@1",
+        "relationship:capacity-demand@1",
+        "relationship:capacity-demand@2"
+      ]
+    },
+    "selected_plan_ref": "plan:episode-sequence@1",
+    "scenario_id": null,
+    "schema_version": 2
+  }
+}

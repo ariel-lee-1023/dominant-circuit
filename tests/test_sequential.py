@@ -21,9 +21,9 @@ def test_belief_zero_likelihood_uniform():
     prior = {"s1": 0.7, "s2": 0.3}
     def obs_model(o, s):
         return 0.0
-    b = belief_update(prior, "impossible", obs_model)
-    assert abs(b["s1"] - 0.5) < 1e-10
-    assert abs(b["s2"] - 0.5) < 1e-10
+    from dominant_circuit import PreconditionViolation
+    with pytest.raises(PreconditionViolation, match="posterior undefined"):
+        belief_update(prior, "impossible", obs_model)
 
 
 def test_value_iteration_toy():

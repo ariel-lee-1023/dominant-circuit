@@ -108,7 +108,9 @@ def run_validation_invariants(
             message=f"{n_eq} equations for {n_par} parameters" if ok else "Underdetermined",
         ))
 
-    return AuditResult(results=results)
+    required = {Job.STOPPING:['INV-1','INV-6'], Job.MULTIOBJECTIVE:['INV-3','INV-5'],
+                Job.SEQUENTIAL:['INV-2'] if belief is not None else ['INV-4','INV-markov']}[job]
+    return AuditResult(results=results, required_check_ids=required)
 
 
 # Stage 4 -> Stage 1 loop-back map: which contract fields to re-elicit when an
@@ -129,7 +131,7 @@ INVARIANT_FIELDS: dict[str, tuple[str, ...]] = {
 
 def require_audit_pass(audit: AuditResult) -> None:
     if not audit.passed:
-        failures = audit.failures
+        failures = audit.failures + [InvariantResult(name,"missing_check",False,message="Required check not completed") for name in audit.missing_checks]
         fails = ", ".join(f.invariant_id for f in failures)
 
         fields: list[str] = []

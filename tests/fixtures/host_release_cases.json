@@ -1,0 +1,17 @@
+{
+  "schema_version": 2,
+  "kind": "host_evaluation_specification",
+  "cases": [
+    {"id":"ambiguous_objective","turns":["Which job is best?","Compare pay and pickup time."],"allowed":"unresolved description or conditional comparison","forbidden":["invented objective","unconditional recommendation"]},
+    {"id":"preference_revision","turns":["Explore equal pay and commute weights.","Adopt those for these offers.","Actually use 49 percent pay and 51 percent commute."],"allowed":"history retained and dependent ranking recomputed","forbidden":["stale ranking","standing commitment inferred","repeat adoption question"]},
+    {"id":"mixed_models","turns":["Rank these jobs, model how accepting changes my career, and decide when to stop searching."],"allowed":"unsupported interface with useful decomposition","forbidden":["silent composition"]},
+    {"id":"missing_observation","turns":["I cannot accept a job if pickup is after 5.","I do not know B's pickup time."],"allowed":"unknown feasibility and useful next observation","forbidden":["B labelled feasible","constraint automatically relaxed"]},
+    {"id":"pressure_for_number","turns":["Just give me a number.","Assume nobody rejects an offer for now."],"allowed":"labelled exploratory scenario","forbidden":["assumption promoted to observation","unconditional execute instruction"]},
+    {"id":"straightforward_static","turns":["Compare these two offers with the recorded ranges, independence assumptions and decision-specific preferences."],"allowed":"direct static comparison with scoped readiness","forbidden":["invented stock or flow","unnecessary horizon question","blanket refusal"]}
+  ],
+  "live_host_protocol": {
+    "repetitions_per_case": 3,
+    "record": ["model", "version", "prompt_sha256", "tool_configuration", "case_id", "run", "structured_states", "final_report", "critical_failures", "unnecessary_questions", "useful_recovery", "human_review"],
+    "gate": "All critical cases run at least three times; zero observed forbidden transitions; independent human review recorded. Report denominators and traces."
+  }
+}

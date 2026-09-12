@@ -1,0 +1,149 @@
+initial
+## Starting model
+
+Capacity and training: Training temporarily reduces available processing capacity. Includes ('staffing', 'training'); external ('product defects',); omitted/unknown ('repeat demand',). Unresolved defects may create demand invisible in handling-time averages. Assessment: unassessed.
+
+## Observation instruction
+
+No observation is necessary for a sufficiently specified static comparison.
+
+## Commitments
+
+Working accounts are proposals; scoped use does not establish factual truth or a standing commitment.
+
+## Prohibitions/limits
+
+Model limits describe unanswered questions, not questions the user is forbidden to ask. No formal causal identification or stability result is established by completing this record.
+
+## Overturn conditions
+
+Reopen on consequential new evidence, a counterexample or a changed goal.
+
+## Rival models
+
+No additional account is needed merely to fill a quota.
+
+planned
+## Starting model
+
+Capacity and training: Training temporarily reduces available processing capacity. Includes ('staffing', 'training'); external ('product defects',); omitted/unknown ('repeat demand',). Unresolved defects may create demand invisible in handling-time averages. Assessment: unassessed.
+
+## Observation instruction
+
+ready_to_observe: suggested discriminating observation: Compare repeat contacts with training periods. Source: authorized ticket sample. Access: available; effort: small manual sample; owner: team analyst. Tagging may affect future reporting. This plan does not authorize external action.
+
+## Commitments
+
+Working accounts are proposals; scoped use does not establish factual truth or a standing commitment.
+
+## Prohibitions/limits
+
+Model limits describe unanswered questions, not questions the user is forbidden to ask. No formal causal identification or stability result is established by completing this record.
+
+## Overturn conditions
+
+Repeated contacts for unresolved defects: Expand demand boundary; capacity may coexist; Delays concentrated in training periods: Capacity remains plausible within this sample; Both patterns occur: Retain both mechanisms; contributions remain unknown; Both accounts fit or records are incomplete: Describe accessible episodes; pause inaccessible comparisons
+
+## Rival models
+
+No additional account is needed merely to fill a quota.
+
+returned
+## Starting model
+
+Capacity and training: Training temporarily reduces available processing capacity. Includes ('staffing', 'training'); external ('product defects',); omitted/unknown ('repeat demand',). Unresolved defects may create demand invisible in handling-time averages. Assessment: unassessed.
+
+## Observation instruction
+
+reviewing: suggested discriminating observation: Compare repeat contacts with training periods. Source: authorized ticket sample. Access: available; effort: small manual sample; owner: team analyst. Tagging may affect future reporting. This plan does not authorize external action.
+
+## Commitments
+
+Working accounts are proposals; scoped use does not establish factual truth or a standing commitment.
+
+## Prohibitions/limits
+
+Model limits describe unanswered questions, not questions the user is forbidden to ask. No formal causal identification or stability result is established by completing this record. Returned evidence or correction still awaits review. queue delays: relevant, stale; Capacity is a provisional contributor
+
+## Overturn conditions
+
+Repeated contacts for unresolved defects: Expand demand boundary; capacity may coexist; Delays concentrated in training periods: Capacity remains plausible within this sample; Both patterns occur: Retain both mechanisms; contributions remain unknown; Both accounts fit or records are incomplete: Describe accessible episodes; pause inaccessible comparisons
+
+## Rival models
+
+No additional account is needed merely to fill a quota.
+
+reviewed
+## Starting model
+
+Capacity and training: Training temporarily reduces available processing capacity. Includes ('staffing', 'training'); external ('product defects',); omitted/unknown ('repeat demand',). Unresolved defects may create demand invisible in handling-time averages. Assessment: weakened.
+
+## Observation instruction
+
+Expand demand boundary; capacity may coexist
+
+## Commitments
+
+Working accounts are proposals; scoped use does not establish factual truth or a standing commitment.
+
+## Prohibitions/limits
+
+Model limits describe unanswered questions, not questions the user is forbidden to ask. No formal causal identification or stability result is established by completing this record. queue delays: relevant, stale; Capacity is a provisional contributor
+
+## Overturn conditions
+
+Repeated contacts for unresolved defects: Expand demand boundary; capacity may coexist; Delays concentrated in training periods: Capacity remains plausible within this sample; Both patterns occur: Retain both mechanisms; contributions remain unknown; Both accounts fit or records are incomplete: Describe accessible episodes; pause inaccessible comparisons
+
+## Rival models
+
+No additional account is needed merely to fill a quota.
+
+revised
+## Starting model
+
+Capacity and recurring demand: Training may reduce processing capacity; Unresolved defects may generate repeat contacts. Includes ('staffing', 'training', 'recurring product defects'); external (); omitted/unknown ('relative contributions', 'tagging bias'). The sample may omit people who stopped contacting support. Assessment: unassessed.
+
+## Observation instruction
+
+ready_to_observe: suggested discriminating observation: Compare repeat contacts with training periods. Source: authorized ticket sample. Access: available; effort: small manual sample; owner: team analyst. Tagging may affect future reporting. This plan does not authorize external action.
+
+## Commitments
+
+Working accounts are proposals; scoped use does not establish factual truth or a standing commitment.
+
+## Prohibitions/limits
+
+Model limits describe unanswered questions, not questions the user is forbidden to ask. No formal causal identification or stability result is established by completing this record. queue delays: relevant, stale; Capacity is a provisional contributor
+
+## Overturn conditions
+
+Repeated contacts for unresolved defects: Expand demand boundary; capacity may coexist; Delays concentrated in training periods: Capacity remains plausible within this sample; Both patterns occur: Retain both mechanisms; contributions remain unknown; Both accounts fit or records are incomplete: Describe accessible episodes; pause inaccessible comparisons
+
+## Rival models
+
+No additional account is needed merely to fill a quota.
+
+simple
+## Starting model
+
+Compare two current offers
+
+## Observation instruction
+
+Solver handoff solver_ready; recommendation readiness remains separate.
+
+## Commitments
+
+Working accounts are proposals; scoped use does not establish factual truth or a standing commitment.
+
+## Prohibitions/limits
+
+Model limits describe unanswered questions, not questions the user is forbidden to ask. No formal causal identification or stability result is established by completing this record.
+
+## Overturn conditions
+
+Reopen on consequential new evidence, a counterexample or a changed goal.
+
+## Rival models
+
+No additional account is needed merely to fill a quota.

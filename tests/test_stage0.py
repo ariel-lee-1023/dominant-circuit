@@ -1,13 +1,16 @@
 """Drift guards for the Stage 0 skill (`stage0/`).
 
-Stage 0 is a prose skill, not code, so the usual test suite cannot reach it. But it
-has exactly the failure modes `tests/test_corpus.py` was written for:
+Stage 0 now has deterministic state validation alongside its prose skill. Keep the
+source and presentation drift checks that `tests/test_corpus.py` introduced:
 
   * the distillation that produced these files emitted unnumbered headings, so an
     earlier draft's `pearl §2.7`-style citations resolved to nothing -- the same
     defect as `c03 §Bellman`;
-  * the verdict table states its own counts in prose ("6 / 3 / 3"), which is the
-    kind of number that silently stops matching the table under it.
+  * user-facing fields and epistemic promises must agree with the current API.
+
+The follow-up replaces the twelve-verdict taxonomy and four-field handoff.
+Legacy numbered citations remain checked if used; current Markdown links are
+checked directly, without requiring unused section numbers.
 
 Both are cheap to check here and expensive to discover from a wrong verdict later.
 """
@@ -31,9 +34,8 @@ REFS = {
 }
 
 # `meadows §2.4`, `pearl §2.10`, `page §2.5`, `frankfurt §2.3` -- the anchor scheme SKILL.md
-# declares. frankfurt is not a fifth pipeline stage in §4's fixed order -- it grades evaluative
-# constructs (§5.2) rather than supplying a stock, an arrow, or a model class -- but it is cited
-# with the same checkable §N.M anchors as the other three, so it belongs in the same registry.
+# used historically. Keep this registry to catch dangling numbered citations if
+# reintroduced; the current skill selects methods by applicability, not book order.
 CITATION_RE = re.compile(r"\b(meadows|pearl|page|frankfurt)\s+§(\d+(?:\.\d+)?)")
 
 # Bare continuation anchors: `§2.9` inside a cell whose first citation named the book.
@@ -67,17 +69,23 @@ def test_skill_declares_a_name():
     assert re.search(r"^description:\s*\S+", front, re.MULTILINE), "no description"
 
 
-def test_reference_headings_are_numbered(anchors):
-    """The distillation pipeline dropped section numbers once. Numbered headings are
-    the only thing that makes a `§X.Y` citation checkable by a reader."""
-    for book, found in anchors.items():
-        assert found, f"{book} reference file has no numbered headings at all"
-        # Each file must at least number its framework block and its subsections.
-        subsections = {a for a in found if "." in a}
-        assert len(subsections) >= 5, (
-            f"{book}: only {len(subsections)} numbered subsections -- "
-            "framework blocks look unnumbered again"
-        )
+def test_reference_links_and_fragments_resolve():
+    """Current notes use Markdown links; numbered citations are optional."""
+    for path in (SKILL, *REFS.values()):
+        headings = re.findall(r"^#{1,6} (.+)$", _read(path), re.MULTILINE)
+        assert headings, f"{path.name} has no inspectable structure"
+        for link in re.findall(r"\]\(([^)]+)\)", _read(path)):
+            if link.startswith(("http://", "https://", "mailto:")):
+                continue
+            location, _, fragment = link.partition("#")
+            target = path.parent / location if location else path
+            assert target.is_file(), f"Missing reference: {link} in {path.name}"
+            if fragment:
+                anchors = {
+                    re.sub(r"[^\w -]", "", h.lower()).replace(" ", "-")
+                    for h in re.findall(r"^#{1,6} (.+)$", _read(target), re.MULTILINE)
+                }
+                assert fragment in anchors, f"Missing section: {link} in {path.name}"
 
 
 def test_every_stage0_citation_resolves(anchors):
@@ -104,56 +112,62 @@ def test_self_citations_inside_a_reference_resolve(anchors):
     assert not problems, "unresolvable self-citations:\n  " + "\n  ".join(problems)
 
 
-def test_verdict_counts_match_the_tables():
-    """SKILL.md states the size of each verdict class in prose. Prose counts rot."""
-    text = _read(SKILL)
-    declared_total = re.search(r"(\w+) verdicts in three classes", text)
-    assert declared_total, "SKILL.md no longer declares a verdict total"
+def test_completed_workflow_does_not_certify_an_account():
+    """The new workflow replaces verdict counts without promoting causal truth."""
+    import runpy
 
-    sections = {
-        "7.1": re.search(r"### 7\.1 .*?\((\d+)\)", text),
-        "7.2": re.search(r"### 7\.2 .*?\((\d+)\)", text),
-        "7.3": re.search(r"### 7\.3 ", text),
-    }
-    assert sections["7.1"] and sections["7.2"], "verdict class headings lost their counts"
-
-    # Bold verdict names are the row keys in the three tables.
-    body = text.split("## 7. Verdict taxonomy", 1)[1].split("## 8.", 1)[0]
-    rows = re.findall(r"^\|\s*\*\*(\w+)\*\*\s*\|", body, re.MULTILINE)
-    assert len(rows) == len(set(rows)), f"a verdict is listed twice: {sorted(rows)}"
-
-    words = {"Twelve": 12, "Eleven": 11, "Ten": 10, "Thirteen": 13}
-    assert words.get(declared_total.group(1)) == len(rows), (
-        f"SKILL.md declares '{declared_total.group(1)}' verdicts "
-        f"but the tables list {len(rows)}"
+    example = runpy.run_path(str(ROOT / "examples/stage0_investigation.py"))
+    state = example["support_queue"]()
+    state = state.propose_observation(
+        "tickets", example["ticket_plan"](state), "test:plan"
     )
-
-    n_true = int(sections["7.1"].group(1))
-    n_forks = int(sections["7.2"].group(1))
-    assert n_true + n_forks <= len(rows), "class counts exceed the total"
+    before = state.get(state.current_model_ref)
+    closed = state.close_cycle(
+        "A feasible next observation finishes the turn", "test:close"
+    )
+    assert closed.workflow == "closed_for_current_purpose"
+    assert closed.get(closed.current_model_ref) == before
+    assert before.assessment == "unassessed"
 
 
 def test_output_contract_has_all_six_fields():
-    """The six required fields are the deliverable. Losing one -- especially the
-    observation instruction -- turns Stage 0 back into commentary."""
-    body = _read(SKILL).split("## 6. Output contract", 1)
-    assert len(body) == 2, "SKILL.md lost its output-contract section"
-    contract = body[1].split("## 7.", 1)[0]
-    fields = re.findall(r"^\d+\.\s+\*\*(.+?)\*\*", contract, re.MULTILINE)
-    assert len(fields) == 6, f"output contract has {len(fields)} fields, expected 6: {fields}"
-    assert any("bservation instruction" in f for f in fields), (
-        "the observation instruction is the one field that may never be dropped"
-    )
+    """The six fields stay aligned with the renderer after the protocol revision."""
+    import runpy
+
+    body = _read(SKILL).split("## Preserve the six user-facing fields", 1)
+    assert len(body) == 2
+    labels = re.findall(r"^\d+\.\s+\*\*(.+?):\*\*", body[1], re.MULTILINE)
+    expected = [
+        "Starting model",
+        "Observation instruction",
+        "Commitments",
+        "Prohibitions/limits",
+        "Overturn conditions",
+        "Rival models",
+    ]
+    assert labels == expected
+    state = runpy.run_path(str(ROOT / "examples/stage0_investigation.py"))[
+        "support_queue"
+    ]()
+    assert re.findall(r"^## (.+)$", state.to_markdown(), re.MULTILINE) == expected
 
 
-def test_stage0_emits_no_numbers_promise_is_stated():
-    """Stage 0 hands off classifying fields only. If this promise disappears from
-    the doc, the next contributor will helpfully fill in a numeric field."""
-    text = _read(SKILL)
-    assert "no numbers" in text.lower() or "never estimate" in text.lower()
-    assert "assumption_provenance" in text, (
-        "the mandatory assumption-provenance requirement is no longer stated"
+def test_proposed_numeric_findings_cannot_become_observations():
+    """Existing measurements may be numeric; hypothetical numbers are not evidence."""
+    from dominant_circuit import ConsequentialInput, Observation
+
+    proposal = ConsequentialInput(
+        "predicted-reopens", 5, origin="model_proposal", evidence_ref="test:scenario"
     )
+    with pytest.raises(ValueError):
+        Observation(proposal, "Hypothetical outcome, not an obtained report")
+    measured = ConsequentialInput(
+        "reported-reopens",
+        5,
+        origin="user_report",
+        evidence_ref="test:reported-episode",
+    )
+    assert Observation(measured, "User's actual episode").finding.value == 5
 
 
 def test_no_dangling_links_in_stage0_skill():
@@ -186,8 +200,9 @@ def test_references_do_not_hardcode_acceptance_probe_answers():
 # time; the reference corpus and the host-facing skill are. Naming the scenarios in a
 # document the model reads is the leak this guards against, so the registry has to sit
 # outside every such document.
+# The support-queue case is now explicitly a public worked example and fixture
+# (S0-08/S0-09), so it cannot be represented as a blind acceptance probe.
 PROBE_FINGERPRINTS = {
-    "queue-slowdown": {"support", "queue", "headcount"},
     "feature-retention": {"feature", "retention", "cohort"},
     "price-equilibrium": {"house", "prices", "stabilize"},
 }
@@ -224,3 +239,10 @@ def test_no_model_facing_doc_reproduces_a_probe_scenario(probe):
         f"probe {probe!r} scenario ({sorted(terms)}) appears in: {leaked}. "
         "Pick a different worked example; that one is an acceptance probe."
     )
+
+
+def test_root_router_can_discover_unshaped_investigations():
+    text = (ROOT / "SKILL.md").read_text()
+    front = text.split("---", 2)[1]
+    assert "uncertain decision framing" in front and "Stage 0" in front
+    assert "[Stage 0](stage0/SKILL.md)" in text

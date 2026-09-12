@@ -1,0 +1,81 @@
+{
+  "schema_version": 2,
+  "base_commit": "ac9e2ccec4290c37e19009a6aa2e1eb89a1cf537",
+  "reviewed_baseline": "b0fdf0a8644799b987ae0564febb85f75ea67f58",
+  "implementation_owner": "Codex",
+  "python": "3.12.7",
+  "installation": "temporary venv with system site packages; pip install --no-build-isolation --no-deps -e .",
+  "baseline": {
+    "passed": 170,
+    "existing_failures": 0
+  },
+  "initial_regressions": {
+    "failed": 4,
+    "command": "python -m pytest tests/test_remediation.py -q --no-cov"
+  },
+  "independent_review": {
+    "approved": false,
+    "reviewer": null
+  },
+  "live_host": {
+    "model": null,
+    "version": null,
+    "prompt_sha256": null,
+    "tool_configuration": null,
+    "runs": []
+  },
+  "release_status": "pending original and Stage 0 live-host evaluations, human review and engineering signoff",
+  "verification": {
+    "tests_passed": 269,
+    "tests_failed": 0,
+    "coverage_percent": 91.08,
+    "commands": [
+      "python -m pytest -q",
+      "python -m flake8 src tests examples scripts --select=E9,F63,F7,F82 --show-source --statistics",
+      "python main.py",
+      "python examples/reflective_decision.py",
+      "git diff --check",
+      "PYTHONPATH=src python examples/stage0_investigation.py",
+      "python /Users/parrhesia/.codex/skills/.system/skill-creator/scripts/quick_validate.py stage0"
+    ],
+    "result": "passed",
+    "release_gate": "intentionally pending external evidence"
+  },
+  "stage0_followup": {
+    "owner": "Codex",
+    "implementation_commit": "9a6a96b86d608984ee323d1cbb6691f27cac3e98",
+    "implementation_status": "committed on codex/engineering-stage0-followup",
+    "baseline_tests_passed": 210,
+    "fixture_count": 11,
+    "deterministic_fixture_runs": 11,
+    "paraphrase_adapter_runs": 2,
+    "evidence_order_adapter_runs": 2,
+    "independent_synthetic_review": {
+      "reviewer": "stage0_forward_test (Kant)",
+      "scenario_runs": 1,
+      "human_signoff": false,
+      "evidence": "docs/evidence/stage0-forward-test/report.md",
+      "limitations": "Synthetic enactment, not live F01-F11 reliability evidence. Historical trace predates final reference and rendering fixes."
+    },
+    "live_fixture_runs": 0,
+    "human_reviewer": null,
+    "engineering_signoff": false,
+    "pending": [
+      "Repeated live-host F01-F11 plus original six cases",
+      "Named human review of feasibility, interpretation and burden",
+      "Engineering release signoff"
+    ],
+    "notes": "Dependencies and metadata extend schema 2. Run examples with PYTHONPATH=src in the temporary validation checkout."
+  },
+  "implementation_commit": "9a6a96b86d608984ee323d1cbb6691f27cac3e98",
+  "main_integration": {
+    "base_commit": "b0fdf0a8644799b987ae0564febb85f75ea67f58",
+    "pr": 8,
+    "tests_passed": 269,
+    "coverage_percent": 91.08,
+    "lint": "passed",
+    "demos": "passed",
+    "language": "upstream English-only output preserved",
+    "release_acceptance": "still pending live-host evaluations and human signoff"
+  }
+}

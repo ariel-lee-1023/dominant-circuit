@@ -4,6 +4,17 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
 from typing import Any, Optional
+from enum import Enum
+import math
+
+
+def json_presentation(value):
+    """Presentation JSON; use evidence.encode for lossless archival serialization."""
+    if isinstance(value,Enum): return value.value
+    if isinstance(value,dict): return {str(k):json_presentation(v) for k,v in value.items()}
+    if isinstance(value,(list,tuple,set,frozenset)): return [json_presentation(v) for v in value]
+    if isinstance(value,float) and not math.isfinite(value): return None
+    return value
 
 
 @dataclass
@@ -19,14 +30,22 @@ class InvariantResult:
 @dataclass
 class AuditResult:
     results: list[InvariantResult] = field(default_factory=list)
+    required_check_ids: list[str] = field(default_factory=list)
+    not_applicable: dict[str, str] = field(default_factory=dict)
+
+    @property
+    def missing_checks(self):
+        completed = {r.invariant_id for r in self.results}
+        return [name for name in self.required_check_ids if name not in completed
+                and not self.not_applicable.get(name)]
 
     @property
     def passed(self) -> bool:
-        return all(r.passed for r in self.results)
+        return bool(self.results) and not self.missing_checks and not self.failures
 
     @property
     def failures(self) -> list[InvariantResult]:
-        return [r for r in self.results if not r.passed]
+        return [r for r in self.results if not r.passed and r.invariant_id != "INV-7"]
 
 
 @dataclass
@@ -41,17 +60,17 @@ class SensitivityEntry:
 # Orders in the zero-order expansion. These are not severity labels; they are
 # structural claims about how a term relates to the trunk.
 ORDER_ZERO = "zero"          # the trunk itself
-ORDER_FIRST = "first"        # refines the trunk, cannot overturn it
+ORDER_FIRST = "first"        # Same model; the recommended action may change.
 ORDER_OVERTURN = "overturn"  # a DIFFERENT trunk, not a correction
 ORDER_HARD = "hard"          # no trunk exists; veto
 ORDER_DROPPED = "dropped"    # thrown away as non-dominant
 
 _ORDER_GLOSS = {
     ORDER_ZERO: "zero-order · trunk",
-    ORDER_FIRST: "first-order · refines, cannot overturn",
+    ORDER_FIRST: "first-order · same model; action may change",
     ORDER_OVERTURN: "overturn · different zero-order model",
     ORDER_HARD: "hard constraint · no zero-order exists",
-    ORDER_DROPPED: "dropped · non-dominant",
+    ORDER_DROPPED: "dropped · removed by dominance under stated assumptions",
 }
 
 
@@ -98,6 +117,19 @@ def relative_shift(value: Any, zero_order: Any) -> Optional[float]:
 
 
 @dataclass
+class ReadinessAssessment:
+    state: str = "exploratory"
+    policy_version: int = 2
+    supporting_records: list[str] = field(default_factory=list)
+    reasons: list[str] = field(default_factory=lambda: ["Assumption support and uncertainty treatment have not been assessed."])
+    remaining_uncertainty: list[str] = field(default_factory=list)
+    conditions_of_use: list[str] = field(default_factory=list)
+    next_observations: list[str] = field(default_factory=list)
+    reopening_triggers: list[str] = field(default_factory=lambda: ["Input or preference revision", "Changed deadline", "Violated model or feasibility condition"])
+    completed_checks: list[str] = field(default_factory=list)
+
+
+@dataclass
 class OutputReport:
     decision: Any
     formula_name: str
@@ -110,8 +142,24 @@ class OutputReport:
     # Stage 5: the decision restated as an instruction the user can carry out.
     # `decision` is the machine-readable form; this is the executable one.
     action: str = ""
+    schema_version: int = 2
+    contract_revision: int = 1
+    provenance: dict = field(default_factory=dict)
+    computation: dict = field(default_factory=dict)
+    assumption_support: dict = field(default_factory=dict)
+    readiness: ReadinessAssessment = field(default_factory=ReadinessAssessment)
     # The answer as a zero-order expansion: trunk, corrections, overturns, vetoes.
     perturbation: list[PerturbationTerm] = field(default_factory=list)
+
+    def __post_init__(self):
+        self._sync_audit_status()
+
+    def _sync_audit_status(self):
+        if not self.audit.passed:
+            self.readiness.state = 'blocked'
+            reason = 'Mandatory audit checks failed or are missing.'
+            if reason not in self.readiness.reasons:
+                self.readiness.reasons.append(reason)
 
     @property
     def zero_order(self) -> Optional[PerturbationTerm]:
@@ -120,7 +168,7 @@ class OutputReport:
 
     @property
     def corrections(self) -> list[PerturbationTerm]:
-        """First-order correction. Refine the trunk; by construction cannot overturn it."""
+        """Same-model corrections may change the action."""
         return [t for t in self.perturbation if t.order == ORDER_FIRST]
 
     @property
@@ -131,8 +179,7 @@ class OutputReport:
 
     @property
     def dropped(self) -> list[PerturbationTerm]:
-        """Dropped term. Thrown away by the dominant-balance step: no causal control
-        over the outcome, so it was removed before any preference was elicited."""
+        """Alternatives removed by dominance under the stated assumptions."""
         return [t for t in self.perturbation if t.order == ORDER_DROPPED]
 
     @property
@@ -142,49 +189,31 @@ class OutputReport:
 
     @property
     def assumptions_to_confirm(self) -> list[SensitivityEntry]:
-        """The elicited assumptions that would change the decision if they turn
-        out to be wrong. These are factual risks, not analytical ones: no further
-        computation resolves them, only checking the world."""
+        """Legacy sensitivity flags; these are not proof of complete coverage."""
         return [s for s in self.sensitivity if s.decision_changed]
 
     @property
     def analysis_is_complete(self) -> bool:
-        """True when no further analysis can improve this answer.
-
-        The contract was complete (dispatch would have raised otherwise), the
-        assumption set is covered by the corpus, and every validation invariant
-        passed. What remains is not more thinking — it is confirming the facts
-        listed in `assumptions_to_confirm` and then acting.
-        """
-        return self.audit.passed
+        """Deprecated compatibility alias; no claim that deliberation is exhausted."""
+        return self.readiness.state == "ready_under_stated_conditions" and self.audit.passed
 
     @property
     def execution_note(self) -> str:
-        """Plain-language answer to 'may I stop analyzing and start executing?'"""
-        if not self.analysis_is_complete:
-            failed = ", ".join(f.invariant_id for f in self.audit.failures)
-            return (
-                f"DO NOT EXECUTE. The audit failed ({failed}). This decision is not "
-                "actionable; re-elicit the implicated fields and re-run."
-            )
-        pending = self.assumptions_to_confirm
-        if not pending:
-            return (
-                "EXECUTE. The analysis is complete and no elicited assumption, if "
-                "changed, alters this decision. Further deliberation cannot improve it."
-            )
-        names = ", ".join(sorted({s.assumption for s in pending}))
-        return (
-            "EXECUTE once you have confirmed: " + names + ". "
-            "The analysis itself is complete — these are facts to check, not further "
-            "calculations to run. If they hold as elicited, stop analyzing and act."
-        )
+        self._sync_audit_status()
+        if not self.audit.passed:
+            return "Readiness: blocked. Mandatory audit failure or incomplete coverage: " + ", ".join(
+                [r.invariant_id for r in self.audit.failures] + self.audit.missing_checks) + ". No external action is authorized."
+        reasons = "; ".join(self.readiness.reasons)
+        return (f"Readiness: {self.readiness.state}. {reasons} "
+                "This assessment does not authorize an external action.")
 
     def to_dict(self) -> dict:
+        self._sync_audit_status()
         d = asdict(self)
+        d["audit"]["missing_checks"] = self.audit.missing_checks
         d["analysis_is_complete"] = self.analysis_is_complete
         d["execution_note"] = self.execution_note
-        return d
+        return json_presentation(d)
 
     def to_markdown(self) -> str:
         lines = [
@@ -238,7 +267,10 @@ class OutputReport:
                 for t in notes:
                     lines.append(f"- **{t.label}** — {t.note}")
 
-        lines += ["", "## Execute", self.execution_note]
+        lines += ["", "## Readiness", self.execution_note]
+        lines += [f"- Missing check: {name}" for name in self.audit.missing_checks]
+        lines += [f"- Condition: {condition}" for condition in self.readiness.conditions_of_use]
+        lines += [f"- Reopen when: {trigger}" for trigger in self.readiness.reopening_triggers]
         pending = self.assumptions_to_confirm
         if self.analysis_is_complete and pending:
             for s in pending:

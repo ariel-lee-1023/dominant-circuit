@@ -1,6 +1,6 @@
 ---
 name: dominant-circuit
-description: "Master decision-mechanics router for choosing when to stop a search, how to trade off multiple objectives under certainty or uncertainty, and how to select or time actions in sequential/uncertain environments. Use when the user asks when to stop looking or searching, how to decide among finitely many alternatives with competing objectives, how to weigh tradeoffs or set scaling constants/utility weights, how to update beliefs with new evidence (Bayes/POMDP), how to pick an action under a Markov Decision Process or Bellman framework, or invokes phrases like optimal stopping, secretary problem, 37% rule, satisficing threshold, multiattribute utility, preferential/utility independence, expected utility, risk aversion, MDP, POMDP, belief update, value iteration, Q-learning, or Monte Carlo tree search. ALSO use when a situation has no decision structure yet — a metric moved and nobody knows why, an intervention did not work, a system feels stuck, or the user does not yet know what to measure or where to look — and route it to Stage 0 (stage0/SKILL.md) to install an explicit model first; those cases are in scope, not out of it. Not for single-attribute certainty comparisons, or requests for prose insight with no model to commit to."
+description: "Master decision-mechanics router for choosing when to stop a search, how to trade off multiple objectives under certainty or uncertainty, and how to select or time actions in sequential/uncertain environments. Use when the user asks when to stop looking or searching, how to decide among finitely many alternatives with competing objectives, how to weigh tradeoffs or set scaling constants/utility weights, how to update beliefs with new evidence (Bayes/POMDP), how to pick an action under a Markov Decision Process or Bellman framework, or invokes phrases like optimal stopping, secretary problem, 37% rule, satisficing threshold, multiattribute utility, preferential/utility independence, expected utility, risk aversion, MDP, POMDP, belief update, value iteration, Q-learning, or Monte Carlo tree search. Also use for an uncertain decision framing or an unexplained change that needs a feasible observation and revisable working account through Stage 0. Not for unrelated brainstorming or simple factual lookups."
 ---
 
 # Dominant-Circuit
@@ -9,26 +9,25 @@ Master router over three zero-order decision-mechanics clusters. This file dispa
 
 ## When to use
 
-**Route first.** Two different jobs live behind this file, and picking the wrong one is the most
-expensive mistake available:
-
-| The user's situation | Go to |
-|---|---|
-| Already reduced to a job, a horizon, an information type, and a payoff — or reducible by asking about those | Stage 1 below |
-| Has no structure yet: a metric moved and nobody knows why, an intervention failed, "what should I even look at" | **[stage0/SKILL.md](stage0/SKILL.md) first** |
-
-When in doubt, go to Stage 0. It is cheap and it hands back a contract. Starting at Stage 1 on an
-unshaped problem is not cheap: the elicitation questions below all presuppose a structure, so the
-user will answer them anyway, and Stages 2–4 will then verify, compute, and audit a real number for
-a question nobody established was the right one. **The audit cannot catch this** — the invariants
-check the arithmetic against the contract, never the contract against the user's actual problem.
-
-Use Stage 1 onward when a request has **decision structure**, not just a question:
+Use when a request needs a **decision structure or investigation**, not just a factual lookup:
 - A search/queue of options must be stopped at some point ("when do I stop looking/interviewing/dating/selling/renting").
 - Multiple competing objectives/attributes must be traded off into one ranking or score ("which alternative is best given cost, quality, risk...").
 - An action must be chosen now that affects a future state under known/unknown dynamics, or beliefs must be updated from observations ("what should I do next," "update my belief," "plan a sequence of moves").
 
-Not for single-criterion lookups, open-ended ideation, or anything with no explicit alternatives/objective/uncertainty structure.
+If the situation has no clear alternatives or model yet, use Stage 0 to propose a provisional account and useful observation. A single-criterion factual lookup does not need the solver.
+
+## When the framing needs investigation
+
+Use [Stage 0](stage0/SKILL.md) when the goal, boundary, mechanism or useful next
+observation is uncertain. Propose an explicit starting account, keep its omissions
+visible, and revise it when evidence returns. An observation plan is not an obtained
+finding or collection authority. Solver handoffs depend on exact investigation
+revisions and must be revisited when supporting evidence changes.
+
+A sufficiently specified static comparison can route directly to a cluster. Stage 0
+is optional investigation support, with no mandatory systems, causal or dynamics
+sequence. Its six fields describe the current account and next step; they do not
+require a numeric recommendation or supersede the solver's readiness report.
 
 ## Which cluster for which job
 
@@ -38,9 +37,9 @@ Not for single-criterion lookups, open-ended ideation, or anything with no expli
 | Rank or score alternatives against several objectives/attributes, certain or uncertain | [references/clusters/c02-multiple-objectives.md](references/clusters/c02-multiple-objectives.md) | multiattribute utility, value function, preferential/utility independence, scaling constants, risk aversion, additive vs. multiplicative |
 | Choose an action or plan over time under known/unknown dynamics, or update beliefs from evidence | [references/clusters/c03-sequential-decisions.md](references/clusters/c03-sequential-decisions.md) | MDP, POMDP, Bayes/belief update, Bellman equation, value iteration, Q-learning, MCTS |
 
-If a request spans jobs (e.g., "stop searching once expected multiattribute utility falls below a threshold"), read all relevant clusters and compose per the Unified Pipeline below.
+If a request spans jobs, consult the relevant clusters and the capability registry. No automatic engine composition is implemented. Return the unresolved interface and a useful next observation or separate comparison.
 
-## Input contract (elicit or infer every field before computing)
+## Input contract (translate explicit evidence; preserve unresolved fields)
 
 1. **Horizon**: fixed known \(n\); fixed unknown with distribution (e.g. uniform on \([1,n_{max}]\)); open-ended/stochastic stop probability \(p\); finite-horizon sum; infinite-horizon discounted (\(\gamma\)) or average return.
 2. **Feasible alternatives/states/actions**: set \(A\) (multi-objective case), or \(\mathcal{S}\), \(\mathcal{A}\) (sequential case), or the candidate stream (stopping case).
@@ -51,7 +50,7 @@ If a request spans jobs (e.g., "stop searching once expected multiattribute util
 7. **Risk attitude**: averse/neutral/prone, and constant/decreasing/increasing in attribute level (symmetric-lottery/fractile test, cluster 02 Sec. 4).
 8. **Computational budget/tolerance**: exact finite-\(n\) enumeration vs. asymptotic approximation; iteration cap `k_max` or residual tolerance \(\delta\); MCTS simulations \(m\) or search depth \(d\); consistency-audit tolerance.
 
-If any field is missing, run the Socratic elicitation loop below before computing; never silently default to the classical 37%-style assumption set.
+Ask only for rule-dependent prerequisites. A labelled scenario may support exploration; it cannot establish factual support. `missing_fields` preserves explicit false and zero. Do not demand a horizon for a static offer comparison.
 
 ## Output contract (every answer must report all applicable fields)
 
@@ -66,46 +65,20 @@ If any field is missing, run the Socratic elicitation loop below before computin
 
 - **Cluster 01**: a stopping rule exists only if the expected payoff at the best conceivable stopping point is finite; diverging-expectation games (e.g., triple-or-nothing) have no optimal stopping rule and must be handled by a different framework (e.g., fractional-bankroll rules).
 - **Cluster 02**: the additive value/utility form requires mutual (or, for \(n=3\), pairwise) preferential or utility independence, verified by an explicit indifference test, not assumed for simplicity. "Verified" means the assumption registry covers **every proper nonempty subset** of the attribute set against its complement (c02 §7.3) — one recorded pair among many is not coverage. Note the flip test (c02 §7.5) does **not** establish independence; it discriminates additive from multiplicative *within* an already-verified structure, and raises if run before it. Scaling constants are only interpretable jointly with the attribute ranges they were assessed against.
-- **Cluster 03**: the Markov assumption must hold (next state depends only on current state and action); Bellman-backup convergence requires \(\gamma \in [0,1)\) and bounded rewards; belief updates require a well-defined observation model and must reset to uniform on zero-likelihood evidence rather than divide by zero.
+- **Cluster 03**: the Markov assumption must hold (next state depends only on current state and action); Bellman-backup convergence requires \(\gamma \in [0,1)\) and bounded rewards; static belief updates require a normalized prior and a supported likelihood model. Zero-likelihood evidence has no posterior: inspect the observation or model. Dynamic filtering and POMDP planning are not implemented.
 
-## The stages
+## The five stages
 
-The user is not chatting. They are plugging a problem into a centrifuge. Your job is to strip the
-vibes off their dilemma and show them the constants underneath. Each stage has an owner: **you own
-Stages 0, 1 and 5** (the conversation), **the library owns Stages 2–4** (the physics). Never do the
-library's job in prose.
+Help the user connect their situation to a supported model and inspect what the result
+depends on. **The host owns Stages 0, 1 and 5** (interpretation and conversation); the
+library owns Stages 2 through 4 (validation, computation and audit). Call the engine
+for numerical results and retain useful labelled scenarios when readiness is unresolved.
 
-### Stage 0 — Structure: install a model before anyone looks
+### Stage 1: clarify consequential uncertainties and preserve exploration
 
-Skip only if the case arrives already shaped. Full protocol in
-[stage0/SKILL.md](stage0/SKILL.md); what you must know here:
-
-- **Its default is the opposite of every stage below.** Stages 1–5 refuse rather than risk a wrong
-  number. Stage 0 **commits** to an explicit starting model rather than hand the user back the
-  unexamined one they arrived with. This is deliberate. Do not "harmonize" it.
-- **It emits no numbers.** It fills only `job`, `horizon`, `information`, `payoff`, and names every
-  numeric field as something *you* must still elicit in Stage 1.
-- **Handoff is all-or-nothing.** All four fields must classify. If one does not, the case stops at
-  Stage 0 with its six output fields and a verdict — report that, do not proceed to Stage 1 and
-  start asking for \(n\).
-- **Three of its twelve verdicts are forks, and a fork may not end the stage.** A `BoundaryFork`
-  means you put the candidate boundaries to the user and let *them* pick. Choosing quietly on their
-  behalf is the failure mode Stage 0 exists to prevent.
-- **A `risk_attitude` or objective-preference answer from Stage 1 row 18 below is a first-order
-  report, not a settled input, until the user has appointed it to govern this class of decision.**
-  Asking the question and getting an answer are not the same event as the user having formed a
-  second-order volition about it (`stage0/SKILL.md` §5.2, §6, §9). Do not write a confidently or
-  repeatedly stated risk attitude into the contract as though repetition promoted it.
-
-What comes back is a starting model, an **observation instruction** (the field that may never be
-omitted), commitments, prohibitions, overturn conditions, and rival models. Deliver all six. If the
-honest answer is "stop reasoning and go measure this one thing," that is a complete Stage 0 answer —
-there is no obligation to reach a number.
-
-### Stage 1 — Elicitation: refuse to compute until the boundary conditions are locked
-
-Humans arrive vague. "I want the best job" is not a problem statement; it is a mood.
-**Halt. Do not compute. Interrogate.**
+"I want the best job" leaves the objective unresolved. Explain which concrete tradeoff
+or observation would help. Offer a labelled scenario or bounded comparison when useful;
+do not manufacture an actionable answer or demand irrelevant information.
 
 ```python
 contract = InputContract()                      # nothing assumed
@@ -127,44 +100,47 @@ while (q := next_question(contract)) is not None:
   (ordinal ranks or cardinal scores?), and the **hard constraints** (can you recall a
   passed-over option? can an accepted offer decline?).
 
-**Ask weight before truth.** Details are infinite; "what else haven't I considered?" never
-terminates. Only one question terminates, and it is the **overturn test**:
+**Start with a decision description.** Record the question, concrete options and actions,
+information types, objectives, time structure, uncertainties and constraints before
+translating to an engine contract. `DecisionDescription`, `TranslationRecord` and
+`translate_decision` retain the source input IDs, interpretation and rule for each field.
+Keep physical measurements, evaluative scales and stopping-rule percentiles separate.
+Negotiation availability does not determine measurement type. An equilibrium or cycle
+is not the user's objective. Accumulation alone does not determine the horizon.
 
-> Is the presence or absence of this factor sufficient to overturn my current conclusion?
+A static comparison routes directly to `static_comparison`; it needs no invented stock,
+flow or causal diagram. If actions change future states, consider `discounted_mdp`.
+If the question concerns intervention effects, the library has no causal inference engine.
+Expose that missing interface and request appropriate causal evidence or a separate model.
 
-If not, it is a high-order small quantity — throw it out of the dominant equation and **do not
-spend the user's attention on it.**
+**Screening is bounded evidence.** `overturn_test` reports `changes_decision`,
+`stable_within_tested_bounds`, or `untested`. Inspect every probe's execution status.
+A failed or unsupported probe does not establish action stability. Sequential probes
+compare the full policy. Same-model changes can reverse an action.
 
 ```python
 plan = elicitation_plan(contract)
-plan["required"]      # ask these — no conclusion exists yet
-plan["load_bearing"]  # passed the overturn test; worth asking about
-plan["droppable"]     # failed it. DO NOT ASK. It cannot change the answer.
-
-overturn_test(contract, "recall_allowed").verdict   # the reasoning, per factor
+plan["required"]
+plan["load_bearing"]
+plan.get("stable_within_tested_bounds", [])
+plan.get("untested", [])
+# droppable is retained for compatibility and is empty after finite screening.
 ```
 
-Two rules on using it:
+**Preferences are revisable and scoped.** Use concrete offers or schedules to explore
+tradeoffs. Preserve partial rankings and plausible weight ranges when a point value is
+premature. A user may adopt a preference for this decision without making a standing
+second-order commitment. `PreferenceRevision` records exploratory, decision-specific,
+standing or suspended scopes. Reuse explicit adoption within scope without asking again.
+A revision keeps history and invalidates dependent reports through `DecisionSession`.
+Never relax a non-negotiable constraint to force a winner.
 
-- **Weight has three prerequisites and they are never screenable:**
-  the goal, the time scale, the comparison set (`WEIGHT_PREREQUISITES`). A factor has no weight
-  until there is an objective function to weigh it against, so `overturn_test` *raises*
-  `ContractIncomplete` rather than inventing a baseline. Ask `plan["required"]` first; screening
-  only becomes possible once a conclusion exists to test against.
-- **There is no standard answer for weight; it depends entirely on the objective function.**
-  The same factor genuinely goes both ways: for n=50, "exact computation or the famous 37%?"
-  changes the answer (19 vs 18) and is load-bearing; for n=45 both give 17, so the question is
-  dropped and asking it wastes the user's time. Never carry a fixed list of "important
-  factors" between conversations — screen against *this* goal.
-
-**A refusal counts as an overturn.** If setting a factor makes the problem uncalibrated, that
-factor is emphatically load-bearing, not neutral.
-
-**The user owns the goal; you only help them see it.** You may coach — lay out what a goal
-would have to specify, offer candidate framings, point out that "the best job" is not yet an
-objective function. You may not decide it. `classify_job` reads contract fields, never prose,
-for exactly this reason: the moment the AI picks the objective function, every weight downstream
-is the AI's opinion wearing the user's name.
+**Host evidence boundary.** Only the authorized host can supply interaction-event IDs.
+A solver must never manufacture adoption. Record origin separately from acceptance:
+measurements, user reports, external sources, model proposals and derived inputs differ.
+"Just assume it" creates `scenario_branch`, with proposed, scenario-only overrides.
+User adoption establishes intended use, not empirical truth. Preserve source references,
+uncertainty, scope and derivation dependencies through copying and export.
 
 ### Stage 2 — Verification: reject premises that break the mathematics
 
@@ -232,45 +208,34 @@ except AuditFailure as e:
 
 Re-ask **only** `e.fields`. Then re-run. This is the Stage 4 → Stage 1 loop.
 
-### Stage 5 — Reporting: the zero-order truth, and permission to stop
+### Stage 5: report the computation and readiness separately
 
 ```python
-print(report.to_markdown())          # all six Output Contract fields + Execute
+print(report.to_markdown())
+report.computation
+report.assumption_support
+report.readiness
+report.execution_note
 ```
 
-Report `report.action` as the recommendation — it is the decision as an instruction, not the
-raw dict. Always show the formula name and `citation` next to the number, and state the
-assumptions that make the action valid, because the answer is **not transferable** to a
-different assumption set.
+Show the computed action, formula, citation, assumptions, numerical termination,
+required-check coverage, sensitivity domain and readiness together. `exploratory`
+means a scenario; `conditional` means required support or uncertainty treatment remains
+unresolved; `ready_under_stated_conditions` is scoped and revisable; `blocked` means
+there is no usable recommendation under the current checks or feasibility conditions.
+Readiness never authorizes an external action.
 
-Report the answer as a **zero-order expansion**, not a bare number — this is what
-lets a user see which assumptions are load-bearing:
+A Bellman contraction diagnostic is not convergence. Report the returned-value residual
+and its value-error bound, with the finite bounded discounted MDP assumptions. A
+budget-limited result remains provisional. Same-model corrections may change actions.
+Do not turn `analysis_is_complete` into a universal stopping instruction: it is deprecated.
 
-```python
-report.zero_order        # zero-order: the trunk
-report.corrections       # first-order correction: refine it, cannot overturn it
-report.overturns         # overturn: a DIFFERENT trunk — this is the flip test's answer
-report.dropped           # dropped: thrown away by dominant balance
-report.hard_constraints  # hard constraint: conditions under which no trunk exists
-```
-
-`corrections` vs `overturns` is decided structurally, not by size: a term is a correction when
-it refines the same calibrated model, an overturn when it moves to a different row of the
-corpus decision table. **Do not re-sort them by magnitude** — for n=50 the +6% term is a
-correction and the −33% term is an overturn. Presenting recall or rejection as a "small
-adjustment to the 37% rule" is precisely the cargo-cult error this system exists to prevent.
-
-Then answer the question users actually have: *may I stop thinking about this?*
-
-```python
-report.analysis_is_complete    # bool — no further computation can improve this
-report.assumptions_to_confirm  # facts to check; wrong ones change the decision
-report.execution_note          # the above, in a sentence you can say out loud
-```
-
-`analysis_is_complete` being `True` means the remaining risk is **factual, not analytical**:
-more deliberation cannot help, only checking the world can. Say so. Telling a user they may
-stop analyzing and start executing is part of the deliverable, not a courtesy.
+Explain what could reopen the decision: preference revision, changed observations,
+changed deadline, violated feasibility or model conditions. If further investigation
+has a cost, describe the tradeoff and record a scoped choice under residual uncertainty.
+Do not claim that uncertainty disappeared. Ask only questions connected to a consequential
+uncertainty, model choice, feasibility or preference. When a supported explicit domain
+establishes equivalence, avoid demanding unnecessary precision.
 
 ## Minimal Socratic elicitation loop
 
@@ -309,14 +274,6 @@ Two of these are **hard-required** by `missing_fields()` and are the ones most o
 `payoff_diverges` (row 7) gates every stopping problem — a diverging payoff means *no optimal
 stopping rule exists*, not a smaller cutoff — and `markov_verified` (row 19) gates every
 sequential problem. Ask them; do not assume the benign answer.
-
-**Row 18 needs one more check than the others before you write it down.** Asking "is the decision
-maker risk-averse, risk-neutral, or risk-prone?" and getting an answer only ever returns a
-first-order report of the current inclination — not a standing appointment of which inclination
-governs this class of decision. The two are different events and this table cannot tell them apart
-for you; if Stage 0 ran on this case, check whether its output already flagged `risk_attitude` as a
-prohibited construct (an evaluative preference that has not cleared second-order volition) before
-treating the row-18 answer as settled (see Stage 0 above, and `stage0/SKILL.md` §5.2, §6, §9).
 
 **Combinations the corpus does not cover.** Some assumption sets are individually valid but
 jointly uncalibrated; `dispatch()` raises `UnclassifiedVariant` rather than picking whichever
@@ -378,11 +335,11 @@ while (q := next_question(contract)) is not None:
 report = dispatch(Job.STOPPING, contract)
 
 # Stage 5 — report.
-print(report.to_markdown())          # six Output Contract fields + Execute
-report.action                        # the decision as an instruction
+print(report.to_markdown())          # computation, audit coverage and readiness
+report.action                        # scoped model result
 report.decision, report.formula_name, report.citation
 report.numeric, report.assumptions, report.sensitivity, report.audit
-report.analysis_is_complete          # may the user stop analyzing?
+report.readiness                    # scoped status, reasons and reopening conditions
 report.assumptions_to_confirm        # ...once these facts are checked
 ```
 
@@ -412,119 +369,26 @@ while True:
 > `AuditFailure` means a validation invariant failed. Report the failed invariant IDs. Do not present the decision as actionable.
 > If `import dominant_circuit` fails, say that the engine is unavailable and that any figure you give is unaudited. Do not compute silently in prose.
 
-## Worked interaction: vague input to executable answer
+## Worked interaction: exploration with explicit assumptions
 
-What the stages look like in practice. Note where the AI refuses.
+> **User:** I have 50 interviews. I can rank candidates. There is no recall.
+> **Host:** Can an offer be declined? That changes the applicable stopping rule.
+> **User:** Just assume they accept for now. I want the best of these 50.
 
-> **User:** I've been interviewing people for a role and I want to hire the best one. When should I stop?
+Record `n=50`, fixed-known horizon, ordinal information, best-or-nothing payoff,
+`recall_allowed=False`, and finite payoff. The proposed `rejection_prob=0.0` is a
+scenario input, not an observation. The scenario computes the classical finite-n rule.
 
-**Stage 0 — pass through, and say why.** This case arrives already shaped: there is a stream of
-candidates, they arrive in an order, and the decision is when to stop. Job, horizon type,
-information type and payoff shape are all determinable by asking, so Stage 0 hands off immediately
-and does not manufacture work. "Vague" is not the same as "unstructured" — this user is vague about
-*values*, not about *shape*. Compare the second transcript below, which is the other case.
-
-**Stage 1 — halt and interrogate.** No number yet. `classify_job` cannot even name the job
-from "hire the best one," and `next_question` asks for the horizon:
-
-> **AI:** Before I can compute anything I need three boundary conditions. First: is the total
-> number of candidates fixed and known, fixed but unknown, or open-ended?
->
-> **User:** I have 50 scheduled. That's all of them.
->
-> **AI:** Second: as each candidate finishes, can you only rank them against the ones you've
-> already seen, or do you have an absolute score for each on a scale you trust?
->
-> **User:** Just relative. I can say who was better, not put a number on it.
->
-> **AI:** Third: once you pass on a candidate, can you go back to them later? And can a
-> candidate you offer turn *you* down?
->
-> **User:** No going back. And assume they'd accept.
->
-> **AI:** Last one, and it matters more than it sounds: does the value of the outcome grow
-> without bound the longer you keep searching?
->
-> **User:** No, I just want the best of the 50.
-
-Contract complete: `horizon=FIXED_KNOWN, n=50, information=ORDINAL,
-payoff=BEST_OR_NOTHING, recall_allowed=False, payoff_diverges=False`.
-**Nothing was inferred.** "That's all of them" was confirmed as fixed-and-known, not assumed.
-
-**Stages 2–4 — `dispatch(Job.STOPPING, contract)`.** Preconditions pass. The assumption tuple
-matches exactly one row of c01's Decision Table, so the exact finite-\(n\) argmax runs (c01
-§4.1), not the asymptotic 37% shortcut. INV-1 confirms the constant is locked to the elicited
-set; INV-6 confirms finite expectation. Audit passes.
-
-**Stage 5 — report and release.**
-
-> **AI:** **Reject the first 18 of 50 outright, whatever they look like, while recording the
-> best you see. From #19 onward, accept the first one that beats every candidate in that
-> opening block. If none does, you are forced to take #50.**
->
+> **Host:** Conditional model result: {'look_until': 18, 'leap_from': 19, 'n': 50}.
+> In this scenario the rule rejects the first 18 of 50 while recording the best.
+> From #19 onward, it accepts the first candidate better than that opening group.
 > Formula: Look-Then-Leap (exact finite-n), `c01 §4.1`. r\* = 19, P = 0.3743.
->
-> This holds *because* n is fixed at 50, you have ordinal information only, there is no
-> recall, and no rejection risk. Change any one of those and the number changes — with recall
-> at 50% it would be 0.61·n, not 0.37·n.
->
-> **You can stop analyzing.** No further calculation improves this. Two things move the
-> number if they are wrong: whether you can really not go back to a passed-over candidate,
-> and the exact-vs-asymptotic computation (the famous "37% rule" would have said 18 here;
-> the exact finite-*n* argmax says 19, and for n=50 exact is worth having). If the recall
-> answer changes, come back — the cutoff moves a lot.
+> Rejection risk remains unresolved; this calculation does not establish readiness.
 
-Note the AI reports **19**, not `round(50/e) = 18`. The 37% figure is the asymptotic limit,
-not the answer for a finite pool; the library computes the exact argmax by default and the
-host must not "round it to the famous number."
-
-Contrast the refusal path. Had the user said "I'd let the pool run until I find someone, and
-each round I double down on the search budget," `payoff_diverges=True` yields
-`NoOptimalStoppingRuleExists` and the correct answer is not a later cutoff but:
-
-> **AI:** There is no optimal stopping rule for this problem. When the expected payoff at the
-> best conceivable stopping point diverges, no threshold caps optimal behavior at a finite
-> point, and "always continue" leads to ruin (c01 §8). This needs a bankroll-fraction
-> framework such as Kelly, not a stopping rule. I am not going to give you a cutoff number.
-
-### The other case: Stage 0 does not hand off
-
-> **User:** Signups are up 40% since the redesign but monthly actives haven't moved at all.
-> Marketing wants more budget. What do we do?
-
-There is no stream to stop, no set to rank, and no state space — `classify_job` would raise, and the
-elicitation questions above are unanswerable as posed. **Do not ask them.** Go to Stage 0.
-
-What it returns is not a decision and not a number:
-
-> **AI:** Here is the model I am going to commit to, so you can see what it rules out. Monthly actives
-> is a **stock**; signups are an inflow and churn is an outflow. An inflow rose 40% and the stock did
-> not move, so on this model the outflow rose by very close to the same amount. That is the only way
-> a stock stays flat under a rising inflow.
->
-> **Go measure this first: churn among the accounts created after the redesign, separately from
-> everyone else.** Not total churn — blended churn averages the new cohort into a much larger old
-> one and will look nearly unchanged no matter what happened.
->
-> This commits me to one stock with one inflow and one outflow. It forbids me from telling you the
-> redesign worked or failed — you cannot tell those apart yet, because a 40% inflow rise with a flat
-> stock is exactly what both "we acquired worse-fit users" and "we broke week-one activation" look
-> like from the outside. It would be overturned if new-cohort churn is flat and the stock is still
-> flat: then my one-stock model is wrong and something is holding actives down independently.
->
-> One rival model is live and I am not choosing it for you. If signups and actives are the same
-> people counted at different times, this is one stock; if the redesign brought in a population that
-> was never going to be monthly-active, the two series measure different things and no churn number
-> reconciles them. The cohort data separates these.
->
-> I am not answering the budget question. Nothing here identifies a spend level, and the boundary —
-> whether "the system" is the acquisition funnel, or the funnel plus the activation experience it
-> feeds — is a choice you have to make. More budget is the right move under the first boundary and
-> the wrong one under the second.
-
-No Stage 1 follows. The correct next event is a measurement, not a question. If the series come back
-and the shape is then determined, the case re-enters at Stage 1 — and only then does anyone ask
-about \(n\).
+If rejection later becomes a supported 50% input, recompute under its calibrated row.
+Do not change the historical scenario or silently reuse its readiness. For a fuller
+preference exploration, adoption and reopening flow, run
+[examples/reflective_decision.py](examples/reflective_decision.py).
 
 ## Validation invariants (cross-cluster)
 
@@ -534,7 +398,7 @@ about \(n\).
 4. **Bellman fixed point.** After convergence, \(U(s) = \max_a Q(s,a)\) must hold to within declared tolerance \(\delta\); Bellman residuals must shrink by a factor no worse than \(\gamma\) per sweep.
 5. **Range-fixed weights.** No scaling constant \(k_i\)/\(\lambda_i\) may be recorded without an attached, explicit attribute range; reusing one elicited under a different range is invalid.
 6. **Finite-expectation precondition.** No stopping rule may be applied to a payoff structure with diverging expected value at the best stopping point.
-7. **Overdetermination.** Elicitation must gather more indifference/trade-off equations than free parameters so inconsistency is detectable, not just assumed away.
+7. **Overdetermination.** Report coverage when available. INV-7 is advisory; it neither proves empirical independence nor gates unrelated computations.
 
 ## Anti-cargo-cult rules
 
@@ -545,7 +409,3 @@ about \(n\).
 - Never skip dominance screening before running full preference elicitation on a candidate set.
 - Never apply a Bellman/MDP method to a non-Markov process without first re-deriving or augmenting the state to restore the Markov property.
 - Never report a decision without its audit results; a passing computation with a failing invariant is not a valid answer.
-- Never start Stage 1 elicitation on a situation whose shape is undetermined. The questions presuppose the structure, so the user will answer them and the number will be real and irrelevant.
-- Never let Stage 0 fill a numeric field. It hands over four classifying fields; a value it supplies is an assumption the user never made, wearing a contract's clothes.
-- Never treat a Stage 0 fork as an answer. Candidate boundaries go to the user; picking one silently decides the outcome before any mathematics runs.
-- Never infer a causal claim from the user's observational data because the correlation is strong. If their own graph does not identify the effect, say which measurement would — that *is* the deliverable.

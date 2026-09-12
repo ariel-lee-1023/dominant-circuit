@@ -9,24 +9,16 @@ document wins.
 
 ## Purpose
 
-When a human sits down with this AI, they are not chatting with a friend. They are plugging
-their problem into a mathematical centrifuge. The interface is designed to strip away the
-user's cognitive biases and force them to look at the raw physical constants of their decision.
-
-The corollary, and the thing most easily lost in maintenance: **the refusals are the product.**
-An AI that always returns a number is worthless here, because most vaguely-posed decision
-questions do not have one. Every `raise` in this library is a designed output, not an error
-path.
-
-That corollary has one deliberate exception, and it is Stage 0. See below: the centrifuge only
-works on a sample that has already been put in a tube, and putting it in the tube is a different
-job with the opposite default.
+The product connects a user's situation to a supported decision model, valid computation,
+traceable assumptions and an inspectable readiness assessment. Useful exploration can
+continue under explicitly scoped assumptions. Refusal is appropriate when the requested
+model is unsupported, but blanket refusal is not a measure of decision quality.
 
 ## Stage ownership
 
 | Stage | Owner | Code |
 |---|---|---|
-| 0. Structure | **Host AI** | none — prose skill, `stage0/SKILL.md` |
+| 0. Revisable investigation, when needed | **Host AI**, deterministic state validation | `core/investigation.py` |
 | 1. Elicitation | **Host AI** | `core/elicit.py` |
 | 2. Verification | Library | `core/verify.py`, `engines/multiobjective.py` |
 | 3. Computation | Library | `core/dispatch.py` → `engines/` |
@@ -39,96 +31,57 @@ computes in prose instead of calling the library has defeated the entire design.
 
 ---
 
-## Stage 0 — Structure (the model you must bring)
+## Stage 0: a revisable investigation
 
-Stages 1–5 begin with a problem already reduced to job / horizon / information / payoff. Nothing in
-them produces that reduction. For a long time the design simply assumed the user would arrive with
-it, which is false often enough to matter: the most common real opening is not "rank these five
-offers" but "our support queue got slower and hiring didn't help."
+[Stage 0](stage0/SKILL.md) supports uncertain framing before, and when needed after,
+a solver handoff. Its [shared-schema API](docs/STAGE0.md) extends `DecisionDescription`
+and `ConsequentialInput`. It does not introduce a second solver or perform dialogue.
 
-### Why this cannot be folded into Stage 1
+The host proposes a useful account even if the user has no model ready. Explicitness
+helps people challenge an account, but correction also requires feasible evidence,
+retained counterexamples, a return cycle and willingness to revise consequential
+boundaries. An explicit wrong account is not automatically cheap or self-correcting.
 
-Stage 1 interrogates *within* a structure. It asks whether \(n\) is fixed, whether recall is
-possible, whether information is ordinal — every one of those questions presupposes that we already
-know there is a stream to stop. Ask them of an unshaped situation and you get answers, which is
-worse than getting none: the user will supply an \(n\) for a problem that turns out not to have a
-stream at all, and Stages 2–4 will faithfully verify, compute, and audit a number that answers a
-question nobody has established is the right one. Auditing cannot catch this. The invariants check
-that the arithmetic is consistent with the contract; they cannot check that the contract is about
-the user's actual problem.
+A boundary identifies included, external and unknown factors, the observations it
+makes visible and a consequential omission. In a support queue, training can reduce
+capacity while unresolved defects create repeat demand. These may be complementary,
+competing or unresolved mechanisms; no account wins merely because it came first.
+The host records accessible possible findings, their implications and an inconclusive
+case before interpreting returned evidence. A plan is separate from actual collection.
 
-### Why the refusal default inverts here
+Workflow and model assessment are separate. Being ready to observe does not establish
+a mechanism, a solver-ready contract or permission to intervene. Actual reports retain
+source events, context, missingness and selection limits. Review compares returned
+findings with the earlier plan, records the reasons for changes, and keeps old
+interpretations available. Boundary, mechanism and measurement changes invalidate
+relevant downstream analyses and handoffs. A changed goal versions the goal; it does
+not count as causal falsification. Unmodelled episodes and participant disagreement
+remain available without requiring diagram editing or blanket agreement.
 
-This is the single most counter-intuitive decision in the repository, and the one most likely to be
-"fixed" by a future contributor — including a future me — in the name of consistency. It must not be.
+Meadows, Pearl, Page and Frankfurt remain optional intellectual resources. Select
+analysis from the question and its dependencies. Static comparisons need no dynamics.
+A named framework cannot certify identification or stability: formal work needs its
+specified target/model, applicable method, observables where relevant and verifiable
+analysis. This library implements no such verifier; external claims remain unverified.
 
-Stages 1–5 refuse because their user asked for a number, and a user who receives a wrong number
-acts on it. Silence leaves them where they were; a spurious 37% moves them somewhere worse. Refusal
-is strictly protective.
+A useful next observation can finish a turn without a number. Pause for inaccessible
+evidence, disproportionate effort or user deferral, preserving a reopening trigger.
+Keep the six output fields (starting model, observation instruction, commitments,
+prohibitions/limits, overturn conditions, rival models), while keeping detailed history
+behind them. A model limit is an unanswered question that may warrant a revision,
+not a prohibition on the user's inquiry. Contract handoff binds current goal/model
+revisions and engine prerequisites, with reasons to return to Stage 0. Readiness for
+a recommendation remains the existing separate assessment.
 
-Stage 0's user is in the opposite position. They asked for **a direction to look**, and they arrived
-with no declared boundary and no named structure — that is *why* they came. Refusing there does not
-return them to neutral, because there is no neutral to return to: they will go on looking, using the
-unexamined model they walked in with. The error asymmetry runs the other way.
-
-The justification is in the sources, not in taste:
-
-- **Pearl.** "No causes in, no causes out." A causal conclusion is never a property of the data; it
-  is a property of the data plus a causal model supplied from outside it. There is no order of
-  operations in which the model comes second.
-- **Meadows.** A system boundary is a modelling decision, not a discovered fact. Deciding what to
-  measure has already committed to one.
-- **Page.** The model class fixes which answers are expressible. An equilibrium model cannot return
-  "it cycles forever," so choosing one has silently answered a question that was never asked.
-
-Taken together: prior commitment is unavoidable. The only available choice is **deliberate or
-inherited**. So Stage 0 commits — and pays for the privilege by making the commitment inspectable.
-
-### What it emits
-
-Six required fields, of which the second may never be omitted: starting model · **observation
-instruction** · commitments · prohibitions · overturn conditions · rival models. A committed model
-that does not say what would overturn it is not a model, it is a preference.
-
-Twelve verdicts, deliberately unequal in force:
-
-| Class | Count | Force |
-|---|---|---|
-| True refusals | 6 | Refuse a specific over-reaching *claim*, never the request. `NotIdentifiable` still hands back the graph and says which measurement would fix it. |
-| Forks | 3 | **May never terminate the stage.** A `BoundaryFork` lays out candidate boundaries and prices each, because the choice is the user's to make, not ours to make quietly. |
-| Conditional findings | 3 | Terminal only with a resolving measurement attached: "undetermined, and here is what would determine it." |
-
-### The handoff, and why it is all-or-nothing
-
-Stage 0 fills exactly four fields — `job`, `horizon`, `information`, `payoff` — and leaves **every
-numeric field `None`**, naming each in the observation instruction as something the host must still
-elicit. Filling one here would smuggle an unelicited assumption past the very check this repository
-exists to enforce, which is the failure named at the top of this document.
-
-All four must classify before the case moves to Stage 1. If one does not, the case stops with its
-six fields and a verdict. Partial handoff is not a lenient version of handoff; it is the specific
-failure described above, since Stage 1 would immediately begin demanding numbers for a shape that is
-still undetermined.
-
-Mapping onto the five-part `OutputReport` is direct: `zero_order` is the starting model,
-`corrections` are refinements to it, `overturns` are the rival models, `dropped` holds detail that
-cannot change where to look, `hard_constraints` are the true refusals, and
-`analysis_is_complete` means *stop reasoning and start observing* — not *the answer is in*.
-
-### Its limits, stated plainly
-
-Stage 0 is prose. There is no structure module, no graph algorithm, and no code enforcing any of
-it; the drift guards in `tests/test_stage0.py` check that the document stays internally consistent
-and honestly cited, not that a host obeyed it. The DAG it reasons over is user-supplied and can
-never be verified true — only what is identifiable *under* it, which is why assumption provenance is
-mandatory rather than decorative. Meadows' higher leverage ranks (rules, self-organization, goals,
-paradigms) are not computable and are reported as hard constraints; Stage 0 never names a direction
-to push. And it emits no numbers at all.
+[The support-queue example](examples/stage0_investigation.py) exercises the return cycle
+and contrasts it with direct offers. The [follow-up evidence record](docs/STAGE0-RELEASE.md)
+separates deterministic checks, synthetic review, live-host trials and human signoff.
 
 ## Stage 1 — Elicitation (the Socratic interrogation)
 
-Humans are naturally vague; they want to talk about "feelings" and "vibes." The AI's first job
-is to **refuse to compute until the boundary conditions are locked in.**
+The host clarifies the objective and consequential unknowns. It can preserve unresolved
+interpretations or compute explicitly labelled scenarios without presenting them as ready
+recommendations.
 
 - **Mechanism.** The AI acts as a strict investigator. If the human says "I want the best job,"
   the AI halts and demands parameters.
@@ -152,8 +105,9 @@ Before a single equation is loaded, the AI must ensure the user isn't trying to 
 of physics.
 
 - **Mechanism.** The AI runs the parameters against hard mathematical constraints.
-- **Checkpoints.** If the user wants an additive utility formula, the AI forces them through
-  the flip test to prove their variables are actually independent. If the user is analyzing a
+- **Checkpoints.** If the user wants an additive utility formula, the host records scoped
+  independence evidence and checks the appropriate utility form. A flip test alone
+  does not prove empirical independence. If the user is analyzing a
   game with diverging expected payoffs (a double-or-nothing bet that goes on forever), the AI
   rejects the premise entirely.
 - **Goal.** To prevent "cargo cult" computing, where the math looks right but the underlying
@@ -176,8 +130,8 @@ Once the boundary conditions are set, the conversation stops and the physics eng
 
 - **Mechanism.** The Python backend routes the validated inputs to the correct zero-order
   formula.
-- **Checkpoints.** It drops the negligible terms and focuses solely on the dominant causal
-  variables. It might apply the Look-Then-Leap threshold (\(r \approx n/e\)) for stopping
+- **Checkpoints.** It checks the selected model and computes within its stated capability
+  boundary. Untested factors are never silently declared negligible. It might apply the Look-Then-Leap threshold (\(r \approx n/e\)) for stopping
   problems, or run Bellman backups
   \(U^{*}(s) = \max_a\left(R(s,a) + \gamma\sum_{s'}T(s'|s,a)U^{*}(s')\right)\)
   for sequential planning.
@@ -231,35 +185,16 @@ except AuditFailure as e:
 INV-1…INV-6 are enforced. **INV-7 (overdetermination) is conditional and non-blocking** — a
 passing report does not prove the elicitation was overdetermined. See `AGENTS.md`.
 
-## Stage 5 — Reporting (the zero-order truth)
+## Stage 5: reporting and decision readiness
 
-The AI delivers the unvarnished conclusion to the human.
+A report separates the computed result, numerical evidence, assumption support,
+sensitivity and recommendation readiness. All output formats use the same structured
+readiness state. A passing arithmetic audit cannot establish that further deliberation
+has no value. `analysis_is_complete` is a deprecated scoped-readiness alias.
 
-- **Mechanism.** A clean, formatted output that separates the signal from the noise.
-- **Checkpoints.** The AI explicitly lists the exact mathematical formula used, the recommended
-  action, and — crucially — the physical assumptions that make this action valid. It also tells
-  the user when they are allowed to stop analyzing and start executing.
-- **Goal.** To give the user a mathematically optimal conclusion that they can actually trust
-  and act upon.
-
-**Entry points.** `report.to_markdown()` renders all six Output Contract fields plus an
-`## Execute` section. Report `report.action` as the recommendation — the decision as an
-instruction, not the raw dict. Always show `formula_name` and `citation` beside the number, and
-state the assumptions, because **the answer is not transferable to a different assumption set.**
-
-Then answer the question the user actually has — *may I stop thinking about this?*
-
-```python
-report.analysis_is_complete    # no further computation can improve this
-report.assumptions_to_confirm  # facts to check; wrong ones change the decision
-report.execution_note          # the above, in a sentence you can say out loud
-```
-
-`analysis_is_complete` means the remaining risk is **factual, not analytical**: more
-deliberation cannot help, only checking the world can. Telling a user they may stop analyzing
-is part of the deliverable, not a courtesy.
-
----
+The host reports conditions of use and reopening triggers, and helps the user decide
+whether further observations justify their cost. Execution requires the user's separate
+authority. See [docs/REMEDIATION.md](docs/REMEDIATION.md) for schema and migration details.
 
 ## Weight and the overturn test
 
@@ -287,54 +222,25 @@ The three prerequisites (`WEIGHT_PREREQUISITES`) are therefore not screenable:
 `overturn_test` raises `ContractIncomplete` before these are stated, rather than inventing a
 baseline. Without them no factor has a weight yet.
 
-**Stating `risk_attitude` is not the same event as settling it.** `QUESTION_BANK` asks for it
-as a fact ("Is the decision maker risk-averse, risk-neutral, or risk-prone?"), and a fact is all
-an answer in the moment can supply — a first-order report of the current inclination, not a
-standing appointment of which inclination governs this class of decision. Frankfurt's second-order
-volition is exactly the missing step between the two: not a stronger preference, but an explicit,
-forward-standing act of naming which desire acts, built to survive being contradicted by a louder
-desire at the moment of choice. `dominant-circuit` itself has no mechanism to tell the difference —
-Stage 1 takes the contract field as given, by design (`classify_job` reads fields, never prose). So
-the check has to happen before the field is written, which is Stage 0's job
-(`stage0/SKILL.md` §5.2, §6 field 4): an evaluative construct that has not cleared second-order
-volition is named as a prohibition, not silently promoted to a solver input because it was stated
-confidently or stated twice.
-
 **The test for weight is overturn capacity.** Do not ask "what other details have I not
 considered?" — details are infinite and the question never terminates. Ask the one question
 that does:
 
 > Is the presence or absence of this factor sufficient to overturn my current conclusion?
 
-If it is not sufficient, it is a high-order perturbation — a small quantity — so throw it out of
-the dominant equation immediately.
+A finite probe set only describes its tested bounds. No valid probe yields `untested`.
+Unsupported or failed probes are coverage limitations. `elicitation_plan` keeps
+`droppable` empty and separates `load_bearing`, `stable_within_tested_bounds` and
+`untested`. A model change and an action change are separate observations.
 
-```python
-plan = elicitation_plan(contract)
-plan["required"]      # no conclusion exists yet; ask these
-plan["load_bearing"]  # passed the overturn test
-plan["droppable"]     # failed it — do not ask
-```
-
-`overturn_test` answers by *recomputing*, not by heuristic: it re-dispatches the contract under
-each corpus-calibrated alternative and compares decisions. A refusal counts as an overturn — if
-setting a factor makes the problem uncalibrated, the factor is emphatically load-bearing.
-
-This is why the library can screen honestly instead of guessing. The same factor goes both ways:
-
-| Pool size | exact | asymptotic | Overturn? | Verdict |
+| Pool size | exact | asymptotic | Action changed? | Verdict |
 |---|---|---|---|---|
-| n = 50 | 19 | 18 | **yes** | load-bearing — worth a question |
-| n = 45 | 17 | 17 | no | dropped — throw it out |
-| n = 102 | 38 | 38 | no | dropped — throw it out |
+| n = 50 | 19 | 18 | yes | changes_decision |
+| n = 45 | 17 | 17 | no | stable within these two computations |
+| n = 102 | 38 | 38 | no | stable within these two computations |
 
-"Should I use the exact computation or the famous 37% rule?" is a real question at n=50 and a
-waste of the user's attention at n=45. No fixed list of "important factors" survives between
-conversations; each must be screened against the goal actually stated.
-
-This is also the answer to the other half of seeing the whole board — knowing when to stop
-looking. `plan["required"] == []` with an empty `load_bearing` means there is nothing left worth
-asking, which is a computed result rather than a judgement call.
+This table compares the exact and asymptotic cutoff for the specified classical model.
+It proves nothing about recall, rejection or factors without completed probes.
 
 ## The zero-order expansion
 
@@ -344,9 +250,9 @@ single number, which is what makes the perturbation structure visible instead of
 | Order | Label | Meaning |
 |---|---|---|
 | `ORDER_ZERO` | zero-order | The trunk. What the dominant terms alone give. |
-| `ORDER_FIRST` | first-order correction | Refines the trunk. **Cannot overturn it.** |
+| `ORDER_FIRST` | first-order correction | Same model; may change the selected action. |
 | `ORDER_OVERTURN` | overturn | Not a correction — a *different* trunk. |
-| `ORDER_DROPPED` | dropped | Thrown away by dominant balance as having no causal control. |
+| `ORDER_DROPPED` | dropped | Alternatives removed by dominance under the stated monotonicity assumptions. |
 | `ORDER_HARD` | hard constraint | No trunk exists. A veto, never a small quantity. |
 
 **The classification is structural, never a magnitude threshold.** A term is a *correction*
@@ -377,8 +283,8 @@ Each engine's trunk is a real quantity from the corpus, not a label:
   interaction term is the correction.
 - **Engine C** — the myopic action at \(\gamma = 0\). The Bellman equation is itself a series in
   \(\gamma\); the discounted future terms are the corrections, and residuals shrinking by
-  \(\le \gamma\) per sweep (INV-4) is exactly why the series converges and later terms cannot
-  overturn the trunk.
+  \(\le \gamma\) per sweep (INV-4) is a contraction diagnostic. Completion requires the residual
+  criterion, and future rewards can change the preferred action.
 
 This also gives the hard constraint its precise place. "The perturbation series need not
 converge" is not a metaphor here: when the
@@ -387,10 +293,7 @@ c01 §8 says so formally. The veto is the framework's own boundary, not an excep
 
 ## What this design forbids
 
-Everything above the rule is enforced in code and covered by a test, not merely aspired to. The
-three rows below it are Stage 0 conventions: there is no code to enforce them, because Stage 0 has
-no code. Their guards check that the document keeps saying so — which is weaker, and is the honest
-description.
+Each of these is enforced in code and covered by a test, not merely aspired to.
 
 | Forbidden | Enforcement |
 |---|---|
@@ -405,7 +308,3 @@ description.
 | Returning a decision whose audit failed | `AuditFailure` |
 | Citing a cluster section for a number the corpus doesn't support | `tests/test_corpus.py` |
 | Any I/O or prompting inside `src/` | `tests/test_api.py::test_no_input_calls_in_src` |
-| — *below: document-level guards only* — | |
-| Handing Stage 1 a numeric field Stage 0 invented | Stage 0 fills only the four classifying fields; `tests/test_stage0.py` |
-| Ending Stage 0 on a fork instead of a choice | Forks may not terminate the stage; `tests/test_stage0.py` |
-| Letting an acceptance probe's wording leak into the corpus it tests | `tests/test_stage0.py` |

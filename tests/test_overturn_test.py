@@ -23,7 +23,7 @@ from dominant_circuit.core.elicit import (
 
 
 def _stopping(n=50, **kw):
-    base = dict(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=n,
+    base = dict(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=n,
                 information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
                 payoff_diverges=False)
     base.update(kw)
@@ -43,7 +43,7 @@ def test_weight_is_undefined_before_the_goal_is_stated():
     partial = InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=50)
     with pytest.raises(ContractIncomplete) as ei:
         overturn_test(partial, "recall_allowed")
-    assert "Weight is undefined" in str(ei.value)
+    assert "incomplete" in str(ei.value)
 
 
 def test_the_three_prerequisites_are_never_screenable():
@@ -81,20 +81,21 @@ def test_exact_vs_asymptotic_weight_depends_on_the_pool_size(n, expected_overtur
 
     result = overturn_test(_stopping(n), "exact_finite_n")
     assert result.overturns is expected_overturn
-    assert result.is_small_quantity is (not expected_overturn)
+    assert result.is_small_quantity is False
+    assert result.outcome == ("changes_decision" if expected_overturn else "stable_within_tested_bounds")
 
 
 def test_a_droppable_factor_says_throw_it_out():
     result = overturn_test(_stopping(45), "exact_finite_n")
-    assert result.is_small_quantity
-    assert "high-order small quantity" in result.verdict
-    assert "dominant equation" in result.verdict
+    assert not result.is_small_quantity
+    assert result.outcome == "stable_within_tested_bounds"
+    assert "no discard instruction" in result.verdict
 
 
 def test_a_load_bearing_factor_says_elicit_it():
     result = overturn_test(_stopping(50), "recall_allowed")
     assert result.overturns
-    assert "load-bearing" in result.verdict
+    assert result.outcome == "changes_decision"
     assert result.baseline_decision is not None
 
 
@@ -102,7 +103,7 @@ def test_search_cost_has_no_weight_under_a_best_or_nothing_goal():
     """Not because the number is small — because the factor has zero causal control
     over this objective function. Weight is relative to the goal."""
     result = overturn_test(_stopping(), "search_cost")
-    assert result.is_small_quantity
+    assert not result.is_small_quantity
     assert result.outcomes, "probes must actually have been run"
 
 
@@ -114,7 +115,8 @@ def test_a_refusal_counts_as_an_overturn():
     contract = _stopping(rejection_prob=0.5)
     # adding recall to a rejection contract is uncalibrated (c01 §7) -> refusal
     result = overturn_test(contract, "recall_allowed")
-    assert result.overturns
+    assert result.outcome == "untested"
+    assert result.probes[0]["execution_status"] == "unsupported"
     assert any(outcome == "REFUSED" for _, outcome in result.outcomes)
 
 
@@ -122,7 +124,7 @@ def test_explicit_probes_override_the_defaults():
     contract = _stopping()
     # a probe that changes nothing must not report an overturn
     quiet = overturn_test(contract, "n", probes=[{"n": 50}])
-    assert quiet.is_small_quantity
+    assert quiet.outcome == "stable_within_tested_bounds"
     # ...and one that does must
     loud = overturn_test(contract, "n", probes=[{"n": 9}])
     assert loud.overturns
@@ -132,9 +134,9 @@ def test_unknown_field_does_not_silently_claim_no_weight():
     """Absence of a probe is not evidence of absence of weight, and the verdict
     must say so rather than quietly reporting 'droppable'."""
     result = overturn_test(_stopping(), "risk_varies_with_level")
-    assert result.is_small_quantity          # no overturn demonstrated...
-    assert "No probe defined" in result.verdict   # ...but the reason is stated
-    assert "rather than assuming" in result.verdict
+    assert not result.is_small_quantity          # no overturn demonstrated...
+    assert result.outcome == "untested"   # ...but the reason is stated
+    assert result.probes == []
 
 
 # --- the plan is the answer to "am I done asking?" -------------------------------
@@ -143,9 +145,9 @@ def test_plan_separates_load_bearing_from_droppable():
     plan = elicitation_plan(_stopping(50))
     assert plan["required"] == []
     assert "recall_allowed" in plan["load_bearing"]
-    assert "search_cost" in plan["droppable"]
-    assert set(plan["load_bearing"]).isdisjoint(plan["droppable"])
-    assert "Ask only about `load_bearing`" in plan["note"]
+    assert "search_cost" in plan["stable_within_tested_bounds"]
+    assert set(plan["load_bearing"]).isdisjoint(plan["stable_within_tested_bounds"])
+    assert plan["droppable"] == []
 
 
 def test_plan_shrinks_when_a_factor_loses_its_weight():
@@ -154,7 +156,7 @@ def test_plan_shrinks_when_a_factor_loses_its_weight():
     at_50 = elicitation_plan(_stopping(50))
     at_45 = elicitation_plan(_stopping(45))
     assert "exact_finite_n" in at_50["load_bearing"]
-    assert "exact_finite_n" in at_45["droppable"]
+    assert "exact_finite_n" in at_45["stable_within_tested_bounds"]
     assert len(at_45["load_bearing"]) < len(at_50["load_bearing"])
 
 
@@ -171,12 +173,12 @@ def test_plan_works_for_the_other_two_jobs():
     )
     plan = elicitation_plan(multi)
     assert plan["required"] == []
-    assert set(plan["load_bearing"]) | set(plan["droppable"])
+    assert set(plan["load_bearing"]) | set(plan["stable_within_tested_bounds"]) | set(plan["untested"])
 
     seq = InputContract(
         job=Job.SEQUENTIAL, horizon=Horizon.INFINITE_DISCOUNTED, gamma=0.9,
         markov_verified=True, states=["s0", "s1"], actions=["stay", "go"],
-        reward={("s0", "go"): 1.0, ("s1", "stay"): 2.0},
+        reward={("s0", "go"): 1.0, ("s1", "stay"): 2.0, ("s0", "stay"): 0.0, ("s1", "go"): 0.0},
         transition={("s0", "go"): {"s1": 1.0}, ("s0", "stay"): {"s0": 1.0},
                     ("s1", "go"): {"s1": 1.0}, ("s1", "stay"): {"s1": 1.0}},
     )

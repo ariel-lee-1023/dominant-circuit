@@ -163,16 +163,8 @@ _PINNED_FIELDS = (
     "recall_allowed", "recall_accept_prob", "rejection_prob",
 )
 
-# How solve_stopping's own branch logic reads an unelicited value. INV-1 compares
-# against the same normalization so it flags real contradictions, not silence.
-_CONTRACT_DEFAULTS = {"recall_allowed": False, "rejection_prob": 0.0}
-
-
 def _elicited(contract: InputContract, field_name: str) -> Any:
-    value = getattr(contract, field_name)
-    if value is None and field_name in _CONTRACT_DEFAULTS:
-        return _CONTRACT_DEFAULTS[field_name]
-    return value
+    return getattr(contract, field_name)
 
 
 def _values_match(pinned: Any, elicited: Any) -> bool:
@@ -397,7 +389,7 @@ def _expansion_fixed_known(contract: InputContract, cal: Calibration,
                 order=ORDER_FIRST, label="exact finite-n argmax",
                 value=exact, citation="c01 §4.1",
                 relative_shift=relative_shift(exact, asymptotic),
-                note="refines the trunk for this particular n; cannot overturn it",
+                note="same stopping model, with a finite-n computation that can change the cutoff",
             ))
         terms.append(PerturbationTerm(
             order=ORDER_OVERTURN, label="recall allowed at 50% recall-accept",
@@ -442,6 +434,8 @@ def _expansion_fixed_known(contract: InputContract, cal: Calibration,
 
 
 def solve_stopping(contract: InputContract) -> OutputReport:
+    from ..core.elicit import require_complete
+    require_complete(contract)
     if contract.payoff_diverges is True:
         raise NoOptimalStoppingRuleExists(
             "Expected reward at the best stopping point is infinite. No optimal stopping rule exists.",
@@ -608,7 +602,7 @@ def solve_stopping(contract: InputContract) -> OutputReport:
             raise ValueError("n required for the Threshold Rule (c01 §6)")
         # Built over the actual pool size: position i faces k = n - i remaining.
         schedule = threshold_schedule(n)
-        accepted = threshold_rule(n, contract.scores) if contract.scores else None
+        accepted = threshold_rule(n, contract.scores) if contract.scores is not None else None
         return OutputReport(
             decision={
                 "rule": "threshold_schedule",

@@ -35,7 +35,7 @@ def test_incomplete_contract_cannot_yield_a_number():
 
 def test_diverging_payoff_yields_a_refusal_never_an_answer():
     """payoff_diverges=True yields NoOptimalStoppingRuleExists, never an answer."""
-    contract = InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=10,
+    contract = InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=10,
                              information=Information.ORDINAL,
                              payoff=Payoff.BEST_OR_NOTHING, payoff_diverges=True)
 
@@ -50,7 +50,7 @@ def test_uncalibrated_recall_probability_refuses_rather_than_reusing_061():
     """Changing recall_accept_prob from 0.5 to 0.3 changes the output — to a
     refusal — rather than silently reusing the 0.61 constant."""
     def contract(prob):
-        return InputContract(
+        return InputContract(rejection_prob=0.0,
             job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
             information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
             payoff_diverges=False, recall_allowed=True, recall_accept_prob=prob,
@@ -72,7 +72,7 @@ def test_failed_invariant_raises_and_is_never_buried_in_a_returned_report():
     a contract that elicited no recall, which is exactly the contradiction INV-1
     exists to catch.
     """
-    contract = InputContract(
+    contract = InputContract(rejection_prob=0.0,
         job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
         information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
         payoff_diverges=False, recall_allowed=False,
@@ -89,13 +89,13 @@ def test_dispatch_never_returns_a_report_whose_audit_failed():
     """The pipeline-level version of the same claim: whatever dispatch returns,
     its audit passed. A failing audit leaves by exception."""
     contracts = [
-        InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
+        InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
                       information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
                       payoff_diverges=False),
-        InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
+        InputContract(rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=100,
                       information=Information.ORDINAL, payoff=Payoff.BEST_OR_NOTHING,
                       payoff_diverges=False, recall_allowed=True, recall_accept_prob=0.5),
-        InputContract(job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=40,
+        InputContract(recall_allowed=False, rejection_prob=0.0, job=Job.STOPPING, horizon=Horizon.FIXED_KNOWN, n=40,
                       information=Information.CARDINAL, payoff=Payoff.BEST_OR_NOTHING,
                       payoff_diverges=False),
     ]
