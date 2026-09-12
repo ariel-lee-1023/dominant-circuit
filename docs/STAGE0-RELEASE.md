@@ -97,3 +97,11 @@ represented as a blind acceptance probe; other held-out probe guards remain.
 
 Repository integration does not supply the pending live-host evidence, human domain
 review or package-release signoff. The release evidence gate still reports those gaps.
+
+
+The first GitHub integration run on Python 3.10 failed at syntax checking because
+one renderer f-string reused its enclosing quote inside an expression, a Python
+3.12-only syntax accepted by the local validation environment. The renderer now
+joins those values before formatting, preserving the output on Python 3.10.
+[The failed run](https://github.com/ariel-lee-1023/dominant-circuit/actions/runs/34686042068)
+is retained; subsequent CI results are attached to the corrected PR head.

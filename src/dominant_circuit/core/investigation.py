@@ -1039,8 +1039,17 @@ class Investigation:
                 if self.is_valid(record.ref)
                 else "unresolved (stale assessment)"
             )
+            mechanisms = "; ".join(account.mechanisms)
+            included = ", ".join(account.boundary.included) or "none specified"
+            external = ", ".join(account.boundary.external) or "none specified"
+            omitted = (
+                ", ".join(account.boundary.unknown_or_omitted) or "none identified"
+            )
+            scope = account.assessment_scope or "not yet assessed"
             models.append(
-                f'{account.name}: {"; ".join(account.mechanisms)}. Includes {', '.join(account.boundary.included) or 'none specified'}; external {', '.join(account.boundary.external) or 'none specified'}; omitted/unknown {', '.join(account.boundary.unknown_or_omitted) or 'none identified'}. {account.boundary.omission_check} Assessment: {status}. Scope: {account.assessment_scope or 'not yet assessed'}.'
+                f"{account.name}: {mechanisms}. Includes {included}; "
+                f"external {external}; omitted/unknown {omitted}. "
+                f"{account.boundary.omission_check} Assessment: {status}. Scope: {scope}."
             )
             if account.boundary.visible_observations:
                 models.append(
